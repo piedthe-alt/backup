@@ -267,19 +267,12 @@ Route::get('/generate-analysis-json', function (Request $request) {
     |--------------------------------------------------------------------------
     */
 
-    return response()->json([
-
-        'success' => true,
-
-        'group' => $groupName,
-
-        'days' => $days,
-
-        'total_products' => count($final['products']),
-
-        'saved_to' => $savePath
-
-    ]);
+    return response()->json(
+        $final,
+        200,
+        [],
+        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+    );
 });
 
 Route::get('/import-db', function () {
