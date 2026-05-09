@@ -13,7 +13,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 
     <style>
         * {
@@ -441,6 +441,155 @@
                 padding: 3px 6px;
             }
         }
+
+        /* Scanner Modal Styles */
+        .scanner-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .scanner-modal.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scanner-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            max-width: 90vw;
+            width: 100%;
+            max-height: 90vh;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .scanner-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .scanner-header h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .scanner-header .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .scanner-header .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .scanner-body {
+            flex: 1;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;
+        }
+
+        #video-canvas {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+        .scanner-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            width: 250px;
+            height: 250px;
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
+            }
+            50% {
+                border-color: var(--success-color);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            }
+        }
+
+        .scanner-footer {
+            padding: 1rem;
+            background: #f8fafc;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .scanner-status {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .scanner-status.scanning {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .scanner-status.success {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .scanner-status.error {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        .spinner-small {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 6px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 
 </head>
@@ -566,12 +715,26 @@
 
                 </form>
 
-                <!-- QR READER -->
-                <div
-                    id="reader"
-                    class="mb-4 d-none"
-                    style="width:100%; max-width:400px;">
-
+                <!-- QR READER MODAL -->
+                <div id="scanner-modal" class="scanner-modal">
+                    <div class="scanner-container">
+                        <div class="scanner-header">
+                            <h5><i class="fas fa-barcode me-2"></i>Scanner QR/Barcode</h5>
+                            <button type="button" class="close-btn" onclick="stopScanner()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="scanner-body">
+                            <canvas id="video-canvas"></canvas>
+                            <div class="scanner-overlay"></div>
+                        </div>
+                        <div class="scanner-footer">
+                            <div class="scanner-status scanning" id="scanner-status">
+                                <span class="spinner-small"></span>Scanning...
+                            </div>
+                            <small class="text-muted">Arahkan kamera ke barcode atau QR code</small>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- PRODUK -->
@@ -841,40 +1004,153 @@
 
     <!-- SCRIPT -->
     <script>
+        // Global scanner state
+        let scannerState = {
+            isRunning: false,
+            lastScannedTime: 0,
+            debounceTime: 1000
+        };
 
         function startScanner() {
+            const scannerModal = document.getElementById('scanner-modal');
+            scannerModal.classList.add('active');
 
-            const html5QrCode = new Html5Qrcode("reader");
-
-            html5QrCode.start(
-
+            Quagga.init(
                 {
-                    facingMode: "environment"
+                    inputStream: {
+                        name: "Live",
+                        type: "LiveStream",
+                        target: document.querySelector('#video-canvas'),
+                        constraints: {
+                            width: { min: 640 },
+                            height: { min: 480 },
+                            facingMode: "environment"
+                        }
+                    },
+                    decoder: {
+                        workers: 2,
+                        debug: false,
+                        readers: [
+                            'code_128_reader',
+                            'ean_reader',
+                            'ean_8_reader',
+                            'code_39_reader',
+                            'code_39_vin_reader',
+                            'codabar_reader',
+                            'upc_reader',
+                            'upc_e_reader',
+                            'i2of5_reader',
+                            'qr_code_reader'
+                        ]
+                    },
+                    locator: {
+                        halfSample: true
+                    }
                 },
+                function(err) {
+                    if (err) {
+                        console.error('Error initializing Quagga:', err);
+                        updateScannerStatus('error', '❌ Gagal membuka kamera. Periksa izin akses.');
+                        return;
+                    }
 
-                {
-                    fps: 10,
-                    qrbox: 250
-                },
-
-                function(decodedText) {
-
-                    document.getElementById('searchInput').value = decodedText;
-
-                    html5QrCode.stop();
-
+                    console.log('Quagga initialized');
+                    Quagga.start();
+                    scannerState.isRunning = true;
+                    updateScannerStatus('scanning', '🔍 Scanning...');
                 }
+            );
 
-            ).catch(err => {
-
-                console.log(err);
-
-                alert('Tidak dapat membuka kamera');
-
-            });
-
+            Quagga.onDetected(onScanSuccess);
+            Quagga.onProcessed(onProcessed);
         }
 
+        function onProcessed(result) {
+            const drawingCtx = Quagga.canvas.ctx.overlay;
+            const drawingCanvas = Quagga.canvas.canvas;
+
+            if (result === null) {
+                return;
+            }
+
+            if (result.boxes) {
+                drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute('width')), parseInt(drawingCanvas.getAttribute('height')));
+                result.boxes.filter(box => box !== result.box).forEach(box => {
+                    Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx);
+                });
+            }
+
+            if (result.box) {
+                Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx);
+            }
+
+            if (result.codeResult && result.codeResult.code) {
+                Quagga.ImageDebug.drawPath(result.line, { x: 'x', y: 'y' }, drawingCtx, { color: 'green', lineWidth: 3 });
+            }
+        }
+
+        function onScanSuccess(result) {
+            const currentTime = Date.now();
+
+            // Debounce: hindari scan duplicate dalam 1 detik
+            if (currentTime - scannerState.lastScannedTime < scannerState.debounceTime) {
+                return;
+            }
+
+            if (result.codeResult && result.codeResult.code) {
+                const scannedValue = result.codeResult.code;
+
+                console.log('Scanned:', scannedValue, 'Format:', result.codeResult.format);
+
+                // Update input dan trigger search
+                document.getElementById('searchInput').value = scannedValue;
+
+                // Update status
+                updateScannerStatus('success', `✅ Berhasil scan: ${scannedValue}`);
+                scannerState.lastScannedTime = currentTime;
+
+                // Auto submit form setelah 1 detik
+                setTimeout(() => {
+                    document.querySelector('form[method="GET"]').submit();
+                }, 1000);
+            }
+        }
+
+        function updateScannerStatus(type, message) {
+            const statusEl = document.getElementById('scanner-status');
+            statusEl.className = 'scanner-status ' + type;
+            statusEl.textContent = message;
+        }
+
+        function stopScanner() {
+            try {
+                Quagga.stop();
+                Quagga.offDetected(onScanSuccess);
+                Quagga.offProcessed(onProcessed);
+                scannerState.isRunning = false;
+
+                const scannerModal = document.getElementById('scanner-modal');
+                scannerModal.classList.remove('active');
+            } catch (err) {
+                console.error('Error stopping scanner:', err);
+                const scannerModal = document.getElementById('scanner-modal');
+                scannerModal.classList.remove('active');
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('scanner-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                stopScanner();
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('scanner-modal').classList.contains('active')) {
+                stopScanner();
+            }
+        });
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
