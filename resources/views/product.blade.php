@@ -69,39 +69,68 @@
             <!-- BODY -->
             <div class="card-body p-4">
 
-                <!-- FORM SEARCH -->
-                <form method="GET" action="/">
+<!-- FORM SEARCH -->
+<form method="GET" action="/">
 
-                    <div class="row g-3 mb-4">
+    <div class="row g-3 mb-4">
 
-                        <div class="col-md-9">
+        <!-- SEARCH -->
+        <div class="col-md-6">
 
-                            <input
-                                type="text"
-                                name="keyword"
-                                id="searchInput"
-                                class="form-control form-control-lg"
-                                placeholder="Scan barcode / cari nama produk..."
-                                value="{{ $keyword ?? '' }}"
-                                autofocus>
+            <input
+                type="text"
+                name="keyword"
+                id="searchInput"
+                class="form-control form-control-lg"
+                placeholder="Scan barcode / cari nama produk..."
+                value="{{ $keyword ?? '' }}"
+                autofocus>
 
-                        </div>
+        </div>
 
-                        <div class="col-md-3">
+        <!-- FILTER GROUP -->
+        <div class="col-md-3">
 
-                            <button
-                                type="submit"
-                                class="btn btn-primary btn-lg w-100">
+            <select
+                name="productgroup"
+                class="form-select form-select-lg">
 
-                                Cari Produk
+                <option value="">
+                    Semua Group
+                </option>
 
-                            </button>
+                @foreach ($productgroups as $group)
 
-                        </div>
+                    <option
+                        value="{{ $group->id }}"
+                        {{ request('productgroup') == $group->id ? 'selected' : '' }}>
 
-                    </div>
+                        {{ $group->name }}
 
-                </form>
+                    </option>
+
+                @endforeach
+
+            </select>
+
+        </div>
+
+        <!-- BUTTON -->
+        <div class="col-md-3">
+
+            <button
+                type="submit"
+                class="btn btn-primary btn-lg w-100">
+
+                🔍 Cari Produk
+
+            </button>
+
+        </div>
+
+    </div>
+
+</form>
 
                 <!-- QR READER -->
                 <div

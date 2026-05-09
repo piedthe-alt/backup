@@ -770,12 +770,7 @@ Route::get('/sales-chart', function (Request $request) {
 Route::get('/', function (Request $request) {
 
     $keyword = $request->keyword;
-
-    /*
-    |--------------------------------------------------------------------------
-    | QUERY PRODUK
-    |--------------------------------------------------------------------------
-    */
+    $productgroup = $request->productgroup;
 
     $query = DB::table('product')
 
@@ -820,12 +815,6 @@ Route::get('/', function (Request $request) {
             'productgroup.name as productgroup_name',
             'supplier.name as supplier_name',
 
-            /*
-            |--------------------------------------------------------------------------
-            | STOCK
-            |--------------------------------------------------------------------------
-            */
-
             DB::raw('
                 COALESCE(
                     SUM(inventory.invin - inventory.invout),
@@ -833,24 +822,12 @@ Route::get('/', function (Request $request) {
                 ) as stock
             '),
 
-            /*
-            |--------------------------------------------------------------------------
-            | BARANG MASUK
-            |--------------------------------------------------------------------------
-            */
-
             DB::raw('
                 COALESCE(
                     SUM(inventory.invin),
                     0
                 ) as total_masuk
             '),
-
-            /*
-            |--------------------------------------------------------------------------
-            | BARANG KELUAR
-            |--------------------------------------------------------------------------
-            */
 
             DB::raw('
                 COALESCE(
@@ -864,7 +841,7 @@ Route::get('/', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | SEARCH
+    | FILTER KEYWORD
     |--------------------------------------------------------------------------
     */
 
@@ -875,22 +852,32 @@ Route::get('/', function (Request $request) {
             $q->where('product.name', 'like', "%{$keyword}%")
                 ->orWhere('product.id', 'like', "%{$keyword}%");
         });
-    } else {
-
-        /*
-        |--------------------------------------------------------------------------
-        | KOSONGKAN HASIL SAAT PERTAMA BUKA
-        |--------------------------------------------------------------------------
-        */
-
-        $query->whereRaw('1 = 0');
     }
 
     /*
     |--------------------------------------------------------------------------
-    | GROUP BY
+    | FILTER GROUP
     |--------------------------------------------------------------------------
     */
+
+    if ($productgroup) {
+
+        $query->where(
+            'product.productgroup',
+            $productgroup
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | KOSONGKAN SAAT AWAL
+    |--------------------------------------------------------------------------
+    */
+
+    if (!$keyword && !$productgroup) {
+
+        $query->whereRaw('1 = 0');
+    }
 
     $products = $query
 
@@ -919,8 +906,21 @@ Route::get('/', function (Request $request) {
 
         ->get();
 
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL GROUP
+    |--------------------------------------------------------------------------
+    */
+
+    $productgroups = DB::table('productgroup')
+
+        ->orderBy('name')
+
+        ->get();
+
     return view('product', compact(
         'products',
-        'keyword'
+        'keyword',
+        'productgroups'
     ));
 });
