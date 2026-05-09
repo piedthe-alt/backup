@@ -264,9 +264,7 @@ Route::get('/ai-analysis', function (Request $request) {
 
             'NAIK'
 
-            :
-
-            (
+            : (
 
                 $trendPercent < -5
 
@@ -309,16 +307,12 @@ Route::get('/ai-analysis', function (Request $request) {
             $stockStatus = 'KRITIS';
 
             $reorderRecommendation = 'SEGERA ORDER';
-        }
-
-        elseif ($estimatedDaysLeft <= 7) {
+        } elseif ($estimatedDaysLeft <= 7) {
 
             $stockStatus = 'MENIPIS';
 
             $reorderRecommendation = 'ORDER NORMAL';
-        }
-
-        else {
+        } else {
 
             $stockStatus = 'AMAN';
 
@@ -381,21 +375,42 @@ Route::get('/ai-analysis', function (Request $request) {
 
     $prompt = "
 
-    Analisis data inventory dan penjualan berikut.
+Anda adalah AI analis inventory toko.
 
-    Fokus:
-    - produk paling laris
-    - stok kritis
-    - slow moving
-    - rekomendasi reorder
-    - barang overstock
-    - tren penjualan
+Jawaban HARUS:
+- singkat
+- padat
+- tanpa pembukaan
+- tanpa kesimpulan panjang
+- tanpa bahasa dramatis
+- langsung ke poin
+- format numbering
 
-    Berikan hasil singkat, jelas, dan profesional.
+FORMAT WAJIB:
 
-    DATA:
+1. NAMA PRODUK
+   - Stock sekarang:
+   - Estimasi habis:
+   - Trend:
+   - Status:
+   - Rekomendasi:
 
-    " . $jsonData;
+2. NAMA PRODUK
+   - dst
+
+Fokus hanya pada:
+- stok kritis
+- produk paling laris
+- trend naik tinggi
+- slow moving
+- overstock
+
+Jangan tampilkan produk normal.
+
+Gunakan bahasa sederhana.
+
+DATA:
+" . $jsonData;
 
     /*
     |--------------------------------------------------------------------------
@@ -487,7 +502,6 @@ Route::get('/ai-analysis', function (Request $request) {
         'analysis' => $result
 
     ]);
-
 });
 
 Route::get('/import-db', function () {
