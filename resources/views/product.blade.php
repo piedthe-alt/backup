@@ -30,17 +30,17 @@
                 <div>
 
                     <h2 class="mb-0">
-                        Daftar Produk
+                        Daftar Produks
                     </h2>
 
                     <small>
-                        Scan barcode atau cari produk
+                        Scan barcode
                     </small>
 
                 </div>
 
                 <!-- MENU -->
-                <div class="d-flex gap-2 flex-wrap">
+                <div class="d-flex gap-2">
 
                     <a href="/ai-dashboard" class="btn btn-warning btn-lg">
                         🤖 AI Analysis
@@ -54,6 +54,7 @@
                         📷 Scan
                     </button>
 
+                    <!-- TAMBAHAN IMPORT DB -->
                     <a href="/import-db" class="btn btn-danger btn-lg"
                         onclick="return confirm('Yakin mau import database? Data lama akan diganti!')">
                         🗄️ Import DB
@@ -69,14 +70,14 @@
                 <!-- SEARCH -->
                 <div class="row mb-4">
 
-                    <div class="col-md-8 mb-2">
+                    <div class="col-md-8">
 
                         <input type="text" id="searchInput" class="form-control form-control-lg"
                             placeholder="Scan barcode / cari nama produk..." autofocus>
 
                     </div>
 
-                    <div class="col-md-4 mb-2">
+                    <div class="col-md-4">
 
                         <button class="btn btn-primary btn-lg w-100" onclick="searchProduct()">
                             Cari Produk
@@ -112,17 +113,40 @@
 
                         </thead>
 
-                        <tbody id="tableBody">
+                        <tbody>
 
-                            <tr>
+                            @foreach ($products as $product)
+                                <tr style="cursor:pointer" data-bs-toggle="modal"
+                                    data-bs-target="#productModal{{ $product->id }}">
 
-                                <td colspan="5" class="text-center text-muted py-5">
+                                    <td>
+                                        {{ $product->id }}
+                                    </td>
 
-                                    🔍 Silakan cari produk terlebih dahulu
+                                    <td>
 
-                                </td>
+                                        <strong>
+                                            {{ $product->name }}
+                                        </strong>
 
-                            </tr>
+                                    </td>
+
+                                    <td>
+                                        {{ $product->productgroup_name }}
+                                    </td>
+
+                                    <td>
+                                        {{ $product->supplier_name }}
+                                    </td>
+
+                                    <td>
+
+                                        Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
+
+                                    </td>
+
+                                </tr>
+                            @endforeach
 
                         </tbody>
 
@@ -303,15 +327,6 @@
 
     <!-- SCRIPT -->
     <script>
-
-        /*
-        |--------------------------------------------------------------------------
-        | DATA PRODUK
-        |--------------------------------------------------------------------------
-        */
-
-        const products = @json($products);
-
         /*
         |--------------------------------------------------------------------------
         | SEARCH PRODUK
@@ -322,131 +337,39 @@
 
             const input = document.getElementById('searchInput');
 
-            const keyword = (
-                customValue
-                ?
-                customValue
-                :
+            const filter = (
+                customValue ?
+                customValue :
                 input.value
-            ).toLowerCase().trim();
+            ).toLowerCase();
 
-            const tableBody = document.getElementById('tableBody');
+            const rows = document.querySelectorAll(
+                '#productTable tbody tr'
+            );
 
-            /*
-            |--------------------------------------------------------------------------
-            | RESET TABLE
-            |--------------------------------------------------------------------------
-            */
+            rows.forEach(row => {
 
-            tableBody.innerHTML = '';
+                const id = row.cells[0].textContent.toLowerCase();
 
-            /*
-            |--------------------------------------------------------------------------
-            | JIKA KOSONG
-            |--------------------------------------------------------------------------
-            */
+                const name = row.cells[1].textContent.toLowerCase();
 
-            if (keyword === '') {
+                if (
 
-                tableBody.innerHTML = `
-
-                    <tr>
-
-                        <td colspan="5" class="text-center text-muted py-5">
-
-                            🔍 Silakan cari produk terlebih dahulu
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-                return;
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | FILTER
-            |--------------------------------------------------------------------------
-            */
-
-            const filtered = products.filter(product => {
-
-                return (
-
-                    product.id.toLowerCase().includes(keyword)
+                    id.includes(filter)
 
                     ||
 
-                    product.name.toLowerCase().includes(keyword)
+                    name.includes(filter)
 
-                );
+                ) {
 
-            });
+                    row.style.display = '';
 
-            /*
-            |--------------------------------------------------------------------------
-            | TIDAK DITEMUKAN
-            |--------------------------------------------------------------------------
-            */
+                } else {
 
-            if (filtered.length === 0) {
+                    row.style.display = 'none';
 
-                tableBody.innerHTML = `
-
-                    <tr>
-
-                        <td colspan="5" class="text-center text-danger py-5">
-
-                            ❌ Produk tidak ditemukan
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-                return;
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | TAMPILKAN
-            |--------------------------------------------------------------------------
-            */
-
-            filtered.forEach(product => {
-
-                tableBody.innerHTML += `
-
-                    <tr style="cursor:pointer"
-                        data-bs-toggle="modal"
-                        data-bs-target="#productModal${product.id}">
-
-                        <td>
-                            ${product.id}
-                        </td>
-
-                        <td>
-                            <strong>${product.name}</strong>
-                        </td>
-
-                        <td>
-                            ${product.productgroup_name ?? '-'}
-                        </td>
-
-                        <td>
-                            ${product.supplier_name ?? '-'}
-                        </td>
-
-                        <td>
-                            Rp ${Number(product.salesprice1).toLocaleString('id-ID')}
-                        </td>
-
-                    </tr>
-
-                `;
+                }
 
             });
 
@@ -507,7 +430,7 @@
 
                     /*
                     |--------------------------------------------------------------------------
-                    | STOP CAMERA
+                    | AUTO STOP CAMERA
                     |--------------------------------------------------------------------------
                     */
 
@@ -524,7 +447,6 @@
             });
 
         }
-
     </script>
 
     <!-- Bootstrap JS -->
