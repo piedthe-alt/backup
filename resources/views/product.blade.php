@@ -9,10 +9,8 @@
 
     <title>Daftar Produk</title>
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- HTML5 QR CODE -->
     <script src="https://unpkg.com/html5-qrcode"></script>
 
 </head>
@@ -21,138 +19,216 @@
 
     <div class="container py-5">
 
-        <div class="card border-0 shadow-lg rounded-4">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
 
             <!-- HEADER -->
-            <div
-                class="card-header bg-primary text-white p-4 rounded-top-4 d-flex justify-content-between align-items-center">
+            <div class="bg-primary text-white p-4">
 
-                <div>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-                    <h2 class="mb-0">
-                        Daftar Produks
-                    </h2>
+                    <div>
 
-                    <small>
-                        Scan barcode
-                    </small>
+                        <h2 class="mb-1 fw-bold">
+                            Daftar Produk
+                        </h2>
 
-                </div>
+                        <small>
+                            Scan barcode atau cari produk
+                        </small>
 
-                <!-- MENU -->
-                <div class="d-flex gap-2">
+                    </div>
 
-                    <a href="/ai-dashboard" class="btn btn-warning btn-lg">
-                        🤖 AI Analysis
-                    </a>
+                    <div class="d-flex gap-2 flex-wrap">
 
-                    <a href="/sales-chart" class="btn btn-light btn-lg">
-                        📈 Grafik
-                    </a>
+                        <a href="/ai-dashboard" class="btn btn-warning btn-lg">
+                            🤖 AI Analysis
+                        </a>
 
-                    <button class="btn btn-success btn-lg" onclick="startScanner()">
-                        📷 Scan
-                    </button>
+                        <a href="/sales-chart" class="btn btn-light btn-lg">
+                            📈 Grafik
+                        </a>
 
-                    <!-- TAMBAHAN IMPORT DB -->
-                    <a href="/import-db" class="btn btn-danger btn-lg"
-                        onclick="return confirm('Yakin mau import database? Data lama akan diganti!')">
-                        🗄️ Import DB
-                    </a>
+                        <button class="btn btn-success btn-lg" onclick="startScanner()">
+                            📷 Scan
+                        </button>
+
+                        <a href="/import-db"
+                            class="btn btn-danger btn-lg"
+                            onclick="return confirm('Yakin mau import database?')">
+
+                            🗄️ Import DB
+
+                        </a>
+
+                    </div>
 
                 </div>
 
             </div>
 
             <!-- BODY -->
-            <div class="card-body">
+            <div class="card-body p-4">
 
-                <!-- SEARCH -->
-                <div class="row mb-4">
+                <!-- FORM SEARCH -->
+                <form method="GET" action="/">
 
-                    <div class="col-md-8">
+                    <div class="row g-3 mb-4">
 
-                        <input type="text" id="searchInput" class="form-control form-control-lg"
-                            placeholder="Scan barcode / cari nama produk..." autofocus>
+                        <div class="col-md-9">
+
+                            <input
+                                type="text"
+                                name="keyword"
+                                id="searchInput"
+                                class="form-control form-control-lg"
+                                placeholder="Scan barcode / cari nama produk..."
+                                value="{{ $keyword ?? '' }}"
+                                autofocus>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary btn-lg w-100">
+
+                                Cari Produk
+
+                            </button>
+
+                        </div>
 
                     </div>
 
-                    <div class="col-md-4">
+                </form>
 
-                        <button class="btn btn-primary btn-lg w-100" onclick="searchProduct()">
-                            Cari Produk
-                        </button>
-
-                    </div>
+                <!-- QR READER -->
+                <div
+                    id="reader"
+                    class="mb-4"
+                    style="width:100%; max-width:400px;">
 
                 </div>
 
-                <!-- CAMERA -->
-                <div id="reader" class="mb-4" style="width:100%; max-width:400px;"></div>
+                <!-- BELUM SEARCH -->
+                @if (!$keyword)
 
-                <!-- TABLE -->
-                <div class="table-responsive">
+                    <div class="text-center py-5">
 
-                    <table class="table table-hover align-middle" id="productTable">
+                        <h4 class="text-muted">
+                            🔍 Cari produk terlebih dahulu
+                        </h4>
 
-                        <thead class="table-dark">
+                    </div>
 
-                            <tr>
+                @endif
 
-                                <th>ID</th>
+                <!-- HASIL -->
+                @if ($keyword)
 
-                                <th>Nama Produk</th>
+                    <div class="row g-4">
 
-                                <th>Group</th>
+                        @forelse ($products as $product)
 
-                                <th>Supplier</th>
+                            <div class="col-md-6 col-lg-4">
 
-                                <th>Harga</th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            @foreach ($products as $product)
-                                <tr style="cursor:pointer" data-bs-toggle="modal"
+                                <div
+                                    class="card border-0 shadow-sm rounded-4 h-100"
+                                    style="cursor:pointer"
+                                    data-bs-toggle="modal"
                                     data-bs-target="#productModal{{ $product->id }}">
 
-                                    <td>
-                                        {{ $product->id }}
-                                    </td>
+                                    <div class="card-body p-4">
 
-                                    <td>
+                                        <!-- NAMA -->
+                                        <h5 class="fw-bold mb-3">
 
-                                        <strong>
                                             {{ $product->name }}
-                                        </strong>
 
-                                    </td>
+                                        </h5>
 
-                                    <td>
-                                        {{ $product->productgroup_name }}
-                                    </td>
+                                        <!-- HARGA -->
+                                        <div class="mb-3">
 
-                                    <td>
-                                        {{ $product->supplier_name }}
-                                    </td>
+                                            <span class="badge bg-primary fs-6 px-3 py-2">
 
-                                    <td>
+                                                Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
 
-                                        Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
+                                            </span>
 
-                                    </td>
+                                        </div>
 
-                                </tr>
-                            @endforeach
+                                        <!-- INFO -->
+                                        <div class="d-flex flex-column gap-2">
 
-                        </tbody>
+                                            <div class="d-flex justify-content-between">
 
-                    </table>
+                                                <span>
+                                                    📦 Stock
+                                                </span>
 
-                </div>
+                                                <strong>
+
+                                                    {{ number_format($product->stock, 0, ',', '.') }}
+
+                                                </strong>
+
+                                            </div>
+
+                                            <div class="d-flex justify-content-between">
+
+                                                <span>
+                                                    📥 Masuk
+                                                </span>
+
+                                                <strong>
+
+                                                    {{ number_format($product->total_masuk, 0, ',', '.') }}
+
+                                                </strong>
+
+                                            </div>
+
+                                            <div class="d-flex justify-content-between">
+
+                                                <span>
+                                                    📤 Keluar
+                                                </span>
+
+                                                <strong>
+
+                                                    {{ number_format($product->total_keluar, 0, ',', '.') }}
+
+                                                </strong>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        @empty
+
+                            <div class="col-12">
+
+                                <div class="alert alert-danger rounded-4">
+
+                                    Produk tidak ditemukan
+
+                                </div>
+
+                            </div>
+
+                        @endforelse
+
+                    </div>
+
+                @endif
 
             </div>
 
@@ -162,7 +238,11 @@
 
     <!-- MODAL -->
     @foreach ($products as $product)
-        <div class="modal fade" id="productModal{{ $product->id }}" tabindex="-1">
+
+        <div
+            class="modal fade"
+            id="productModal{{ $product->id }}"
+            tabindex="-1">
 
             <div class="modal-dialog modal-lg modal-dialog-centered">
 
@@ -177,37 +257,85 @@
 
                         </h5>
 
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        <button
+                            type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal">
+
+                        </button>
 
                     </div>
 
                     <!-- BODY -->
-                    <div class="modal-body">
+                    <div class="modal-body p-4">
 
-                        <!-- INFO -->
-                        <table class="table table-bordered">
+                        <table class="table table-bordered align-middle">
 
                             <tr>
 
                                 <th width="250">
-                                    Stok Saat Ini
+                                    Group Produk
                                 </th>
 
                                 <td>
 
-                                    @if (($product->stock ?? 0) > 0)
-                                        <span class="badge bg-success fs-6">
+                                    {{ $product->productgroup_name }}
 
-                                            {{ number_format($product->stock, 0, ',', '.') }}
+                                </td>
 
-                                        </span>
-                                    @else
-                                        <span class="badge bg-danger fs-6">
+                            </tr>
 
-                                            Habis
+                            <tr>
 
-                                        </span>
-                                    @endif
+                                <th>
+                                    Supplier
+                                </th>
+
+                                <td>
+
+                                    {{ $product->supplier_name }}
+
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>
+                                    Stock Saat Ini
+                                </th>
+
+                                <td>
+
+                                    {{ number_format($product->stock, 0, ',', '.') }}
+
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>
+                                    Total Barang Masuk
+                                </th>
+
+                                <td>
+
+                                    {{ number_format($product->total_masuk, 0, ',', '.') }}
+
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>
+                                    Total Barang Keluar
+                                </th>
+
+                                <td>
+
+                                    {{ number_format($product->total_keluar, 0, ',', '.') }}
 
                                 </td>
 
@@ -248,7 +376,7 @@
                             Tingkatan Harga
                         </h5>
 
-                        <table class="table table-striped table-hover">
+                        <table class="table table-striped">
 
                             <thead class="table-dark">
 
@@ -265,6 +393,7 @@
                             <tbody>
 
                                 @if ($product->salesdiscqty1 > 0)
+
                                     <tr>
 
                                         <td>
@@ -278,9 +407,11 @@
                                         </td>
 
                                     </tr>
+
                                 @endif
 
                                 @if ($product->salesdiscqty2 > 0)
+
                                     <tr>
 
                                         <td>
@@ -294,9 +425,11 @@
                                         </td>
 
                                     </tr>
+
                                 @endif
 
                                 @if ($product->salesdiscqty3 > 0)
+
                                     <tr>
 
                                         <td>
@@ -310,6 +443,7 @@
                                         </td>
 
                                     </tr>
+
                                 @endif
 
                             </tbody>
@@ -323,77 +457,11 @@
             </div>
 
         </div>
+
     @endforeach
 
     <!-- SCRIPT -->
     <script>
-        /*
-        |--------------------------------------------------------------------------
-        | SEARCH PRODUK
-        |--------------------------------------------------------------------------
-        */
-
-        function searchProduct(customValue = null) {
-
-            const input = document.getElementById('searchInput');
-
-            const filter = (
-                customValue ?
-                customValue :
-                input.value
-            ).toLowerCase();
-
-            const rows = document.querySelectorAll(
-                '#productTable tbody tr'
-            );
-
-            rows.forEach(row => {
-
-                const id = row.cells[0].textContent.toLowerCase();
-
-                const name = row.cells[1].textContent.toLowerCase();
-
-                if (
-
-                    id.includes(filter)
-
-                    ||
-
-                    name.includes(filter)
-
-                ) {
-
-                    row.style.display = '';
-
-                } else {
-
-                    row.style.display = 'none';
-
-                }
-
-            });
-
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | AUTO SEARCH
-        |--------------------------------------------------------------------------
-        */
-
-        document
-            .getElementById('searchInput')
-            .addEventListener('keyup', function() {
-
-                searchProduct();
-
-            });
-
-        /*
-        |--------------------------------------------------------------------------
-        | START CAMERA SCANNER
-        |--------------------------------------------------------------------------
-        */
 
         function startScanner() {
 
@@ -412,27 +480,7 @@
 
                 function(decodedText) {
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | MASUKKAN HASIL SCAN
-                    |--------------------------------------------------------------------------
-                    */
-
                     document.getElementById('searchInput').value = decodedText;
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | SEARCH
-                    |--------------------------------------------------------------------------
-                    */
-
-                    searchProduct(decodedText);
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | AUTO STOP CAMERA
-                    |--------------------------------------------------------------------------
-                    */
 
                     html5QrCode.stop();
 
@@ -447,9 +495,9 @@
             });
 
         }
+
     </script>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

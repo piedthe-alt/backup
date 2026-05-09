@@ -769,16 +769,36 @@ Route::get('/sales-chart', function (Request $request) {
 
 Route::get('/', function (Request $request) {
 
-    $productgroup = $request->productgroup;
-    $supplier = $request->supplier;
+    $keyword = $request->keyword;
+
+    /*
+    |--------------------------------------------------------------------------
+    | QUERY PRODUK
+    |--------------------------------------------------------------------------
+    */
 
     $query = DB::table('product')
 
-        ->leftJoin('productgroup', 'product.productgroup', '=', 'productgroup.id')
+        ->leftJoin(
+            'productgroup',
+            'product.productgroup',
+            '=',
+            'productgroup.id'
+        )
 
-        ->leftJoin('supplier', 'product.supplier', '=', 'supplier.id')
+        ->leftJoin(
+            'supplier',
+            'product.supplier',
+            '=',
+            'supplier.id'
+        )
 
-        ->leftJoin('inventory', 'product.id', '=', 'inventory.productid')
+        ->leftJoin(
+            'inventory',
+            'product.id',
+            '=',
+            'inventory.productid'
+        )
 
         ->select(
 
@@ -800,10 +820,80 @@ Route::get('/', function (Request $request) {
             'productgroup.name as productgroup_name',
             'supplier.name as supplier_name',
 
-            DB::raw('SUM(inventory.invin - inventory.invout) as stock')
+            /*
+            |--------------------------------------------------------------------------
+            | STOCK
+            |--------------------------------------------------------------------------
+            */
 
+            DB::raw('
+                COALESCE(
+                    SUM(inventory.invin - inventory.invout),
+                    0
+                ) as stock
+            '),
+
+            /*
+            |--------------------------------------------------------------------------
+            | BARANG MASUK
+            |--------------------------------------------------------------------------
+            */
+
+            DB::raw('
+                COALESCE(
+                    SUM(inventory.invin),
+                    0
+                ) as total_masuk
+            '),
+
+            /*
+            |--------------------------------------------------------------------------
+            | BARANG KELUAR
+            |--------------------------------------------------------------------------
+            */
+
+            DB::raw('
+                COALESCE(
+                    SUM(inventory.invout),
+                    0
+                ) as total_keluar
+            ')
         )
-        ->where('product.isactive', 1)
+
+        ->where('product.isactive', 1);
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEARCH
+    |--------------------------------------------------------------------------
+    */
+
+    if ($keyword) {
+
+        $query->where(function ($q) use ($keyword) {
+
+            $q->where('product.name', 'like', "%{$keyword}%")
+                ->orWhere('product.id', 'like', "%{$keyword}%");
+        });
+    } else {
+
+        /*
+        |--------------------------------------------------------------------------
+        | KOSONGKAN HASIL SAAT PERTAMA BUKA
+        |--------------------------------------------------------------------------
+        */
+
+        $query->whereRaw('1 = 0');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | GROUP BY
+    |--------------------------------------------------------------------------
+    */
+
+    $products = $query
+
         ->groupBy(
 
             'product.id',
@@ -823,26 +913,14 @@ Route::get('/', function (Request $request) {
 
             'productgroup.name',
             'supplier.name'
+        )
 
-        ); // Filter Product Group
-    if ($productgroup) {
-        $query->where('product.productgroup', $productgroup);
-    }
+        ->limit(100)
 
-    // Filter Supplier
-    if ($supplier) {
-        $query->where('product.supplier', $supplier);
-    }
-
-    $products = $query->get();
-
-    // Ambil data dropdown
-    $productgroups = DB::table('productgroup')->get();
-    $suppliers = DB::table('supplier')->get();
+        ->get();
 
     return view('product', compact(
         'products',
-        'productgroups',
-        'suppliers'
+        'keyword'
     ));
 });
