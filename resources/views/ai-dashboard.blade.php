@@ -193,11 +193,115 @@
 
                 let analysis = data.analysis;
 
+
+                /*
+    |--------------------------------------------------------------------------
+    | FORMAT NOMOR MENJADI CARD
+    |--------------------------------------------------------------------------
+    */
+
                 analysis = analysis
 
-                    .replace(/\\n/g, '<br>')
+                    /*
+                    |--------------------------------------------------------------------------
+                    | BOLD
+                    |--------------------------------------------------------------------------
+                    */
 
-                    .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>');
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | ICON STATUS
+                    |--------------------------------------------------------------------------
+                    */
+
+                    .replace(/KRITIS/g, '🔴 KRITIS')
+                    .replace(/MENIPIS/g, '🟠 MENIPIS')
+                    .replace(/AMAN/g, '🟢 AMAN')
+                    .replace(/OVERSTOCK/g, '🟡 OVERSTOCK')
+                    .replace(/SLOW MOVING/g, '⚪ SLOW MOVING')
+                    .replace(/PALING LARIS/g, '🔥 PALING LARIS')
+                    .replace(/FAST MOVING/g, '🚀 FAST MOVING')
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | ICON LABEL
+                    |--------------------------------------------------------------------------
+                    */
+
+                    .replace(/Stock sekarang:/g, '📦 Stock sekarang:')
+                    .replace(/Estimasi habis:/g, '⏳ Estimasi habis:')
+                    .replace(/Trend:/g, '📈 Trend:')
+                    .replace(/Status:/g, '🏷️ Status:')
+                    .replace(/Rekomendasi:/g, '🛒 Rekomendasi:')
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | ENTER
+                    |--------------------------------------------------------------------------
+                    */
+
+                    .replace(/\n/g, '<br>')
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | FORMAT CARD
+                    |--------------------------------------------------------------------------
+                    */
+
+                    .replace(
+
+                        /(\d+\.\s.*?)(?=\d+\.|$)/gs,
+
+                        function(match) {
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | AMBIL NAMA PRODUK
+                            |--------------------------------------------------------------------------
+                            */
+
+                            const titleMatch = match.match(/\d+\.\s(.*?)(<br>|-)/);
+
+                            const title = titleMatch
+
+                                ?
+                                titleMatch[1]
+
+                                :
+                                'Produk';
+
+                            return `
+
+                <div class="card mb-4 border-0 shadow rounded-4 overflow-hidden">
+
+                    <div class="card-header bg-dark text-white p-3">
+
+                        <h5 class="mb-0 fw-bold">
+
+                            📦 ${title}
+
+                        </h5>
+
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <div class="fs-5 lh-lg">
+
+                            ${match.trim()}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+                        }
+
+                    );
 
                 /*
                 |--------------------------------------------------------------------------
