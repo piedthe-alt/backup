@@ -4,18 +4,9 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 
-/*
-|--------------------------------------------------------------------------
-| GENERATE ANALYSIS JSON
-|--------------------------------------------------------------------------
-|
-| Contoh:
-| /generate-analysis-json?group=MINUMAN&days=90
-|
-*/
-
-Route::get('/generate-analysis-json', function (Request $request) {
+Route::get('/ai-analysis', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
@@ -23,22 +14,9 @@ Route::get('/generate-analysis-json', function (Request $request) {
     |--------------------------------------------------------------------------
     */
 
-    $groupName = $request->group;
+    $groupName = $request->group ?? 'ROKOK';
 
     $days = $request->days ?? 90;
-
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDASI
-    |--------------------------------------------------------------------------
-    */
-
-    if (!$groupName) {
-
-        return response()->json([
-            'error' => 'Parameter group wajib diisi'
-        ], 400);
-    }
 
     /*
     |--------------------------------------------------------------------------
@@ -52,7 +30,7 @@ Route::get('/generate-analysis-json', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | AMBIL PRODUK BERDASARKAN GROUP
+    | AMBIL PRODUK
     |--------------------------------------------------------------------------
     */
 
@@ -99,8 +77,6 @@ Route::get('/generate-analysis-json', function (Request $request) {
 
         'group' => $groupName,
 
-        'generated_at' => now()->format('Y-m-d H:i:s'),
-
         'days' => (int) $days,
 
         'products' => []
@@ -117,7 +93,7 @@ Route::get('/generate-analysis-json', function (Request $request) {
 
         /*
         |--------------------------------------------------------------------------
-        | HITUNG STOCK
+        | STOCK
         |--------------------------------------------------------------------------
         */
 
@@ -134,7 +110,7 @@ Route::get('/generate-analysis-json', function (Request $request) {
 
         /*
         |--------------------------------------------------------------------------
-        | AMBIL PENJUALAN HARIAN
+        | SALES HARIAN
         |--------------------------------------------------------------------------
         */
 
@@ -176,7 +152,7 @@ Route::get('/generate-analysis-json', function (Request $request) {
 
         /*
         |--------------------------------------------------------------------------
-        | LOOP SEMUA TANGGAL
+        | HISTORY
         |--------------------------------------------------------------------------
         */
 
@@ -198,13 +174,11 @@ Route::get('/generate-analysis-json', function (Request $request) {
 
             $omzet = round($row->omzet ?? 0);
 
-            $margin = round($row->margin ?? 0);
-
             /*
-|--------------------------------------------------------------------------
-| SKIP JIKA TIDAK ADA PENJUALAN
-|--------------------------------------------------------------------------
-*/
+            |--------------------------------------------------------------------------
+            | SKIP JIKA TIDAK ADA PENJUALAN
+            |--------------------------------------------------------------------------
+            */
 
             if (
 
@@ -221,13 +195,8 @@ Route::get('/generate-analysis-json', function (Request $request) {
             ) {
 
                 continue;
-            }
 
-            /*
-|--------------------------------------------------------------------------
-| MASUKKAN HISTORY
-|--------------------------------------------------------------------------
-*/
+            }
 
             $history[] = [
 
@@ -237,18 +206,24 @@ Route::get('/generate-analysis-json', function (Request $request) {
 
                 'retur' => $retur,
 
-                'net_sales' => $terjual - $retur,
-
-                'omzet' => $omzet,
-
-                'margin' => $margin
+                'omzet' => $omzet
 
             ];
         }
 
         /*
         |--------------------------------------------------------------------------
-        | MASUKKAN KE ARRAY
+        | SKIP PRODUK TANPA PENJUALAN
+        |--------------------------------------------------------------------------
+        */
+
+        if (count($history) <= 0) {
+            continue;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | MASUKKAN PRODUK
         |--------------------------------------------------------------------------
         */
 
@@ -257,8 +232,6 @@ Route::get('/generate-analysis-json', function (Request $request) {
             'product_id' => $product->id,
 
             'nama' => $product->name,
-
-            'supplier' => $product->supplier_name,
 
             'stock' => round($stock),
 
@@ -269,45 +242,129 @@ Route::get('/generate-analysis-json', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | SIMPAN JSON
+    | JSON STRING
     |--------------------------------------------------------------------------
     */
 
-    $filename =
-
-        'analysis_' .
-
-        str_replace(' ', '_', strtolower($groupName))
-
-        .
-
-        '.json';
-
-    $savePath = storage_path('app/' . $filename);
-
-    File::put(
-
-        $savePath,
-
-        json_encode(
-            $final,
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-        )
-
+    $jsonData = json_encode(
+        $final,
+        JSON_UNESCAPED_UNICODE
     );
 
     /*
     |--------------------------------------------------------------------------
-    | RESPONSE
+    | PROMPT GEMINI
     |--------------------------------------------------------------------------
     */
 
-    return response()->json(
-        $final,
-        200,
-        [],
-        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-    );
+    $prompt = "
+
+    Analisis data penjualan toko berikut.
+
+    Fokus:
+    - produk paling laris
+    - slow moving
+    - rekomendasi reorder
+    - stok terlalu banyak
+    - tren penjualan
+
+    Berikan hasil singkat dan jelas.
+
+    DATA:
+
+    " . $jsonData;
+
+    /*
+    |--------------------------------------------------------------------------
+    | REQUEST GEMINI
+    |--------------------------------------------------------------------------
+    */
+
+    $response = Http::timeout(300)
+
+        ->withHeaders([
+            'Content-Type' => 'application/json',
+        ])
+
+        ->post(
+
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyAftrqP2RANw_PZMOHGZ-izYxtxtYUfp6s',
+
+            [
+
+                'contents' => [
+
+                    [
+
+                        'parts' => [
+
+                            [
+                                'text' => $prompt
+                            ]
+
+                        ]
+
+                    ]
+
+                ]
+
+            ]
+
+        );
+
+    /*
+    |--------------------------------------------------------------------------
+    | ERROR
+    |--------------------------------------------------------------------------
+    */
+
+    if (!$response->successful()) {
+
+        return response()->json([
+
+            'error' => true,
+
+            'status' => $response->status(),
+
+            'response' => $response->body()
+
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HASIL GEMINI
+    |--------------------------------------------------------------------------
+    */
+
+    $result =
+
+        $response['candidates'][0]['content']['parts'][0]['text']
+
+        ??
+
+        'Tidak ada respon AI';
+
+    /*
+    |--------------------------------------------------------------------------
+    | RETURN HASIL
+    |--------------------------------------------------------------------------
+    */
+
+    return response()->json([
+
+        'success' => true,
+
+        'group' => $groupName,
+
+        'days' => $days,
+
+        'total_products' => count($final['products']),
+
+        'analysis' => $result
+
+    ]);
+
 });
 
 Route::get('/import-db', function () {
