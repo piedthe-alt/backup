@@ -192,21 +192,56 @@ Route::get('/generate-analysis-json', function (Request $request) {
 
             $row = $sales[$date] ?? null;
 
+            $terjual = $row->terjual ?? 0;
+
+            $retur = $row->retur ?? 0;
+
+            $omzet = round($row->omzet ?? 0);
+
+            $margin = round($row->margin ?? 0);
+
+            /*
+|--------------------------------------------------------------------------
+| SKIP JIKA TIDAK ADA PENJUALAN
+|--------------------------------------------------------------------------
+*/
+
+            if (
+
+                $terjual <= 0
+
+                &&
+
+                $retur <= 0
+
+                &&
+
+                $omzet <= 0
+
+            ) {
+
+                continue;
+            }
+
+            /*
+|--------------------------------------------------------------------------
+| MASUKKAN HISTORY
+|--------------------------------------------------------------------------
+*/
+
             $history[] = [
 
                 'tanggal' => $date,
 
-                'terjual' => $row->terjual ?? 0,
+                'terjual' => $terjual,
 
-                'retur' => $row->retur ?? 0,
+                'retur' => $retur,
 
-                'net_sales' => ($row->terjual ?? 0)
-                    -
-                    ($row->retur ?? 0),
+                'net_sales' => $terjual - $retur,
 
-                'omzet' => round($row->omzet ?? 0),
+                'omzet' => $omzet,
 
-                'margin' => round($row->margin ?? 0)
+                'margin' => $margin
 
             ];
         }
