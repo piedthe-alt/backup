@@ -6,7 +6,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Daftar</title>
+    <title>Daftar Produk</title>
 
     <!-- Bootstrap -->
     <link
@@ -33,7 +33,7 @@
             <div>
 
                 <h2 class="mb-0">
-                    Daftar Produk
+                    Daftar
                 </h2>
 
                 <small>
