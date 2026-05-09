@@ -21,26 +21,26 @@
 
     <div class="container py-5">
 
-        <div class="card border-0 shadow-lg rounded-4">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
 
             <!-- HEADER -->
             <div
-                class="card-header bg-primary text-white p-4 rounded-top-4 d-flex justify-content-between align-items-center">
+                class="card-header bg-primary text-white p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
 
                 <div>
 
-                    <h2 class="mb-0">
-                        Daftar Produks
+                    <h2 class="mb-1 fw-bold">
+                        📦 Daftar Produk
                     </h2>
 
                     <small>
-                        Scan barcode
+                        Scan barcode atau cari produk
                     </small>
 
                 </div>
 
                 <!-- MENU -->
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap">
 
                     <a href="/ai-dashboard" class="btn btn-warning btn-lg">
                         🤖 AI Analysis
@@ -54,7 +54,6 @@
                         📷 Scan
                     </button>
 
-                    <!-- TAMBAHAN IMPORT DB -->
                     <a href="/import-db" class="btn btn-danger btn-lg"
                         onclick="return confirm('Yakin mau import database? Data lama akan diganti!')">
                         🗄️ Import DB
@@ -65,19 +64,19 @@
             </div>
 
             <!-- BODY -->
-            <div class="card-body">
+            <div class="card-body p-4">
 
                 <!-- SEARCH -->
                 <div class="row mb-4">
 
-                    <div class="col-md-8">
+                    <div class="col-md-8 mb-2">
 
                         <input type="text" id="searchInput" class="form-control form-control-lg"
                             placeholder="Scan barcode / cari nama produk..." autofocus>
 
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-4 mb-2">
 
                         <button class="btn btn-primary btn-lg w-100" onclick="searchProduct()">
                             Cari Produk
@@ -93,60 +92,39 @@
                 <!-- TABLE -->
                 <div class="table-responsive">
 
-                    <table class="table table-hover align-middle" id="productTable">
+                    <table class="table align-middle">
 
                         <thead class="table-dark">
 
                             <tr>
 
-                                <th>ID</th>
+                                <th width="120">
+                                    ID
+                                </th>
 
-                                <th>Nama Produk</th>
+                                <th>
+                                    Produk
+                                </th>
 
-                                <th>Group</th>
-
-                                <th>Supplier</th>
-
-                                <th>Harga</th>
+                                <th width="180">
+                                    Harga
+                                </th>
 
                             </tr>
 
                         </thead>
 
-                        <tbody>
+                        <tbody id="tableBody">
 
-                            @foreach ($products as $product)
-                                <tr style="cursor:pointer" data-bs-toggle="modal"
-                                    data-bs-target="#productModal{{ $product->id }}">
+                            <tr>
 
-                                    <td>
-                                        {{ $product->id }}
-                                    </td>
+                                <td colspan="3" class="text-center text-muted py-5">
 
-                                    <td>
+                                    🔍 Silakan cari produk terlebih dahulu
 
-                                        <strong>
-                                            {{ $product->name }}
-                                        </strong>
+                                </td>
 
-                                    </td>
-
-                                    <td>
-                                        {{ $product->productgroup_name }}
-                                    </td>
-
-                                    <td>
-                                        {{ $product->supplier_name }}
-                                    </td>
-
-                                    <td>
-
-                                        Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
-
-                                    </td>
-
-                                </tr>
-                            @endforeach
+                            </tr>
 
                         </tbody>
 
@@ -166,31 +144,78 @@
 
             <div class="modal-dialog modal-lg modal-dialog-centered">
 
-                <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
 
                     <!-- HEADER -->
                     <div class="modal-header bg-primary text-white">
 
-                        <h5 class="modal-title">
+                        <div>
 
-                            {{ $product->name }}
+                            <h5 class="modal-title fw-bold">
 
-                        </h5>
+                                📦 {{ $product->name }}
+
+                            </h5>
+
+                            <small>
+
+                                ID:
+                                {{ $product->id }}
+
+                            </small>
+
+                        </div>
 
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 
                     </div>
 
                     <!-- BODY -->
-                    <div class="modal-body">
+                    <div class="modal-body p-4">
 
                         <!-- INFO -->
-                        <table class="table table-bordered">
+                        <table class="table table-bordered align-middle">
 
                             <tr>
 
                                 <th width="250">
-                                    Stok Saat Ini
+                                    Group Produk
+                                </th>
+
+                                <td>
+
+                                    <span class="badge bg-primary fs-6">
+
+                                        {{ $product->productgroup_name }}
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>
+                                    Supplier
+                                </th>
+
+                                <td>
+
+                                    <span class="badge bg-dark fs-6">
+
+                                        {{ $product->supplier_name }}
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>
+                                    Stock Saat Ini
                                 </th>
 
                                 <td>
@@ -235,7 +260,11 @@
 
                                 <td>
 
-                                    Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
+                                    <strong>
+
+                                        Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
+
+                                    </strong>
 
                                 </td>
 
@@ -245,7 +274,9 @@
 
                         <!-- TINGKAT HARGA -->
                         <h5 class="fw-bold mt-4 mb-3">
-                            Tingkatan Harga
+
+                            💰 Tingkatan Harga
+
                         </h5>
 
                         <table class="table table-striped table-hover">
@@ -327,6 +358,15 @@
 
     <!-- SCRIPT -->
     <script>
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA PRODUK
+        |--------------------------------------------------------------------------
+        */
+
+        const products = @json($products);
+
         /*
         |--------------------------------------------------------------------------
         | SEARCH PRODUK
@@ -337,39 +377,222 @@
 
             const input = document.getElementById('searchInput');
 
-            const filter = (
-                customValue ?
-                customValue :
+            const keyword = (
+                customValue
+                ?
+                customValue
+                :
                 input.value
-            ).toLowerCase();
+            ).toLowerCase().trim();
 
-            const rows = document.querySelectorAll(
-                '#productTable tbody tr'
-            );
+            const tableBody = document.getElementById('tableBody');
 
-            rows.forEach(row => {
+            /*
+            |--------------------------------------------------------------------------
+            | RESET TABLE
+            |--------------------------------------------------------------------------
+            */
 
-                const id = row.cells[0].textContent.toLowerCase();
+            tableBody.innerHTML = '';
 
-                const name = row.cells[1].textContent.toLowerCase();
+            /*
+            |--------------------------------------------------------------------------
+            | JIKA KOSONG
+            |--------------------------------------------------------------------------
+            */
 
-                if (
+            if (keyword === '') {
 
-                    id.includes(filter)
+                tableBody.innerHTML = `
+
+                    <tr>
+
+                        <td colspan="3" class="text-center text-muted py-5">
+
+                            🔍 Silakan cari produk terlebih dahulu
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+                return;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | FILTER
+            |--------------------------------------------------------------------------
+            */
+
+            const filtered = products.filter(product => {
+
+                return (
+
+                    product.id.toLowerCase().includes(keyword)
 
                     ||
 
-                    name.includes(filter)
+                    product.name.toLowerCase().includes(keyword)
 
-                ) {
+                );
 
-                    row.style.display = '';
+            });
+
+            /*
+            |--------------------------------------------------------------------------
+            | TIDAK DITEMUKAN
+            |--------------------------------------------------------------------------
+            */
+
+            if (filtered.length === 0) {
+
+                tableBody.innerHTML = `
+
+                    <tr>
+
+                        <td colspan="3" class="text-center text-danger py-5">
+
+                            ❌ Produk tidak ditemukan
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+                return;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | TAMPILKAN PRODUK
+            |--------------------------------------------------------------------------
+            */
+
+            filtered.forEach(product => {
+
+                /*
+                |--------------------------------------------------------------------------
+                | STOCK
+                |--------------------------------------------------------------------------
+                */
+
+                const stock = Number(product.stock ?? 0);
+
+                /*
+                |--------------------------------------------------------------------------
+                | TOTAL MASUK
+                |--------------------------------------------------------------------------
+                */
+
+                const totalMasuk = Number(product.total_masuk ?? 0);
+
+                /*
+                |--------------------------------------------------------------------------
+                | TOTAL KELUAR
+                |--------------------------------------------------------------------------
+                */
+
+                const totalKeluar = Number(product.total_keluar ?? 0);
+
+                /*
+                |--------------------------------------------------------------------------
+                | BADGE STOCK
+                |--------------------------------------------------------------------------
+                */
+
+                let stockBadge = '';
+
+                if (stock <= 0) {
+
+                    stockBadge = `
+                        <span class="badge bg-danger">
+                            Habis
+                        </span>
+                    `;
+
+                } else if (stock <= 5) {
+
+                    stockBadge = `
+                        <span class="badge bg-warning text-dark">
+                            ${stock}
+                        </span>
+                    `;
 
                 } else {
 
-                    row.style.display = 'none';
-
+                    stockBadge = `
+                        <span class="badge bg-success">
+                            ${stock}
+                        </span>
+                    `;
                 }
+
+                /*
+                |--------------------------------------------------------------------------
+                | ROW PRODUK
+                |--------------------------------------------------------------------------
+                */
+
+                tableBody.innerHTML += `
+
+                    <tr style="cursor:pointer"
+                        class="border-bottom"
+                        data-bs-toggle="modal"
+                        data-bs-target="#productModal${product.id}">
+
+                        <td class="fw-bold text-primary">
+
+                            ${product.id}
+
+                        </td>
+
+                        <td width="45%">
+
+                            <div class="fw-bold fs-5 mb-3">
+
+                                📦 ${product.name}
+
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2">
+
+                                <span class="badge bg-primary fs-6">
+
+                                    📦 Stock:
+                                    ${stockBadge}
+
+                                </span>
+
+                                <span class="badge bg-success fs-6">
+
+                                    ⬇ Masuk:
+                                    ${totalMasuk.toLocaleString('id-ID')}
+
+                                </span>
+
+                                <span class="badge bg-danger fs-6">
+
+                                    ⬆ Keluar:
+                                    ${totalKeluar.toLocaleString('id-ID')}
+
+                                </span>
+
+                            </div>
+
+                        </td>
+
+                        <td class="fw-bold">
+
+                            Rp ${Number(product.salesprice1).toLocaleString('id-ID')}
+
+                        </td>
+
+                    </tr>
+
+                `;
 
             });
 
@@ -447,6 +670,7 @@
             });
 
         }
+
     </script>
 
     <!-- Bootstrap JS -->
