@@ -14,7 +14,6 @@ Route::get('/list-models', function () {
     );
 
     return $response->json();
-
 });
 
 Route::get('/test-gemini', function () {
@@ -46,7 +45,6 @@ Route::get('/test-gemini', function () {
     );
 
     return $response->json();
-
 });
 
 Route::get('/ai-analysis', function (Request $request) {
@@ -238,7 +236,6 @@ Route::get('/ai-analysis', function (Request $request) {
             ) {
 
                 continue;
-
             }
 
             $history[] = [
@@ -331,7 +328,7 @@ Route::get('/ai-analysis', function (Request $request) {
 
         ->post(
 
-            'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-preview:generateContent?key=AIzaSyAftrqP2RANw_PZMOHGZ-izYxtxtYUfp6s',
+            'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=AIzaSyAftrqP2RANw_PZMOHGZ-izYxtxtYUfp6s',
 
             [
 
@@ -407,7 +404,6 @@ Route::get('/ai-analysis', function (Request $request) {
         'analysis' => $result
 
     ]);
-
 });
 
 Route::get('/import-db', function () {
