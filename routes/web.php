@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\File;
 Route::get('/import-db', function () {
 
     // ⚠️ AMBIL FILE SQL
-    $path = resource_path('views/backup/Back Up SJ MART.sql');
+    $path = resource_path('views/backup/BackUp SJ MART.sql');
 
     if (!File::exists($path)) {
         return "File backup tidak ditemukan!";
