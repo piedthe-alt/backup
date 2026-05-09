@@ -47,6 +47,7 @@ Route::get('/test-gemini', function () {
     return $response->json();
 });
 
+
 Route::get('/ai-analysis', function (Request $request) {
 
     /*
@@ -57,7 +58,7 @@ Route::get('/ai-analysis', function (Request $request) {
 
     $groupName = $request->group ?? 'ROKOK';
 
-    $days = $request->days ?? 90;
+    $days = $request->days ?? 30;
 
     /*
     |--------------------------------------------------------------------------
@@ -65,7 +66,7 @@ Route::get('/ai-analysis', function (Request $request) {
     |--------------------------------------------------------------------------
     */
 
-    $startDate = now()->subDays($days - 1)->startOfDay();
+    $startDate = now()->subDays($days)->startOfDay();
 
     $endDate = now()->endOfDay();
 
@@ -84,27 +85,16 @@ Route::get('/ai-analysis', function (Request $request) {
             'productgroup.id'
         )
 
-        ->leftJoin(
-            'supplier',
-            'product.supplier',
-            '=',
-            'supplier.id'
-        )
-
         ->select(
-
             'product.id',
-            'product.name',
-
-            'supplier.name as supplier_name',
-
-            'productgroup.name as group_name'
-
+            'product.name'
         )
 
         ->where('product.isactive', 1)
 
         ->where('productgroup.name', $groupName)
+
+        ->limit(100)
 
         ->get();
 
@@ -114,15 +104,7 @@ Route::get('/ai-analysis', function (Request $request) {
     |--------------------------------------------------------------------------
     */
 
-    $final = [
-
-        'group' => $groupName,
-
-        'days' => (int) $days,
-
-        'products' => []
-
-    ];
+    $final = [];
 
     /*
     |--------------------------------------------------------------------------
@@ -134,7 +116,7 @@ Route::get('/ai-analysis', function (Request $request) {
 
         /*
         |--------------------------------------------------------------------------
-        | STOCK
+        | STOCK SEKARANG
         |--------------------------------------------------------------------------
         */
 
@@ -151,131 +133,231 @@ Route::get('/ai-analysis', function (Request $request) {
 
         /*
         |--------------------------------------------------------------------------
-        | SALES HARIAN
+        | TOTAL BARANG MASUK
+        |--------------------------------------------------------------------------
+        */
+
+        $incoming = DB::table('inventory')
+
+            ->where('productid', $product->id)
+
+            ->whereBetween(
+                'updatetimestamp',
+                [$startDate, $endDate]
+            )
+
+            ->sum('invin');
+
+        /*
+        |--------------------------------------------------------------------------
+        | PENJUALAN
         |--------------------------------------------------------------------------
         */
 
         $sales = DB::table('salesdetail')
 
-            ->select(
-
-                DB::raw('DATE(updatetimestamp) as tanggal'),
-
-                DB::raw('SUM(salesqty) as terjual'),
-
-                DB::raw('SUM(returnqty) as retur'),
-
-                DB::raw('SUM(netamount) as omzet'),
-
-                DB::raw('SUM(netamount - cogs) as margin')
-
-            )
-
             ->where('productid', $product->id)
 
             ->whereBetween(
-
                 'updatetimestamp',
-
                 [$startDate, $endDate]
+            );
 
-            )
-
-            ->groupBy(
-                DB::raw('DATE(updatetimestamp)')
-            )
-
-            ->orderBy('tanggal', 'ASC')
-
-            ->get()
-
-            ->keyBy('tanggal');
+        $totalKeluar = (clone $sales)->sum('salesqty');
 
         /*
         |--------------------------------------------------------------------------
-        | HISTORY
+        | SKIP JIKA TIDAK ADA PENJUALAN
         |--------------------------------------------------------------------------
         */
 
-        $history = [];
-
-        for ($i = 0; $i < $days; $i++) {
-
-            $date = now()
-
-                ->subDays($days - 1 - $i)
-
-                ->format('Y-m-d');
-
-            $row = $sales[$date] ?? null;
-
-            $terjual = $row->terjual ?? 0;
-
-            $retur = $row->retur ?? 0;
-
-            $omzet = round($row->omzet ?? 0);
-
-            /*
-            |--------------------------------------------------------------------------
-            | SKIP JIKA TIDAK ADA PENJUALAN
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-
-                $terjual <= 0
-
-                &&
-
-                $retur <= 0
-
-                &&
-
-                $omzet <= 0
-
-            ) {
-
-                continue;
-            }
-
-            $history[] = [
-
-                'tanggal' => $date,
-
-                'terjual' => $terjual,
-
-                'retur' => $retur,
-
-                'omzet' => $omzet
-
-            ];
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | SKIP PRODUK TANPA PENJUALAN
-        |--------------------------------------------------------------------------
-        */
-
-        if (count($history) <= 0) {
+        if ($totalKeluar <= 0) {
             continue;
         }
 
         /*
         |--------------------------------------------------------------------------
-        | MASUKKAN PRODUK
+        | ACTIVE SALES DAYS
         |--------------------------------------------------------------------------
         */
 
-        $final['products'][] = [
+        $activeSalesDays = (clone $sales)
 
-            'product_id' => $product->id,
+            ->selectRaw('DATE(updatetimestamp) as tanggal')
+
+            ->groupBy(DB::raw('DATE(updatetimestamp)'))
+
+            ->get()
+
+            ->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | AVG DAILY SALES
+        |--------------------------------------------------------------------------
+        */
+
+        $avgDailySales = $totalKeluar / $days;
+
+        /*
+        |--------------------------------------------------------------------------
+        | ESTIMASI HARI STOK HABIS
+        |--------------------------------------------------------------------------
+        */
+
+        $estimatedDaysLeft =
+
+            $avgDailySales > 0
+
+            ?
+
+            $stock / $avgDailySales
+
+            :
+
+            999;
+
+        /*
+        |--------------------------------------------------------------------------
+        | TREND
+        |--------------------------------------------------------------------------
+        */
+
+        $middleDate = now()->subDays($days / 2);
+
+        $oldSales = DB::table('salesdetail')
+
+            ->where('productid', $product->id)
+
+            ->whereBetween(
+                'updatetimestamp',
+                [$startDate, $middleDate]
+            )
+
+            ->sum('salesqty');
+
+        $newSales = DB::table('salesdetail')
+
+            ->where('productid', $product->id)
+
+            ->whereBetween(
+                'updatetimestamp',
+                [$middleDate, $endDate]
+            )
+
+            ->sum('salesqty');
+
+        $trendPercent = 0;
+
+        if ($oldSales > 0) {
+
+            $trendPercent =
+
+                (($newSales - $oldSales) / $oldSales) * 100;
+        }
+
+        $trend =
+
+            $trendPercent > 5
+
+            ?
+
+            'NAIK'
+
+            :
+
+            (
+
+                $trendPercent < -5
+
+                ?
+
+                'TURUN'
+
+                :
+
+                'STABIL'
+
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | SELL THROUGH RATE
+        |--------------------------------------------------------------------------
+        */
+
+        $sellThroughRate =
+
+            $incoming > 0
+
+            ?
+
+            ($totalKeluar / $incoming) * 100
+
+            :
+
+            0;
+
+        /*
+        |--------------------------------------------------------------------------
+        | STOCK STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        if ($estimatedDaysLeft <= 3) {
+
+            $stockStatus = 'KRITIS';
+
+            $reorderRecommendation = 'SEGERA ORDER';
+        }
+
+        elseif ($estimatedDaysLeft <= 7) {
+
+            $stockStatus = 'MENIPIS';
+
+            $reorderRecommendation = 'ORDER NORMAL';
+        }
+
+        else {
+
+            $stockStatus = 'AMAN';
+
+            $reorderRecommendation = 'TUNDA ORDER';
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | MASUKKAN JSON
+        |--------------------------------------------------------------------------
+        */
+
+        $final[] = [
 
             'nama' => $product->name,
 
-            'stock' => round($stock),
+            'periode_analisis_hari' => $days,
 
-            'history' => $history
+            'stock_sekarang' => round($stock),
+
+            'total_barang_keluar' => round($totalKeluar),
+
+            'total_barang_masuk' => round($incoming),
+
+            'avg_daily_sales' => round($avgDailySales, 2),
+
+            'estimated_days_left' => round($estimatedDaysLeft, 2),
+
+            'active_sales_days' => $activeSalesDays,
+
+            'trend_percent' => round($trendPercent, 2),
+
+            'trend' => $trend,
+
+            'sell_through_rate' => round($sellThroughRate, 2),
+
+            'stock_status' => $stockStatus,
+
+            'reorder_recommendation' => $reorderRecommendation
 
         ];
     }
@@ -299,16 +381,17 @@ Route::get('/ai-analysis', function (Request $request) {
 
     $prompt = "
 
-    Analisis data penjualan toko berikut.
+    Analisis data inventory dan penjualan berikut.
 
     Fokus:
     - produk paling laris
+    - stok kritis
     - slow moving
     - rekomendasi reorder
-    - stok terlalu banyak
+    - barang overstock
     - tren penjualan
 
-    Berikan hasil singkat dan jelas.
+    Berikan hasil singkat, jelas, dan profesional.
 
     DATA:
 
@@ -387,7 +470,7 @@ Route::get('/ai-analysis', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | RETURN HASIL
+    | RETURN
     |--------------------------------------------------------------------------
     */
 
@@ -399,11 +482,12 @@ Route::get('/ai-analysis', function (Request $request) {
 
         'days' => $days,
 
-        'total_products' => count($final['products']),
+        'total_products' => count($final),
 
         'analysis' => $result
 
     ]);
+
 });
 
 Route::get('/import-db', function () {
