@@ -37,7 +37,7 @@
                 </h2>
 
                 <small>
-                    Scan barcode / cari produk
+                    Scan barcode
                 </small>
 
             </div>
