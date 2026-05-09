@@ -841,11 +841,11 @@ Route::get('/', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | FILTER KEYWORD
+    | FILTER NAMA PRODUK
     |--------------------------------------------------------------------------
     */
 
-    if ($keyword) {
+    if (!empty($keyword)) {
 
         $query->where(function ($q) use ($keyword) {
 
@@ -856,11 +856,11 @@ Route::get('/', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | FILTER GROUP
+    | FILTER GROUP PRODUK
     |--------------------------------------------------------------------------
     */
 
-    if ($productgroup) {
+    if (!empty($productgroup)) {
 
         $query->where(
             'product.productgroup',
@@ -870,11 +870,11 @@ Route::get('/', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | KOSONGKAN SAAT AWAL
+    | KOSONGKAN JIKA BELUM SEARCH APAPUN
     |--------------------------------------------------------------------------
     */
 
-    if (!$keyword && !$productgroup) {
+    if (empty($keyword) && empty($productgroup)) {
 
         $query->whereRaw('1 = 0');
     }
@@ -905,12 +905,6 @@ Route::get('/', function (Request $request) {
         ->limit(100)
 
         ->get();
-
-    /*
-    |--------------------------------------------------------------------------
-    | AMBIL GROUP
-    |--------------------------------------------------------------------------
-    */
 
     $productgroups = DB::table('productgroup')
 
