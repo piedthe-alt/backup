@@ -16,11 +16,12 @@ Route::get('/list-models', function () {
     return $response->json();
 
 });
+
 Route::get('/test-gemini', function () {
 
     $response = Http::post(
 
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyAftrqP2RANw_PZMOHGZ-izYxtxtYUfp6s',
+        'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=AIzaSyAftrqP2RANw_PZMOHGZ-izYxtxtYUfp6s',
 
         [
 
