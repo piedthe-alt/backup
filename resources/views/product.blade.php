@@ -618,13 +618,13 @@
 
                                         <!-- MASUK -->
                                         <div class="info-item">
-                                            <span class="info-item-label"><i class="fas fa-arrow-down text-success"></i></span>
+                                            <span class="info-item-label">Masuk</span>
                                             <span class="info-item-value">{{ number_format($product->total_masuk, 0, ',', '.') }}</span>
                                         </div>
 
                                         <!-- KELUAR -->
                                         <div class="info-item">
-                                            <span class="info-item-label"><i class="fas fa-arrow-up text-warning"></i></span>
+                                            <span class="info-item-label">Keluar</span>
                                             <span class="info-item-value">{{ number_format($product->total_keluar, 0, ',', '.') }}</span>
                                         </div>
 
