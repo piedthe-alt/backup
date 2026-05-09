@@ -769,14 +769,8 @@ Route::get('/sales-chart', function (Request $request) {
 
 Route::get('/', function (Request $request) {
 
-    $keyword = trim($request->keyword);
+    $keyword = $request->keyword;
     $productgroup = $request->productgroup;
-
-    /*
-    |--------------------------------------------------------------------------
-    | QUERY
-    |--------------------------------------------------------------------------
-    */
 
     $query = DB::table('product')
 
@@ -821,51 +815,54 @@ Route::get('/', function (Request $request) {
             'productgroup.name as productgroup_name',
             'supplier.name as supplier_name',
 
-            DB::raw('
-                COALESCE(
-                    SUM(inventory.invin - inventory.invout),
-                    0
-                ) as stock
-            '),
+            DB::raw('COALESCE(SUM(inventory.invin - inventory.invout),0) as stock'),
 
-            DB::raw('
-                COALESCE(
-                    SUM(inventory.invin),
-                    0
-                ) as total_masuk
-            '),
+            DB::raw('COALESCE(SUM(inventory.invin),0) as total_masuk'),
 
-            DB::raw('
-                COALESCE(
-                    SUM(inventory.invout),
-                    0
-                ) as total_keluar
-            ')
+            DB::raw('COALESCE(SUM(inventory.invout),0) as total_keluar')
+
         )
 
-        ->where('product.isactive', 1);
+        ->where('product.isactive', 1)
+
+        ->groupBy(
+
+            'product.id',
+            'product.name',
+
+            'product.costprice',
+            'product.salesprice1',
+
+            'product.salesdiscqty1',
+            'product.salesdiscprice1',
+
+            'product.salesdiscqty2',
+            'product.salesdiscprice2',
+
+            'product.salesdiscqty3',
+            'product.salesdiscprice3',
+
+            'productgroup.name',
+            'supplier.name'
+
+        )
+
+        ->orderBy('product.name', 'ASC');
 
     /*
     |--------------------------------------------------------------------------
-    | FILTER KEYWORD
+    | SEARCH
     |--------------------------------------------------------------------------
     */
 
-    if ($keyword != '') {
+    if ($keyword) {
 
         $query->where(function ($q) use ($keyword) {
 
-            $q->where(
-                'product.name',
-                'like',
-                "%{$keyword}%"
-            )
+            $q->where('product.name', 'like', "%{$keyword}%")
 
-            ->orWhere(
-                'product.id',
-                'like',
-                "%{$keyword}%"
-            );
+              ->orWhere('product.id', 'like', "%{$keyword}%");
+
         });
     }
 
@@ -875,7 +872,7 @@ Route::get('/', function (Request $request) {
     |--------------------------------------------------------------------------
     */
 
-    if (!empty($productgroup)) {
+    if ($productgroup) {
 
         $query->where(
             'product.productgroup',
@@ -885,49 +882,15 @@ Route::get('/', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | JIKA BELUM ADA FILTER APAPUN
+    | PAGINATION
     |--------------------------------------------------------------------------
     */
 
-    if ($keyword == '' && empty($productgroup)) {
+    $products = $query
 
-        $products = collect();
+        ->paginate(100)
 
-    } else {
-
-        $products = $query
-
-            ->groupBy(
-
-                'product.id',
-                'product.name',
-
-                'product.costprice',
-                'product.salesprice1',
-
-                'product.salesdiscqty1',
-                'product.salesdiscprice1',
-
-                'product.salesdiscqty2',
-                'product.salesdiscprice2',
-
-                'product.salesdiscqty3',
-                'product.salesdiscprice3',
-
-                'productgroup.name',
-                'supplier.name'
-            )
-
-            ->limit(100)
-
-            ->get();
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | DROPDOWN GROUP
-    |--------------------------------------------------------------------------
-    */
+        ->withQueryString();
 
     $productgroups = DB::table('productgroup')
 
@@ -935,9 +898,13 @@ Route::get('/', function (Request $request) {
 
         ->get();
 
-    return view('product', compact(
-        'products',
-        'keyword',
-        'productgroups'
-    ));
+    return view(
+
+        'product',
+
+        compact(
+            'products',
+            'productgroups'
+        )
+    );
 });

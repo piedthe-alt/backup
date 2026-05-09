@@ -1,3 +1,157 @@
+# UPDATE ROUTE `/` AGAR ADA PAGINATION 100 PRODUK
+
+Ganti bagian route `/` menjadi seperti ini:
+
+```php
+Route::get('/', function (Request $request) {
+
+    $keyword = $request->keyword;
+    $productgroup = $request->productgroup;
+
+    $query = DB::table('product')
+
+        ->leftJoin(
+            'productgroup',
+            'product.productgroup',
+            '=',
+            'productgroup.id'
+        )
+
+        ->leftJoin(
+            'supplier',
+            'product.supplier',
+            '=',
+            'supplier.id'
+        )
+
+        ->leftJoin(
+            'inventory',
+            'product.id',
+            '=',
+            'inventory.productid'
+        )
+
+        ->select(
+
+            'product.id',
+            'product.name',
+
+            'product.costprice',
+            'product.salesprice1',
+
+            'product.salesdiscqty1',
+            'product.salesdiscprice1',
+
+            'product.salesdiscqty2',
+            'product.salesdiscprice2',
+
+            'product.salesdiscqty3',
+            'product.salesdiscprice3',
+
+            'productgroup.name as productgroup_name',
+            'supplier.name as supplier_name',
+
+            DB::raw('COALESCE(SUM(inventory.invin - inventory.invout),0) as stock'),
+
+            DB::raw('COALESCE(SUM(inventory.invin),0) as total_masuk'),
+
+            DB::raw('COALESCE(SUM(inventory.invout),0) as total_keluar')
+
+        )
+
+        ->where('product.isactive', 1)
+
+        ->groupBy(
+
+            'product.id',
+            'product.name',
+
+            'product.costprice',
+            'product.salesprice1',
+
+            'product.salesdiscqty1',
+            'product.salesdiscprice1',
+
+            'product.salesdiscqty2',
+            'product.salesdiscprice2',
+
+            'product.salesdiscqty3',
+            'product.salesdiscprice3',
+
+            'productgroup.name',
+            'supplier.name'
+
+        )
+
+        ->orderBy('product.name', 'ASC');
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEARCH PRODUK
+    |--------------------------------------------------------------------------
+    */
+
+    if ($keyword) {
+
+        $query->where(function ($q) use ($keyword) {
+
+            $q->where('product.name', 'like', "%{$keyword}%")
+
+              ->orWhere('product.id', 'like', "%{$keyword}%");
+
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER GROUP
+    |--------------------------------------------------------------------------
+    */
+
+    if ($productgroup) {
+
+        $query->where(
+            'product.productgroup',
+            $productgroup
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAGINATION
+    |--------------------------------------------------------------------------
+    */
+
+    $products = $query
+
+        ->paginate(100)
+
+        ->withQueryString();
+
+    $productgroups = DB::table('productgroup')
+
+        ->orderBy('name')
+
+        ->get();
+
+    return view(
+
+        'product',
+
+        compact(
+            'products',
+            'productgroups',
+            'keyword'
+        )
+    );
+});
+```
+
+---
+
+# FULL KODE VIEW `product.blade.php`
+
+```blade
 <!DOCTYPE html>
 <html lang="id">
 
@@ -69,68 +223,68 @@
             <!-- BODY -->
             <div class="card-body p-4">
 
-<!-- FORM SEARCH -->
-<form method="GET" action="/">
+                <!-- FORM SEARCH -->
+                <form method="GET" action="/">
 
-    <div class="row g-3 mb-4">
+                    <div class="row g-3 mb-4">
 
-        <!-- SEARCH -->
-        <div class="col-md-6">
+                        <!-- SEARCH -->
+                        <div class="col-md-6">
 
-            <input
-                type="text"
-                name="keyword"
-                id="searchInput"
-                class="form-control form-control-lg"
-                placeholder="Scan barcode / cari nama produk..."
-                value="{{ $keyword ?? '' }}"
-                autofocus>
+                            <input
+                                type="text"
+                                name="keyword"
+                                id="searchInput"
+                                class="form-control form-control-lg"
+                                placeholder="Scan barcode / cari nama produk..."
+                                value="{{ request('keyword') }}"
+                                autofocus>
 
-        </div>
+                        </div>
 
-        <!-- FILTER GROUP -->
-        <div class="col-md-3">
+                        <!-- FILTER GROUP -->
+                        <div class="col-md-3">
 
-            <select
-                name="productgroup"
-                class="form-select form-select-lg">
+                            <select
+                                name="productgroup"
+                                class="form-select form-select-lg">
 
-                <option value="">
-                    Semua Group
-                </option>
+                                <option value="">
+                                    Semua Group
+                                </option>
 
-                @foreach ($productgroups as $group)
+                                @foreach ($productgroups as $group)
 
-                    <option
-                        value="{{ $group->id }}"
-                        {{ request('productgroup') == $group->id ? 'selected' : '' }}>
+                                    <option
+                                        value="{{ $group->id }}"
+                                        {{ request('productgroup') == $group->id ? 'selected' : '' }}>
 
-                        {{ $group->name }}
+                                        {{ $group->name }}
 
-                    </option>
+                                    </option>
 
-                @endforeach
+                                @endforeach
 
-            </select>
+                            </select>
 
-        </div>
+                        </div>
 
-        <!-- BUTTON -->
-        <div class="col-md-3">
+                        <!-- BUTTON -->
+                        <div class="col-md-3">
 
-            <button
-                type="submit"
-                class="btn btn-primary btn-lg w-100">
+                            <button
+                                type="submit"
+                                class="btn btn-primary btn-lg w-100">
 
-                🔍 Cari Produk
+                                🔍 Cari Produk
 
-            </button>
+                            </button>
 
-        </div>
+                        </div>
 
-    </div>
+                    </div>
 
-</form>
+                </form>
 
                 <!-- QR READER -->
                 <div
@@ -140,98 +294,81 @@
 
                 </div>
 
-                <!-- BELUM SEARCH -->
-                @if (!$keyword)
+                <!-- PRODUK -->
+                <div class="row g-4">
 
-                    <div class="text-center py-5">
+                    @forelse ($products as $product)
 
-                        <h4 class="text-muted">
-                            🔍 Cari produk terlebih dahulu
-                        </h4>
+                        <div class="col-md-6 col-lg-4">
 
-                    </div>
+                            <div
+                                class="card border-0 shadow-sm rounded-4 h-100"
+                                style="cursor:pointer"
+                                data-bs-toggle="modal"
+                                data-bs-target="#productModal{{ $product->id }}">
 
-                @endif
+                                <div class="card-body p-4">
 
-                <!-- HASIL -->
-                @if ($keyword)
+                                    <!-- NAMA -->
+                                    <h5 class="fw-bold mb-3">
 
-                    <div class="row g-4">
+                                        {{ $product->name }}
 
-                        @forelse ($products as $product)
+                                    </h5>
 
-                            <div class="col-md-6 col-lg-4">
+                                    <!-- HARGA -->
+                                    <div class="mb-3">
 
-                                <div
-                                    class="card border-0 shadow-sm rounded-4 h-100"
-                                    style="cursor:pointer"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#productModal{{ $product->id }}">
+                                        <span class="badge bg-primary fs-6 px-3 py-2">
 
-                                    <div class="card-body p-4">
+                                            Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
 
-                                        <!-- NAMA -->
-                                        <h5 class="fw-bold mb-3">
+                                        </span>
 
-                                            {{ $product->name }}
+                                    </div>
 
-                                        </h5>
+                                    <!-- INFO -->
+                                    <div class="d-flex flex-column gap-2">
 
-                                        <!-- HARGA -->
-                                        <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
 
-                                            <span class="badge bg-primary fs-6 px-3 py-2">
-
-                                                Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
-
+                                            <span>
+                                                📦 Stock
                                             </span>
+
+                                            <strong>
+
+                                                {{ number_format($product->stock, 0, ',', '.') }}
+
+                                            </strong>
 
                                         </div>
 
-                                        <!-- INFO -->
-                                        <div class="d-flex flex-column gap-2">
+                                        <div class="d-flex justify-content-between">
 
-                                            <div class="d-flex justify-content-between">
+                                            <span>
+                                                📥 Masuk
+                                            </span>
 
-                                                <span>
-                                                    📦 Stock
-                                                </span>
+                                            <strong>
 
-                                                <strong>
+                                                {{ number_format($product->total_masuk, 0, ',', '.') }}
 
-                                                    {{ number_format($product->stock, 0, ',', '.') }}
+                                            </strong>
 
-                                                </strong>
+                                        </div>
 
-                                            </div>
+                                        <div class="d-flex justify-content-between">
 
-                                            <div class="d-flex justify-content-between">
+                                            <span>
+                                                📤 Keluar
+                                            </span>
 
-                                                <span>
-                                                    📥 Masuk
-                                                </span>
+                                            <strong>
 
-                                                <strong>
+                                                {{ number_format($product->total_keluar, 0, ',', '.') }}
 
-                                                    {{ number_format($product->total_masuk, 0, ',', '.') }}
-
-                                                </strong>
-
-                                            </div>
-
-                                            <div class="d-flex justify-content-between">
-
-                                                <span>
-                                                    📤 Keluar
-                                                </span>
-
-                                                <strong>
-
-                                                    {{ number_format($product->total_keluar, 0, ',', '.') }}
-
-                                                </strong>
-
-                                            </div>
+                                            </strong>
 
                                         </div>
 
@@ -241,23 +378,30 @@
 
                             </div>
 
-                        @empty
+                        </div>
 
-                            <div class="col-12">
+                    @empty
 
-                                <div class="alert alert-danger rounded-4">
+                        <div class="col-12">
 
-                                    Produk tidak ditemukan
+                            <div class="alert alert-danger rounded-4">
 
-                                </div>
+                                Produk tidak ditemukan
 
                             </div>
 
-                        @endforelse
+                        </div>
 
-                    </div>
+                    @endforelse
 
-                @endif
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="mt-5 d-flex justify-content-center">
+
+                    {{ $products->links() }}
+
+                </div>
 
             </div>
 
@@ -400,85 +544,6 @@
 
                         </table>
 
-                        <!-- TINGKAT HARGA -->
-                        <h5 class="fw-bold mt-4 mb-3">
-                            Tingkatan Harga
-                        </h5>
-
-                        <table class="table table-striped">
-
-                            <thead class="table-dark">
-
-                                <tr>
-
-                                    <th>Minimal Beli</th>
-
-                                    <th>Harga / pcs</th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-
-                                @if ($product->salesdiscqty1 > 0)
-
-                                    <tr>
-
-                                        <td>
-                                            {{ $product->salesdiscqty1 }} pcs
-                                        </td>
-
-                                        <td>
-
-                                            Rp {{ number_format($product->salesdiscprice1, 0, ',', '.') }}
-
-                                        </td>
-
-                                    </tr>
-
-                                @endif
-
-                                @if ($product->salesdiscqty2 > 0)
-
-                                    <tr>
-
-                                        <td>
-                                            {{ $product->salesdiscqty2 }} pcs
-                                        </td>
-
-                                        <td>
-
-                                            Rp {{ number_format($product->salesdiscprice2, 0, ',', '.') }}
-
-                                        </td>
-
-                                    </tr>
-
-                                @endif
-
-                                @if ($product->salesdiscqty3 > 0)
-
-                                    <tr>
-
-                                        <td>
-                                            {{ $product->salesdiscqty3 }} pcs
-                                        </td>
-
-                                        <td>
-
-                                            Rp {{ number_format($product->salesdiscprice3, 0, ',', '.') }}
-
-                                        </td>
-
-                                    </tr>
-
-                                @endif
-
-                            </tbody>
-
-                        </table>
-
                     </div>
 
                 </div>
@@ -532,3 +597,4 @@
 </body>
 
 </html>
+```
