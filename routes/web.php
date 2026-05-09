@@ -6,6 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 
+
+Route::get('/list-models', function () {
+
+    $response = Http::get(
+        'https://generativelanguage.googleapis.com/v1/models?key=AIzaSyAftrqP2RANw_PZMOHGZ-izYxtxtYUfp6s'
+    );
+
+    return $response->json();
+
+});
 Route::get('/test-gemini', function () {
 
     $response = Http::post(
