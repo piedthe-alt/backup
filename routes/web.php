@@ -5,6 +5,283 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
+/*
+|--------------------------------------------------------------------------
+| GENERATE ANALYSIS JSON
+|--------------------------------------------------------------------------
+|
+| Contoh:
+| /generate-analysis-json?group=MINUMAN&days=90
+|
+*/
+
+Route::get('/generate-analysis-json', function (Request $request) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | PARAMETER
+    |--------------------------------------------------------------------------
+    */
+
+    $groupName = $request->group;
+
+    $days = $request->days ?? 90;
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI
+    |--------------------------------------------------------------------------
+    */
+
+    if (!$groupName) {
+
+        return response()->json([
+            'error' => 'Parameter group wajib diisi'
+        ], 400);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | TANGGAL
+    |--------------------------------------------------------------------------
+    */
+
+    $startDate = now()->subDays($days - 1)->startOfDay();
+
+    $endDate = now()->endOfDay();
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL PRODUK BERDASARKAN GROUP
+    |--------------------------------------------------------------------------
+    */
+
+    $products = DB::table('product')
+
+        ->leftJoin(
+            'productgroup',
+            'product.productgroup',
+            '=',
+            'productgroup.id'
+        )
+
+        ->leftJoin(
+            'supplier',
+            'product.supplier',
+            '=',
+            'supplier.id'
+        )
+
+        ->select(
+
+            'product.id',
+            'product.name',
+
+            'supplier.name as supplier_name',
+
+            'productgroup.name as group_name'
+
+        )
+
+        ->where('product.isactive', 1)
+
+        ->where('productgroup.name', $groupName)
+
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | ARRAY FINAL
+    |--------------------------------------------------------------------------
+    */
+
+    $final = [
+
+        'group' => $groupName,
+
+        'generated_at' => now()->format('Y-m-d H:i:s'),
+
+        'days' => (int) $days,
+
+        'products' => []
+
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOOP PRODUK
+    |--------------------------------------------------------------------------
+    */
+
+    foreach ($products as $product) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | HITUNG STOCK
+        |--------------------------------------------------------------------------
+        */
+
+        $stock = DB::table('inventory')
+
+            ->where('productid', $product->id)
+
+            ->selectRaw('
+                COALESCE(SUM(invin - invout),0)
+                as stock
+            ')
+
+            ->value('stock');
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL PENJUALAN HARIAN
+        |--------------------------------------------------------------------------
+        */
+
+        $sales = DB::table('salesdetail')
+
+            ->select(
+
+                DB::raw('DATE(updatetimestamp) as tanggal'),
+
+                DB::raw('SUM(salesqty) as terjual'),
+
+                DB::raw('SUM(returnqty) as retur'),
+
+                DB::raw('SUM(netamount) as omzet'),
+
+                DB::raw('SUM(netamount - cogs) as margin')
+
+            )
+
+            ->where('productid', $product->id)
+
+            ->whereBetween(
+
+                'updatetimestamp',
+
+                [$startDate, $endDate]
+
+            )
+
+            ->groupBy(
+                DB::raw('DATE(updatetimestamp)')
+            )
+
+            ->orderBy('tanggal', 'ASC')
+
+            ->get()
+
+            ->keyBy('tanggal');
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOOP SEMUA TANGGAL
+        |--------------------------------------------------------------------------
+        */
+
+        $history = [];
+
+        for ($i = 0; $i < $days; $i++) {
+
+            $date = now()
+
+                ->subDays($days - 1 - $i)
+
+                ->format('Y-m-d');
+
+            $row = $sales[$date] ?? null;
+
+            $history[] = [
+
+                'tanggal' => $date,
+
+                'terjual' => $row->terjual ?? 0,
+
+                'retur' => $row->retur ?? 0,
+
+                'net_sales' => ($row->terjual ?? 0)
+                    -
+                    ($row->retur ?? 0),
+
+                'omzet' => round($row->omzet ?? 0),
+
+                'margin' => round($row->margin ?? 0)
+
+            ];
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | MASUKKAN KE ARRAY
+        |--------------------------------------------------------------------------
+        */
+
+        $final['products'][] = [
+
+            'product_id' => $product->id,
+
+            'nama' => $product->name,
+
+            'supplier' => $product->supplier_name,
+
+            'stock' => round($stock),
+
+            'history' => $history
+
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SIMPAN JSON
+    |--------------------------------------------------------------------------
+    */
+
+    $filename =
+
+        'analysis_' .
+
+        str_replace(' ', '_', strtolower($groupName))
+
+        .
+
+        '.json';
+
+    $savePath = storage_path('app/' . $filename);
+
+    File::put(
+
+        $savePath,
+
+        json_encode(
+            $final,
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+        )
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESPONSE
+    |--------------------------------------------------------------------------
+    */
+
+    return response()->json([
+
+        'success' => true,
+
+        'group' => $groupName,
+
+        'days' => $days,
+
+        'total_products' => count($final['products']),
+
+        'saved_to' => $savePath
+
+    ]);
+});
+
 Route::get('/import-db', function () {
 
     // ⚠️ AMBIL FILE SQL
