@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Http;
 Route::get('/list-models', function () {
 
     $response = Http::get(
-        'https://generativelanguage.googleapis.com/v1/models?key=AIzaSyA3EU1w9-RKU53RQT9F2ioXMVH0hhZBPYU'
+        'https://generativelanguage.googleapis.com/v1/models?key=AIzaSyCQ3r_3AVc158RGYX2lQ5nT5DfbB4xvbIk'
     );
 
     return $response->json();
@@ -20,7 +20,7 @@ Route::get('/test-gemini', function () {
 
     $response = Http::post(
 
-        'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=AIzaSyAftrqP2RANw_PZMOHGZ-izYxtxtYUfp6s',
+        'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=AIzaSyCQ3r_3AVc158RGYX2lQ5nT5DfbB4xvbIk',
 
         [
 
