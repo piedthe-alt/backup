@@ -33,7 +33,7 @@
             <div>
 
                 <h2 class="mb-0">
-                    Daftar
+                    Daftar Produk
                 </h2>
 
                 <small>
