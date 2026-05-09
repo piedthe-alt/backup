@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Http;
 Route::get('/list-models', function () {
 
     $response = Http::get(
-        'https://generativelanguage.googleapis.com/v1/models?key=AIzaSyAftrqP2RANw_PZMOHGZ-izYxtxtYUfp6s'
+        'https://generativelanguage.googleapis.com/v1/models?key=AIzaSyA3EU1w9-RKU53RQT9F2ioXMVH0hhZBPYU'
     );
 
     return $response->json();
