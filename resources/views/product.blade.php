@@ -245,7 +245,7 @@
                 <!-- PAGINATION -->
                 <div class="mt-5 d-flex justify-content-center">
 
-                    {{ $products->links() }}
+                    {{ $products->links('pagination::bootstrap-4') }}
 
                 </div>
 
