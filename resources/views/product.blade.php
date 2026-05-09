@@ -21,16 +21,16 @@
 
     <div class="container py-5">
 
-        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="card border-0 shadow-lg rounded-4">
 
             <!-- HEADER -->
             <div
-                class="card-header bg-primary text-white p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                class="card-header bg-primary text-white p-4 rounded-top-4 d-flex justify-content-between align-items-center">
 
                 <div>
 
-                    <h2 class="mb-1 fw-bold">
-                        📦 Daftar Produk
+                    <h2 class="mb-0">
+                        Daftar Produk
                     </h2>
 
                     <small>
@@ -64,7 +64,7 @@
             </div>
 
             <!-- BODY -->
-            <div class="card-body p-4">
+            <div class="card-body">
 
                 <!-- SEARCH -->
                 <div class="row mb-4">
@@ -92,23 +92,21 @@
                 <!-- TABLE -->
                 <div class="table-responsive">
 
-                    <table class="table align-middle">
+                    <table class="table table-hover align-middle" id="productTable">
 
                         <thead class="table-dark">
 
                             <tr>
 
-                                <th width="120">
-                                    ID
-                                </th>
+                                <th>ID</th>
 
-                                <th>
-                                    Produk
-                                </th>
+                                <th>Nama Produk</th>
 
-                                <th width="180">
-                                    Harga
-                                </th>
+                                <th>Group</th>
+
+                                <th>Supplier</th>
+
+                                <th>Harga</th>
 
                             </tr>
 
@@ -118,7 +116,7 @@
 
                             <tr>
 
-                                <td colspan="3" class="text-center text-muted py-5">
+                                <td colspan="5" class="text-center text-muted py-5">
 
                                     🔍 Silakan cari produk terlebih dahulu
 
@@ -144,78 +142,31 @@
 
             <div class="modal-dialog modal-lg modal-dialog-centered">
 
-                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-content border-0 shadow-lg rounded-4">
 
                     <!-- HEADER -->
                     <div class="modal-header bg-primary text-white">
 
-                        <div>
+                        <h5 class="modal-title">
 
-                            <h5 class="modal-title fw-bold">
+                            {{ $product->name }}
 
-                                📦 {{ $product->name }}
-
-                            </h5>
-
-                            <small>
-
-                                ID:
-                                {{ $product->id }}
-
-                            </small>
-
-                        </div>
+                        </h5>
 
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 
                     </div>
 
                     <!-- BODY -->
-                    <div class="modal-body p-4">
+                    <div class="modal-body">
 
                         <!-- INFO -->
-                        <table class="table table-bordered align-middle">
+                        <table class="table table-bordered">
 
                             <tr>
 
                                 <th width="250">
-                                    Group Produk
-                                </th>
-
-                                <td>
-
-                                    <span class="badge bg-primary fs-6">
-
-                                        {{ $product->productgroup_name }}
-
-                                    </span>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <th>
-                                    Supplier
-                                </th>
-
-                                <td>
-
-                                    <span class="badge bg-dark fs-6">
-
-                                        {{ $product->supplier_name }}
-
-                                    </span>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <th>
-                                    Stock Saat Ini
+                                    Stok Saat Ini
                                 </th>
 
                                 <td>
@@ -260,11 +211,7 @@
 
                                 <td>
 
-                                    <strong>
-
-                                        Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
-
-                                    </strong>
+                                    Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
 
                                 </td>
 
@@ -274,9 +221,7 @@
 
                         <!-- TINGKAT HARGA -->
                         <h5 class="fw-bold mt-4 mb-3">
-
-                            💰 Tingkatan Harga
-
+                            Tingkatan Harga
                         </h5>
 
                         <table class="table table-striped table-hover">
@@ -407,7 +352,7 @@
 
                     <tr>
 
-                        <td colspan="3" class="text-center text-muted py-5">
+                        <td colspan="5" class="text-center text-muted py-5">
 
                             🔍 Silakan cari produk terlebih dahulu
 
@@ -452,7 +397,7 @@
 
                     <tr>
 
-                        <td colspan="3" class="text-center text-danger py-5">
+                        <td colspan="5" class="text-center text-danger py-5">
 
                             ❌ Produk tidak ditemukan
 
@@ -467,127 +412,36 @@
 
             /*
             |--------------------------------------------------------------------------
-            | TAMPILKAN PRODUK
+            | TAMPILKAN
             |--------------------------------------------------------------------------
             */
 
             filtered.forEach(product => {
 
-                /*
-                |--------------------------------------------------------------------------
-                | STOCK
-                |--------------------------------------------------------------------------
-                */
-
-                const stock = Number(product.stock ?? 0);
-
-                /*
-                |--------------------------------------------------------------------------
-                | TOTAL MASUK
-                |--------------------------------------------------------------------------
-                */
-
-                const totalMasuk = Number(product.total_masuk ?? 0);
-
-                /*
-                |--------------------------------------------------------------------------
-                | TOTAL KELUAR
-                |--------------------------------------------------------------------------
-                */
-
-                const totalKeluar = Number(product.total_keluar ?? 0);
-
-                /*
-                |--------------------------------------------------------------------------
-                | BADGE STOCK
-                |--------------------------------------------------------------------------
-                */
-
-                let stockBadge = '';
-
-                if (stock <= 0) {
-
-                    stockBadge = `
-                        <span class="badge bg-danger">
-                            Habis
-                        </span>
-                    `;
-
-                } else if (stock <= 5) {
-
-                    stockBadge = `
-                        <span class="badge bg-warning text-dark">
-                            ${stock}
-                        </span>
-                    `;
-
-                } else {
-
-                    stockBadge = `
-                        <span class="badge bg-success">
-                            ${stock}
-                        </span>
-                    `;
-                }
-
-                /*
-                |--------------------------------------------------------------------------
-                | ROW PRODUK
-                |--------------------------------------------------------------------------
-                */
-
                 tableBody.innerHTML += `
 
                     <tr style="cursor:pointer"
-                        class="border-bottom"
                         data-bs-toggle="modal"
                         data-bs-target="#productModal${product.id}">
 
-                        <td class="fw-bold text-primary">
-
+                        <td>
                             ${product.id}
-
                         </td>
 
-                        <td width="45%">
-
-                            <div class="fw-bold fs-5 mb-3">
-
-                                📦 ${product.name}
-
-                            </div>
-
-                            <div class="d-flex flex-wrap gap-2">
-
-                                <span class="badge bg-primary fs-6">
-
-                                    📦 Stock:
-                                    ${stockBadge}
-
-                                </span>
-
-                                <span class="badge bg-success fs-6">
-
-                                    ⬇ Masuk:
-                                    ${totalMasuk.toLocaleString('id-ID')}
-
-                                </span>
-
-                                <span class="badge bg-danger fs-6">
-
-                                    ⬆ Keluar:
-                                    ${totalKeluar.toLocaleString('id-ID')}
-
-                                </span>
-
-                            </div>
-
+                        <td>
+                            <strong>${product.name}</strong>
                         </td>
 
-                        <td class="fw-bold">
+                        <td>
+                            ${product.productgroup_name ?? '-'}
+                        </td>
 
+                        <td>
+                            ${product.supplier_name ?? '-'}
+                        </td>
+
+                        <td>
                             Rp ${Number(product.salesprice1).toLocaleString('id-ID')}
-
                         </td>
 
                     </tr>
@@ -653,7 +507,7 @@
 
                     /*
                     |--------------------------------------------------------------------------
-                    | AUTO STOP CAMERA
+                    | STOP CAMERA
                     |--------------------------------------------------------------------------
                     */
 
