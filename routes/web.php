@@ -6,6 +6,38 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 
+Route::get('/test-gemini', function () {
+
+    $response = Http::post(
+
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyAftrqP2RANw_PZMOHGZ-izYxtxtYUfp6s',
+
+        [
+
+            'contents' => [
+
+                [
+
+                    'parts' => [
+
+                        [
+                            'text' => 'Halo Gemini'
+                        ]
+
+                    ]
+
+                ]
+
+            ]
+
+        ]
+
+    );
+
+    return $response->json();
+
+});
+
 Route::get('/ai-analysis', function (Request $request) {
 
     /*
