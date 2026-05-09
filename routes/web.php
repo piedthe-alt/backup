@@ -769,8 +769,14 @@ Route::get('/sales-chart', function (Request $request) {
 
 Route::get('/', function (Request $request) {
 
-    $keyword = $request->keyword;
+    $keyword = trim($request->keyword);
     $productgroup = $request->productgroup;
+
+    /*
+    |--------------------------------------------------------------------------
+    | QUERY
+    |--------------------------------------------------------------------------
+    */
 
     $query = DB::table('product')
 
@@ -841,22 +847,31 @@ Route::get('/', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | FILTER NAMA PRODUK
+    | FILTER KEYWORD
     |--------------------------------------------------------------------------
     */
 
-    if (!empty($keyword)) {
+    if ($keyword != '') {
 
         $query->where(function ($q) use ($keyword) {
 
-            $q->where('product.name', 'like', "%{$keyword}%")
-                ->orWhere('product.id', 'like', "%{$keyword}%");
+            $q->where(
+                'product.name',
+                'like',
+                "%{$keyword}%"
+            )
+
+            ->orWhere(
+                'product.id',
+                'like',
+                "%{$keyword}%"
+            );
         });
     }
 
     /*
     |--------------------------------------------------------------------------
-    | FILTER GROUP PRODUK
+    | FILTER GROUP
     |--------------------------------------------------------------------------
     */
 
@@ -870,41 +885,49 @@ Route::get('/', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | KOSONGKAN JIKA BELUM SEARCH APAPUN
+    | JIKA BELUM ADA FILTER APAPUN
     |--------------------------------------------------------------------------
     */
 
-    if (empty($keyword) && empty($productgroup)) {
+    if ($keyword == '' && empty($productgroup)) {
 
-        $query->whereRaw('1 = 0');
+        $products = collect();
+
+    } else {
+
+        $products = $query
+
+            ->groupBy(
+
+                'product.id',
+                'product.name',
+
+                'product.costprice',
+                'product.salesprice1',
+
+                'product.salesdiscqty1',
+                'product.salesdiscprice1',
+
+                'product.salesdiscqty2',
+                'product.salesdiscprice2',
+
+                'product.salesdiscqty3',
+                'product.salesdiscprice3',
+
+                'productgroup.name',
+                'supplier.name'
+            )
+
+            ->limit(100)
+
+            ->get();
     }
 
-    $products = $query
-
-        ->groupBy(
-
-            'product.id',
-            'product.name',
-
-            'product.costprice',
-            'product.salesprice1',
-
-            'product.salesdiscqty1',
-            'product.salesdiscprice1',
-
-            'product.salesdiscqty2',
-            'product.salesdiscprice2',
-
-            'product.salesdiscqty3',
-            'product.salesdiscprice3',
-
-            'productgroup.name',
-            'supplier.name'
-        )
-
-        ->limit(100)
-
-        ->get();
+    /*
+    |--------------------------------------------------------------------------
+    | DROPDOWN GROUP
+    |--------------------------------------------------------------------------
+    */
 
     $productgroups = DB::table('productgroup')
 
