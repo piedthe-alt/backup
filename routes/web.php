@@ -536,6 +536,23 @@ Route::get('/import-db', function () {
     return "Database berhasil direset & diimport ulang";
 });
 
+Route::get('/ai-dashboard', function () {
+
+    $groups = DB::table('productgroup')
+
+        ->orderBy('name')
+
+        ->get();
+
+    return view(
+
+        'ai-dashboard',
+
+        compact('groups')
+
+    );
+});
+
 Route::get('/sales-chart', function (Request $request) {
 
     $start = $request->start_date;

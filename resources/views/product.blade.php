@@ -42,6 +42,10 @@
                 <!-- MENU -->
                 <div class="d-flex gap-2">
 
+                    <a href="/ai-dashboard" class="btn btn-warning btn-lg">
+                        🤖 AI Analysis
+                    </a>
+
                     <a href="/sales-chart" class="btn btn-light btn-lg">
                         📈 Grafik
                     </a>
@@ -324,10 +328,10 @@
     <!-- SCRIPT -->
     <script>
         /*
-    |--------------------------------------------------------------------------
-    | SEARCH PRODUK
-    |--------------------------------------------------------------------------
-    */
+        |--------------------------------------------------------------------------
+        | SEARCH PRODUK
+        |--------------------------------------------------------------------------
+        */
 
         function searchProduct(customValue = null) {
 
