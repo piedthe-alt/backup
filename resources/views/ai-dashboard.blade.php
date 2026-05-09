@@ -7,38 +7,190 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>AI Analysis</title>
+    <title>AI Analysis - Stock Manager</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(100px, -100px);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-action {
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-select, .form-control {
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .header-section {
+                padding: 1.5rem !important;
+            }
+
+            .header-content h2 {
+                font-size: 1.3rem;
+            }
+
+            .header-section::before {
+                width: 200px;
+                height: 200px;
+            }
+
+            .btn-action {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+
+            .form-select, .form-control {
+                font-size: 0.9rem;
+            }
+
+            .row.g-4 {
+                gap: 0.5rem !important;
+            }
+
+            .col-md-5, .col-md-3, .col-md-4 {
+                padding: 0.25rem;
+            }
+
+            .card-body {
+                padding: 1rem !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-content {
+                text-align: center;
+            }
+
+            .header-content h2 {
+                font-size: 1.2rem;
+            }
+
+            .header-content small {
+                font-size: 0.75rem;
+            }
+
+            .header-section {
+                padding: 1rem !important;
+            }
+
+            .btn-action {
+                font-size: 0.8rem;
+                padding: 6px 8px;
+                width: 100%;
+            }
+
+            .form-label {
+                font-size: 0.9rem;
+            }
+
+            .form-select, .form-control {
+                font-size: 0.85rem;
+            }
+
+            .card-header {
+                padding: 1rem !important;
+            }
+
+            .card-body {
+                padding: 0.75rem !important;
+            }
+
+            .card-body .fs-5 {
+                font-size: 0.9rem !important;
+            }
+        }
+    </style>
 
 </head>
 
-<body class="bg-light">
+<body>
 
-    <div class="container py-5">
+    <div class="container-fluid py-4">
 
-        <div class="card border-0 shadow-lg rounded-4">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
 
             <!-- HEADER -->
-            <div class="card-header bg-warning p-4 rounded-top-4">
+            <div class="header-section p-4 rounded-top-4">
 
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="header-content">
 
-                    <div>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-                        <h2 class="mb-0 fw-bold">
-                            🤖 AI Inventory Analysis
-                        </h2>
+                        <div>
 
-                        <small>
-                            Analisis stok & penjualan menggunakan Gemini AI
-                        </small>
+                            <h2 class="mb-2 fw-bold">
+                                <i class="fas fa-robot me-2"></i>AI Inventory Analysis
+                            </h2>
+
+                            <small class="opacity-75">
+                                Analisis stok & penjualan menggunakan Gemini AI
+                            </small>
+
+                        </div>
+
+                        <a href="/" class="btn btn-action btn-dark">
+                            <i class="fas fa-arrow-left"></i> Kembali
+                        </a>
 
                     </div>
-
-                    <a href="/" class="btn btn-dark btn-lg">
-                        ← Kembali
-                    </a>
 
                 </div>
 
@@ -53,10 +205,10 @@
                     <div class="col-md-5">
 
                         <label class="form-label fw-bold">
-                            Pilih Group Produk
+                            📂 Pilih Group Produk
                         </label>
 
-                        <select id="group" class="form-select form-select-lg">
+                        <select id="group" class="form-select">
 
                             @foreach ($groups as $group)
                                 <option value="{{ $group->name }}">
@@ -72,10 +224,10 @@
                     <div class="col-md-3">
 
                         <label class="form-label fw-bold">
-                            Periode Analisis
+                            📅 Periode Analisis
                         </label>
 
-                        <select id="days" class="form-select form-select-lg">
+                        <select id="days" class="form-select">
 
                             <option value="7">7 Hari</option>
 
@@ -98,8 +250,8 @@
                     <!-- BUTTON -->
                     <div class="col-md-4">
 
-                        <button class="btn btn-primary btn-lg w-100" onclick="generateAnalysis()">
-                            ⚡ Generate Analysis
+                        <button class="btn btn-action btn-warning fw-bold w-100" onclick="generateAnalysis()">
+                            <i class="fas fa-bolt"></i> Generate Analysis
                         </button>
 
                     </div>

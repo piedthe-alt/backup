@@ -115,7 +115,7 @@
 
         .product-card-header {
             background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
-            padding: 16px;
+            padding: 12px;
             border-bottom: 1px solid var(--border-color);
         }
 
@@ -127,58 +127,67 @@
 
         .product-name {
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             color: #1e293b;
-            margin-bottom: 12px;
-            line-height: 1.4;
+            margin-bottom: 0;
+            line-height: 1.3;
         }
 
         .price-badge {
             background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
             color: white;
             display: inline-block;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 6px 12px;
+            border-radius: 6px;
             font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 16px;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            white-space: nowrap;
         }
 
         .product-info {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            flex-direction: row;
+            gap: 8px;
             flex: 1;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.95rem;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
         }
 
-        .info-row:last-child {
-            border-bottom: none;
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 60px;
+            padding: 6px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
         }
 
-        .info-label {
+        .info-item-label {
             color: #64748b;
             font-weight: 500;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
         }
 
-        .info-value {
+        .info-item-value {
             font-weight: 700;
             color: var(--primary-color);
+            font-size: 0.85rem;
         }
 
         .stock-status {
             display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
             font-weight: 600;
         }
 
@@ -305,11 +314,131 @@
             }
 
             .product-name {
-                font-size: 1rem;
+                font-size: 0.9rem;
             }
 
             .stat-box .stat-value {
                 font-size: 24px;
+            }
+
+            .header-section {
+                padding: 1.5rem !important;
+            }
+
+            .header-content h2 {
+                font-size: 1.5rem;
+            }
+
+            .product-card-header {
+                padding: 10px;
+            }
+
+            .card-body {
+                padding: 10px !important;
+            }
+
+            .price-badge {
+                font-size: 0.75rem;
+                padding: 4px 8px;
+            }
+
+            .product-info {
+                gap: 4px;
+            }
+
+            .info-item {
+                min-width: 50px;
+                padding: 4px;
+            }
+
+            .info-item-label {
+                font-size: 0.6rem;
+            }
+
+            .info-item-value {
+                font-size: 0.75rem;
+            }
+
+            .header-section::before {
+                width: 200px;
+                height: 200px;
+            }
+
+            .search-input {
+                font-size: 0.95rem;
+                padding: 10px 12px;
+            }
+
+            .btn-action {
+                font-size: 0.85rem;
+                padding: 8px 10px;
+            }
+
+            .container-fluid {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+
+            .card-body {
+                padding: 1rem !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-content {
+                text-align: center;
+            }
+
+            .header-content h2 {
+                font-size: 1.3rem;
+            }
+
+            .header-section {
+                padding: 1rem !important;
+            }
+
+            .d-flex.justify-content-between {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
+                font-size: 0.8rem;
+                padding: 6px 8px;
+            }
+
+            .row.g-3 {
+                gap: 0.5rem !important;
+            }
+
+            .col-md-6, .col-md-3 {
+                padding: 0.25rem;
+            }
+
+            .product-info {
+                gap: 3px;
+            }
+
+            .info-item {
+                min-width: 45px;
+                padding: 3px;
+            }
+
+            .info-item-label {
+                font-size: 0.55rem;
+            }
+
+            .info-item-value {
+                font-size: 0.7rem;
+            }
+
+            .product-name {
+                font-size: 0.85rem;
+            }
+
+            .price-badge {
+                font-size: 0.7rem;
+                padding: 3px 6px;
             }
         }
     </style>
@@ -459,73 +588,44 @@
 
                                 <div class="product-card-header">
 
-                                    <h5 class="product-name mb-0">
+                                    <h5 class="product-name">
 
-                                        {{ $product->name }}
+                                        {{ Str::limit($product->name, 35) }}
 
                                     </h5>
 
                                 </div>
 
-                                <div class="card-body p-4 d-flex flex-column">
+                                <div class="card-body p-3 d-flex flex-column">
 
                                     <!-- HARGA -->
-                                    <div class="mb-3">
+                                    <div class="price-badge">
 
-                                        <span class="price-badge">
-
-                                            Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
-
-                                        </span>
+                                        Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
 
                                     </div>
 
-                                    <!-- INFO -->
+                                    <!-- INFO HORIZONTAL -->
                                     <div class="product-info">
 
-                                        <div class="info-row">
-
-                                            <span class="info-label">
-
-                                                <i class="fas fa-cubes me-2"></i>Stock
-                                            </span>
-
+                                        <!-- STOCK -->
+                                        <div class="info-item">
+                                            <span class="info-item-label">Stock</span>
                                             <span class="stock-status {{ $product->stock > 20 ? 'stock-high' : ($product->stock > 5 ? 'stock-medium' : 'stock-low') }}">
-
-                                                {{ number_format($product->stock, 0, ',', '.') }} pcs
-
+                                                {{ number_format($product->stock, 0, ',', '.') }}
                                             </span>
-
                                         </div>
 
-                                        <div class="info-row">
-
-                                            <span class="info-label">
-
-                                                <i class="fas fa-arrow-down me-2 text-success"></i>Masuk
-                                            </span>
-
-                                            <span class="info-value">
-
-                                                {{ number_format($product->total_masuk, 0, ',', '.') }}
-
-                                            </span>
-
+                                        <!-- MASUK -->
+                                        <div class="info-item">
+                                            <span class="info-item-label"><i class="fas fa-arrow-down text-success"></i></span>
+                                            <span class="info-item-value">{{ number_format($product->total_masuk, 0, ',', '.') }}</span>
                                         </div>
 
-                                        <div class="info-row">
-
-                                            <span class="info-label">
-
-                                                <i class="fas fa-arrow-up me-2 text-warning"></i>Keluar
-                                            </span>
-
-                                            <span class="info-value">
-
-                                                {{ number_format($product->total_keluar, 0, ',', '.') }}
-
-                                            </span>
-
+                                        <!-- KELUAR -->
+                                        <div class="info-item">
+                                            <span class="info-item-label"><i class="fas fa-arrow-up text-warning"></i></span>
+                                            <span class="info-item-value">{{ number_format($product->total_keluar, 0, ',', '.') }}</span>
                                         </div>
 
                                     </div>
