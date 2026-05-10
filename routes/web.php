@@ -16,36 +16,36 @@ use Illuminate\Support\Facades\Http;
 //     return $response->json();
 // });
 
-// Route::get('/test-gemini', function () {
+Route::get('/test-gemini', function () {
 
-//     $response = Http::post(
+    $response = Http::post(
 
-//         'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=AIzaSyCQ3r_3AVc158RGYX2lQ5nT5DfbB4xvbIk',
+        'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=AIzaSyCQ3r_3AVc158RGYX2lQ5nT5DfbB4xvbIk',
 
-//         [
+        [
 
-//             'contents' => [
+            'contents' => [
 
-//                 [
+                [
 
-//                     'parts' => [
+                    'parts' => [
 
-//                         [
-//                             'text' => 'Halo Gemini'
-//                         ]
+                        [
+                            'text' => 'Halo Gemini'
+                        ]
 
-//                     ]
+                    ]
 
-//                 ]
+                ]
 
-//             ]
+            ]
 
-//         ]
+        ]
 
-//     );
+    );
 
-//     return $response->json();
-// });
+    return $response->json();
+});
 
 
 Route::get('/ai-analysis', function (Request $request) {
