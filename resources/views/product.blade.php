@@ -872,7 +872,7 @@
                                         <button
                                             type="button"
                                             class="copy-btn"
-                                            onclick="copyProductName(event, '{{ addslashes($product->name) }}')"
+                                            onclick="copyProductName(event, '{{ $product->id }}', '{{ addslashes($product->name) }}')"
                                             title="Copy nama produk">
                                             <i class="fas fa-copy"></i>
                                         </button>
