@@ -1208,9 +1208,10 @@
 
                                     <!-- ADD TO CART BUTTON -->
                                     <button type="button" class="add-to-cart-btn"
-                                        onclick="addToCart(event, '{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->salesprice1 }}, '{{ addslashes($product->productgroup_name) }}')"
-                                        onclick="event.stopPropagation();">
+                                        onclick="event.stopPropagation(); addToCart(event, '8997018250058', '41 SUSU JAHE 1RTG', 10000, 'KIN / NU / BATERAI ABC')">
+
                                         <i class="fas fa-plus"></i> Tambah ke Cart
+
                                     </button>
 
                                 </div>
