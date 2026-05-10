@@ -698,7 +698,7 @@
                         <div>
 
                             <h2 class="mb-2 fw-bold">
-                                <i class="fas fa-boxes me-2"></i>Manajemen Stok Produk
+                                <i class="fas fa-boxes me-2"></i>Manajemen Stock Produk
                             </h2>
 
                             <small class="opacity-75">
