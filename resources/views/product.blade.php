@@ -861,10 +861,7 @@
 
                         <div class="col-md-6 col-lg-4 col-xl-3">
 
-                            <div
-                                class="product-card shadow-sm"
-                                data-bs-toggle="modal"
-                                data-bs-target="#productModal{{ $product->id }}">
+                            <div class="product-card shadow-sm">
 
                                 <div class="product-card-header">
 
@@ -883,7 +880,11 @@
 
                                 </div>
 
-                                <div class="card-body p-3 d-flex flex-column">
+                                <div
+                                    class="card-body p-3 d-flex flex-column"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#productModal{{ $product->id }}"
+                                    style="cursor: pointer;">
 
                                     <!-- HARGA -->
                                     <div class="price-badge">
