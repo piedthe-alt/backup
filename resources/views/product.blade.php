@@ -1201,8 +1201,9 @@
                                         <input type="number" class="qty-input" value="1" min="1"
                                             max="{{ $product->stock }}"
                                             onchange="validateQty(this, {{ $product->stock }})">
-                                        <button type="button" class="qty-btn"
-                                            onclick="increaseQty(this, {{ $product->stock }})">+</button>
+                                        <button type="button" onclick="increaseQty(this)">
+                                            +
+                                        </button>
                                     </div>
 
                                     <!-- ADD TO CART BUTTON -->
@@ -1902,7 +1903,8 @@
         // ============ QUANTITY SELECTOR FUNCTIONS ============
         function increaseQty(btn) {
 
-            const input = btn.closest('.quantity-selector').querySelector('.qty-input');
+            const input = btn.closest('.quantity-selector')
+                .querySelector('.qty-input');
 
             let currentVal = parseInt(input.value) || 1;
 
