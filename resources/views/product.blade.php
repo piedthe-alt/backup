@@ -2438,21 +2438,21 @@
         // SOUND BEEP
         // ==========================================================================
 
-        function playBeep() {
+        // function playBeep() {
 
-            try {
+        //     try {
 
-                const audio = new Audio(
-                    'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVYGAACBhYqFbF1fd5W...
-                    '
-                );
+        //         const audio = new Audio(
+        //             'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVYGAACBhYqFbF1fd5W...
+        //             '
+        //         );
 
-                audio.volume = 0.3;
+        //         audio.volume = 0.3;
 
-                audio.play();
+        //         audio.play();
 
-            } catch (e) {}
-        }
+        //     } catch (e) {}
+        // }
 
         // ==========================================================================
         // UPDATE STATUS
