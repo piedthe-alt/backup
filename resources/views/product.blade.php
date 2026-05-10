@@ -1130,11 +1130,14 @@
     <!-- SCRIPT -->
     <script>
         // Copy Product Name Function
-        function copyProductName(event, productName) {
+        function copyProductName(event, productCode, productName) {
             event.stopPropagation();
 
+            // Format: "- [kode] - [nama produk] :\n"
+            const formattedText = `- ${productCode} - ${productName} :\n`;
+
             // Copy to clipboard
-            navigator.clipboard.writeText(productName).then(() => {
+            navigator.clipboard.writeText(formattedText).then(() => {
                 const btn = event.target.closest('.copy-btn');
                 const originalIcon = btn.innerHTML;
 
@@ -1149,7 +1152,7 @@
                 }, 2000);
 
                 // Optional: Show toast notification
-                showCopyNotification(productName);
+                showCopyNotification(productCode, productName);
             }).catch(err => {
                 console.error('Failed to copy:', err);
                 alert('Gagal mengcopy nama produk');
@@ -1157,8 +1160,10 @@
         }
 
         // Toast Notification Function
-        function showCopyNotification(productName) {
+        function showCopyNotification(productCode, productName) {
             const notification = document.createElement('div');
+            const displayText = `- ${productCode} - ${productName.substring(0, 20)}${productName.length > 20 ? '...' : ''} :`;
+
             notification.style.cssText = `
                 position: fixed;
                 top: 20px;
@@ -1175,7 +1180,7 @@
             `;
             notification.innerHTML = `
                 <i class="fas fa-check-circle me-2"></i>
-                Nama produk tercopy: "${productName.substring(0, 30)}${productName.length > 30 ? '...' : ''}"
+                Tercopy: "${displayText}"
             `;
 
             document.body.appendChild(notification);
