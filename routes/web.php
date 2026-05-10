@@ -562,13 +562,8 @@ Route::get('/sales-chart', function (Request $request) {
     |--------------------------------------------------------------------------
     | PENJUALAN DARI SALESDETAIL
     |--------------------------------------------------------------------------
-    | Sesuai dengan laporan penjualan:
-    | omzet_kotor  = SUM(netamount + salestax + extratax) = Total Tagihan
+    | omzet_kotor  = SUM(netamount)
     | margin_kotor = SUM(netamount - cogs)
-    |
-    | netamount = (qty × harga) - diskon = nilai setelah diskon
-    | salestax = pajak
-    | extratax = pajak tambahan
     |--------------------------------------------------------------------------
     */
 
@@ -578,41 +573,15 @@ Route::get('/sales-chart', function (Request $request) {
 
             DB::raw('DATE(updatetimestamp) as tanggal'),
 
-            /*
-            |--------------------------------------------------------------------------
-            | OMZET KOTOR = Net Amount (sudah dipotong diskon) + Pajak
-            |--------------------------------------------------------------------------
-            */
-
             DB::raw('
-                SUM(netamount + COALESCE(salestax, 0) + COALESCE(extratax, 0))
+                SUM(netamount)
                 as omzet_kotor
             '),
-
-            /*
-            |--------------------------------------------------------------------------
-            | MARGIN KOTOR = Net Amount - HPP (COGS)
-            |--------------------------------------------------------------------------
-            */
 
             DB::raw('
                 SUM(netamount - cogs)
                 as margin_kotor
-            '),
-
-            /*
-            |--------------------------------------------------------------------------
-            | DETAIL UNTUK PERHITUNGAN RETUR
-            |--------------------------------------------------------------------------
-            */
-
-            DB::raw('SUM(netamount) as net_amount_total'),
-
-            DB::raw('SUM(COALESCE(salestax, 0)) as tax_total'),
-
-            DB::raw('SUM(COALESCE(extratax, 0)) as extra_tax_total'),
-
-            DB::raw('SUM(cogs) as cogs_total')
+            ')
 
         )
 
@@ -643,12 +612,16 @@ Route::get('/sales-chart', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | RETUR (Return/Pengembalian Barang)
+    | RETUR
     |--------------------------------------------------------------------------
-    | Menggunakan inventory dengan kode I/SR-
+    | Menggunakan inventory
+    | I/SR-
+    |--------------------------------------------------------------------------
     |
-    | retur_value = harga jual saat ini × qty retur
-    | margin_retur = (harga jual - modal) × qty retur
+    | retur = harga jual sekarang * invin
+    |
+    | margin_retur =
+    | (harga jual - modal) * qty retur
     |--------------------------------------------------------------------------
     */
 
@@ -667,7 +640,7 @@ Route::get('/sales-chart', function (Request $request) {
 
             /*
             |--------------------------------------------------------------------------
-            | TOTAL RETUR = Harga Jual × Qty Retur
+            | TOTAL RETUR
             |--------------------------------------------------------------------------
             */
 
@@ -680,7 +653,7 @@ Route::get('/sales-chart', function (Request $request) {
 
             /*
             |--------------------------------------------------------------------------
-            | MARGIN RETUR = (Harga Jual - Modal) × Qty Retur
+            | MARGIN RETUR
             |--------------------------------------------------------------------------
             */
 
@@ -728,7 +701,7 @@ Route::get('/sales-chart', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | GABUNGKAN DATA PENJUALAN DAN RETUR
+    | GABUNGKAN
     |--------------------------------------------------------------------------
     */
 
@@ -739,7 +712,7 @@ Route::get('/sales-chart', function (Request $request) {
 
         /*
         |--------------------------------------------------------------------------
-        | AMBIL DATA RETUR UNTUK TANGGAL INI
+        | AMBIL RETUR
         |--------------------------------------------------------------------------
         */
 
@@ -752,7 +725,7 @@ Route::get('/sales-chart', function (Request $request) {
 
         /*
         |--------------------------------------------------------------------------
-        | RETUR VALUE
+        | RETUR
         |--------------------------------------------------------------------------
         */
 
@@ -760,11 +733,7 @@ Route::get('/sales-chart', function (Request $request) {
 
         /*
         |--------------------------------------------------------------------------
-        | OMZET BERSIH = (Net Amount + Pajak) - Retur
-        |
-        | Catatan:
-        | - Omzet Kotor sudah include pajak
-        | - Dikurangi nilai retur (berdasarkan harga jual saat retur)
+        | OMZET BERSIH
         |--------------------------------------------------------------------------
         */
 
@@ -774,7 +743,7 @@ Route::get('/sales-chart', function (Request $request) {
 
         /*
         |--------------------------------------------------------------------------
-        | MARGIN BERSIH = Margin Kotor - Margin Retur
+        | MARGIN BERSIH
         |--------------------------------------------------------------------------
         */
 
