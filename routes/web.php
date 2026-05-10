@@ -5,7 +5,92 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\ProductReturnController;
 
+
+Route::get('/api/get-returns-by-group', function (Request $request) {
+
+    $groupName = trim($request->group);
+
+    $masterDb = config('database.connections.mysql.database');
+
+    $returns = DB::connection('mysql_app')
+
+        ->table('product_returns')
+
+        ->leftJoin(
+            DB::raw("{$masterDb}.product as product"),
+            'product_returns.product_id',
+            '=',
+            'product.id'
+        )
+
+        ->leftJoin(
+            DB::raw("{$masterDb}.productgroup as productgroup"),
+            'product.productgroup',
+            '=',
+            'productgroup.id'
+        )
+
+        ->select(
+            'product_returns.*',
+            'product.name as product_name',
+            'productgroup.name as group_name'
+        )
+
+        ->whereRaw(
+            'LOWER(TRIM(productgroup.name)) = LOWER(?)',
+            [trim($groupName)]
+        )
+
+        ->whereRaw(
+            'LOWER(TRIM(product_returns.status)) = ?',
+            ['BELUM_DIAMBIL']
+        )
+
+        ->get();
+    return response()->json($returns);
+});
+
+Route::get('/test-db-app', function () {
+    return DB::connection('mysql_app')->select("SELECT DATABASE() as db");
+});
+
+Route::post('/returns/store', [ProductReturnController::class, 'store']);
+Route::get('/return', [ProductReturnController::class, 'index']);
+Route::post('/returns/taken/{id}', function ($id) {
+
+    DB::connection('mysql_app')
+
+        ->table('product_returns')
+
+        ->where('id', $id)
+
+        ->update([
+
+            'status' => 'SUDAH_DIAMBIL',
+
+            'updated_at' => now()
+
+        ]);
+
+    return redirect('/return');
+});
+
+// API untuk mendapatkan returan berdasarkan product name
+Route::get('/api/get-returns', function (Request $request) {
+    $productName = $request->product_name;
+
+    if (!$productName) {
+        return response()->json(['returns' => null]);
+    }
+
+    $return = DB::connection('mysql_app')->table('product_returns')
+        ->where('product_name', 'like', "%{$productName}%")
+        ->first();
+
+    return response()->json(['returns' => $return]);
+});
 
 // Route::get('/list-models', function () {
 
@@ -884,8 +969,7 @@ Route::get('/', function (Request $request) {
 
             $q->where('product.name', 'like', "%{$keyword}%")
 
-              ->orWhere('product.id', 'like', "%{$keyword}%");
-
+                ->orWhere('product.id', 'like', "%{$keyword}%");
         });
     }
 

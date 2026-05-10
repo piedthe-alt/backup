@@ -83,9 +83,17 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        .stat-box.stock { border-left-color: var(--info-color); }
-        .stat-box.masuk { border-left-color: var(--success-color); }
-        .stat-box.keluar { border-left-color: var(--warning-color); }
+        .stat-box.stock {
+            border-left-color: var(--info-color);
+        }
+
+        .stat-box.masuk {
+            border-left-color: var(--success-color);
+        }
+
+        .stat-box.keluar {
+            border-left-color: var(--warning-color);
+        }
 
         .stat-box h6 {
             font-size: 0.875rem;
@@ -229,9 +237,20 @@
             font-weight: 600;
         }
 
-        .stock-high { background-color: #d1fae5; color: #065f46; }
-        .stock-medium { background-color: #fef3c7; color: #92400e; }
-        .stock-low { background-color: #fee2e2; color: #991b1b; }
+        .stock-high {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .stock-medium {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .stock-low {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
 
         .search-input {
             border: 2px solid var(--border-color);
@@ -499,7 +518,8 @@
                 gap: 0.5rem !important;
             }
 
-            .col-md-6, .col-md-3 {
+            .col-md-6,
+            .col-md-3 {
                 padding: 0.25rem;
             }
 
@@ -626,10 +646,13 @@
         }
 
         @keyframes pulse-border {
-            0%, 100% {
+
+            0%,
+            100% {
                 border-color: var(--primary-color);
                 box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
             }
+
             50% {
                 border-color: var(--success-color);
                 box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
@@ -676,7 +699,255 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Cart Styles */
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+
+        .cart-btn-wrapper {
+            position: relative;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .qty-btn {
+            background: white;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .qty-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .qty-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-to-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+
+        .add-to-cart-btn:active {
+            transform: translateY(0);
+        }
+
+        .add-to-cart-btn.added {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+        }
+
+        /* Cart Modal Styles */
+        .cart-empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .cart-empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .cart-item {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        .cart-item-code {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .cart-item-price {
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .cart-item-qty {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--primary-color);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .cart-item-remove {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .cart-item-remove:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .cart-summary {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid var(--primary-color);
+            margin-top: 20px;
+        }
+
+        .cart-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .cart-summary-row:last-child {
+            margin-bottom: 0;
+            padding-top: 8px;
+            border-top: 2px solid rgba(37, 99, 235, 0.2);
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .cart-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .cart-copy-btn {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .cart-copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+
+        .cart-clear-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .cart-clear-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--danger-color);
         }
     </style>
 
@@ -717,17 +988,32 @@
                                 <i class="fas fa-chart-line"></i> Grafik
                             </a>
 
+                            <!-- TOMBOL RETUR -->
+                            <a href="/return" class="btn btn-action btn-secondary">
+                                <i class="fas fa-undo"></i> Retur
+                            </a>
+
                             <button class="btn btn-action btn-success" onclick="startScanner()">
                                 <i class="fas fa-camera"></i> Scan
                             </button>
 
-                            <a href="/import-db"
-                                class="btn btn-action btn-danger"
+                            <a href="/import-db" class="btn btn-action btn-danger"
                                 onclick="return confirm('Yakin mau import database?')">
 
                                 <i class="fas fa-database"></i> Import DB
 
                             </a>
+
+                            <button class="btn btn-action btn-primary cart-btn-wrapper" onclick="openCartModal()"
+                                style="position: relative;">
+
+                                <i class="fas fa-shopping-cart"></i> Cart
+
+                                <span class="cart-badge" id="cart-count" style="display: none;">
+                                    0
+                                </span>
+
+                            </button>
 
                         </div>
 
@@ -748,13 +1034,8 @@
                         <!-- SEARCH -->
                         <div class="col-md-6">
 
-                            <input
-                                type="text"
-                                name="keyword"
-                                id="searchInput"
-                                class="form-control search-input"
-                                placeholder="🔍 Cari nama produk atau scan barcode..."
-                                value="{{ request('keyword') }}"
+                            <input type="text" name="keyword" id="searchInput" class="form-control search-input"
+                                placeholder="🔍 Cari nama produk atau scan barcode..." value="{{ request('keyword') }}"
                                 autofocus>
 
                         </div>
@@ -762,24 +1043,19 @@
                         <!-- FILTER GROUP -->
                         <div class="col-md-3">
 
-                            <select
-                                name="productgroup"
-                                class="form-select search-input">
+                            <select name="productgroup" class="form-select search-input">
 
                                 <option value="">
                                     📂 Semua Group
                                 </option>
 
                                 @foreach ($productgroups as $group)
-
-                                    <option
-                                        value="{{ $group->id }}"
+                                    <option value="{{ $group->id }}"
                                         {{ request('productgroup') == $group->id ? 'selected' : '' }}>
 
                                         {{ $group->name }}
 
                                     </option>
-
                                 @endforeach
 
                             </select>
@@ -789,9 +1065,7 @@
                         <!-- BUTTON -->
                         <div class="col-md-3">
 
-                            <button
-                                type="submit"
-                                class="btn btn-action btn-primary w-100">
+                            <button type="submit" class="btn btn-action btn-primary w-100">
 
                                 <i class="fas fa-search"></i> Cari
 
@@ -807,27 +1081,33 @@
                 <div class="sort-buttons mb-5">
                     <span class="sort-label">📊 Urutkan Berdasarkan:</span>
 
-                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=stock_terendah" class="sort-btn {{ request('sort') == 'stock_terendah' || !request('sort') ? 'active' : '' }}">
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=stock_terendah"
+                        class="sort-btn {{ request('sort') == 'stock_terendah' || !request('sort') ? 'active' : '' }}">
                         <i class="fas fa-arrow-down me-1"></i>Stock Terendah
                     </a>
 
-                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=stock_tertinggi" class="sort-btn {{ request('sort') == 'stock_tertinggi' ? 'active' : '' }}">
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=stock_tertinggi"
+                        class="sort-btn {{ request('sort') == 'stock_tertinggi' ? 'active' : '' }}">
                         <i class="fas fa-arrow-up me-1"></i>Stock Tertinggi
                     </a>
 
-                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=paling_laris" class="sort-btn {{ request('sort') == 'paling_laris' ? 'active' : '' }}">
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=paling_laris"
+                        class="sort-btn {{ request('sort') == 'paling_laris' ? 'active' : '' }}">
                         <i class="fas fa-fire me-1"></i>Paling Laris
                     </a>
 
-                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=gak_jalan" class="sort-btn {{ request('sort') == 'gak_jalan' ? 'active' : '' }}">
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=gak_jalan"
+                        class="sort-btn {{ request('sort') == 'gak_jalan' ? 'active' : '' }}">
                         <i class="fas fa-snooze me-1"></i>Gak Jalan
                     </a>
 
-                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=nama_asc" class="sort-btn {{ request('sort') == 'nama_asc' ? 'active' : '' }}">
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=nama_asc"
+                        class="sort-btn {{ request('sort') == 'nama_asc' ? 'active' : '' }}">
                         <i class="fas fa-sort-alpha-down me-1"></i>A-Z
                     </a>
 
-                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=nama_desc" class="sort-btn {{ request('sort') == 'nama_desc' ? 'active' : '' }}">
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=nama_desc"
+                        class="sort-btn {{ request('sort') == 'nama_desc' ? 'active' : '' }}">
                         <i class="fas fa-sort-alpha-up-alt me-1"></i>Z-A
                     </a>
                 </div>
@@ -858,7 +1138,6 @@
                 <div class="row g-4">
 
                     @forelse ($products as $product)
-
                         <div class="col-md-6 col-lg-4 col-xl-3">
 
                             <div class="product-card shadow-sm">
@@ -869,9 +1148,7 @@
                                         <h5 class="product-name">
                                             {{ Str::limit($product->name, 35) }}
                                         </h5>
-                                        <button
-                                            type="button"
-                                            class="copy-btn"
+                                        <button type="button" class="copy-btn"
                                             onclick="copyProductName(event, '{{ $product->id }}', '{{ addslashes($product->name) }}')"
                                             title="Copy nama produk">
                                             <i class="fas fa-copy"></i>
@@ -880,26 +1157,24 @@
 
                                 </div>
 
-                                <div
-                                    class="card-body p-3 d-flex flex-column"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#productModal{{ $product->id }}"
-                                    style="cursor: pointer;">
+                                <div class="card-body p-3 d-flex flex-column">
 
                                     <!-- HARGA -->
-                                    <div class="price-badge">
-
+                                    <div class="price-badge" onclick="event.stopPropagation()" data-bs-toggle="modal"
+                                        data-bs-target="#productModal{{ $product->id }}" style="cursor: pointer;">
                                         Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
-
                                     </div>
 
                                     <!-- INFO HORIZONTAL -->
-                                    <div class="product-info">
+                                    <div class="product-info" onclick="event.stopPropagation()"
+                                        data-bs-toggle="modal" data-bs-target="#productModal{{ $product->id }}"
+                                        style="cursor: pointer;">
 
                                         <!-- STOCK -->
                                         <div class="info-item">
                                             <span class="info-item-label">Stock</span>
-                                            <span class="stock-status {{ $product->stock > 20 ? 'stock-high' : ($product->stock > 5 ? 'stock-medium' : 'stock-low') }}">
+                                            <span
+                                                class="stock-status {{ $product->stock > 20 ? 'stock-high' : ($product->stock > 5 ? 'stock-medium' : 'stock-low') }}">
                                                 {{ number_format($product->stock, 0, ',', '.') }}
                                             </span>
                                         </div>
@@ -907,16 +1182,35 @@
                                         <!-- MASUK -->
                                         <div class="info-item">
                                             <span class="info-item-label">Masuk</span>
-                                            <span class="info-item-value">{{ number_format($product->total_masuk, 0, ',', '.') }}</span>
+                                            <span
+                                                class="info-item-value">{{ number_format($product->total_masuk, 0, ',', '.') }}</span>
                                         </div>
 
                                         <!-- KELUAR -->
                                         <div class="info-item">
                                             <span class="info-item-label">Keluar</span>
-                                            <span class="info-item-value">{{ number_format($product->total_keluar, 0, ',', '.') }}</span>
+                                            <span
+                                                class="info-item-value">{{ number_format($product->total_keluar, 0, ',', '.') }}</span>
                                         </div>
 
                                     </div>
+
+                                    <!-- QUANTITY SELECTOR -->
+                                    <div class="quantity-selector" onclick="event.stopPropagation();">
+                                        <button type="button" class="qty-btn" onclick="decreaseQty(this)">−</button>
+                                        <input type="number" class="qty-input" value="1" min="1"
+                                            max="{{ $product->stock }}"
+                                            onchange="validateQty(this, {{ $product->stock }})">
+                                        <button type="button" class="qty-btn"
+                                            onclick="increaseQty(this, {{ $product->stock }})">+</button>
+                                    </div>
+
+                                    <!-- ADD TO CART BUTTON -->
+                                    <button type="button" class="add-to-cart-btn"
+                                        onclick="addToCart(event, '{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->salesprice1 }}, '{{ addslashes($product->productgroup_name) }}')"
+                                        onclick="event.stopPropagation();">
+                                        <i class="fas fa-plus"></i> Tambah ke Cart
+                                    </button>
 
                                 </div>
 
@@ -939,7 +1233,6 @@
                             </div>
 
                         </div>
-
                     @endforelse
 
                 </div>
@@ -959,11 +1252,7 @@
 
     <!-- MODAL -->
     @foreach ($products as $product)
-
-        <div
-            class="modal fade"
-            id="productModal{{ $product->id }}"
-            tabindex="-1">
+        <div class="modal fade" id="productModal{{ $product->id }}" tabindex="-1">
 
             <div class="modal-dialog modal-lg modal-dialog-centered">
 
@@ -981,10 +1270,7 @@
                             <small class="text-white-50">Detail Produk</small>
                         </div>
 
-                        <button
-                            type="button"
-                            class="btn-close btn-close-white"
-                            data-bs-dismiss="modal">
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
 
                         </button>
 
@@ -1005,7 +1291,8 @@
 
                                     <td>
 
-                                        <span class="badge bg-light text-dark">{{ $product->productgroup_name }}</span>
+                                        <span
+                                            class="badge bg-light text-dark">{{ $product->productgroup_name }}</span>
 
                                     </td>
 
@@ -1033,7 +1320,8 @@
 
                                     <td>
 
-                                        <strong class="text-info">{{ number_format($product->stock, 0, ',', '.') }} pcs</strong>
+                                        <strong class="text-info">{{ number_format($product->stock, 0, ',', '.') }}
+                                            pcs</strong>
 
                                     </td>
 
@@ -1047,7 +1335,8 @@
 
                                     <td>
 
-                                        <strong class="text-success">{{ number_format($product->total_masuk, 0, ',', '.') }}</strong>
+                                        <strong
+                                            class="text-success">{{ number_format($product->total_masuk, 0, ',', '.') }}</strong>
 
                                     </td>
 
@@ -1061,7 +1350,8 @@
 
                                     <td>
 
-                                        <strong class="text-warning">{{ number_format($product->total_keluar, 0, ',', '.') }}</strong>
+                                        <strong
+                                            class="text-warning">{{ number_format($product->total_keluar, 0, ',', '.') }}</strong>
 
                                     </td>
 
@@ -1075,7 +1365,8 @@
 
                                     <td>
 
-                                        <strong class="text-danger">Rp {{ number_format($product->costprice, 0, ',', '.') }}</strong>
+                                        <strong class="text-danger">Rp
+                                            {{ number_format($product->costprice, 0, ',', '.') }}</strong>
 
                                     </td>
 
@@ -1089,7 +1380,8 @@
 
                                     <td>
 
-                                        <strong class="text-success">Rp {{ number_format($product->salesprice1, 0, ',', '.') }}</strong>
+                                        <strong class="text-success">Rp
+                                            {{ number_format($product->salesprice1, 0, ',', '.') }}</strong>
 
                                     </td>
 
@@ -1104,10 +1396,16 @@
                                     <td>
 
                                         @php
-                                            $margin = $product->costprice > 0 ? (($product->salesprice1 - $product->costprice) / $product->costprice) * 100 : 0;
+                                            $margin =
+                                                $product->costprice > 0
+                                                    ? (($product->salesprice1 - $product->costprice) /
+                                                            $product->costprice) *
+                                                        100
+                                                    : 0;
                                         @endphp
 
-                                        <strong class="text-primary">{{ number_format($margin, 2, ',', '.') }}%</strong>
+                                        <strong
+                                            class="text-primary">{{ number_format($margin, 2, ',', '.') }}%</strong>
 
                                     </td>
 
@@ -1124,11 +1422,512 @@
             </div>
 
         </div>
-
     @endforeach
+
+    <!-- CART MODAL -->
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <!-- HEADER -->
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title">
+                            <i class="fas fa-shopping-cart me-2"></i>Keranjang Order
+                        </h5>
+                        <small class="text-white-50">Daftar produk yang akan di-order</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <!-- BODY -->
+                <div class="modal-body p-4">
+                    <div id="cart-items-container">
+                        <div class="cart-empty-state">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h5 class="text-muted mt-3">Keranjang kosong</h5>
+                            <p class="text-muted small">Tambahkan produk dengan menekan tombol "Tambah ke Cart"</p>
+                        </div>
+                    </div>
+
+                    <div id="cart-summary-container" style="display: none;">
+                        <div class="cart-summary">
+                            <div class="cart-summary-row">
+                                <span>Total Item:</span>
+                                <span id="cart-total-items">0</span>
+                            </div>
+                            <div class="cart-summary-row">
+                                <span>Total Jumlah:</span>
+                                <span id="cart-total-qty">0</span>
+                            </div>
+                        </div>
+
+                        <div class="cart-actions">
+                            <button type="button" class="cart-copy-btn" id="cart-copy-btn"
+                                onclick="copyCartList(this)">
+                                <i class="fas fa-copy"></i> Copy List
+                            </button>
+                            <button type="button" class="cart-clear-btn" onclick="clearCart()">
+                                <i class="fas fa-trash"></i> Kosongkan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- SCRIPT -->
     <script>
+        // ============ CART MANAGEMENT ============
+        let cart = JSON.parse(localStorage.getItem('orderCart')) || {};
+
+        function addToCart(event, productId, productName, price, groupName) {
+            event.stopPropagation();
+
+            // Get quantity from the input field
+            const qtyInput = event.target.closest('.card-body').querySelector('.qty-input');
+            const quantity = parseInt(qtyInput.value) || 1;
+
+            if (quantity <= 0) {
+                alert('Masukkan jumlah yang valid');
+                return;
+            }
+
+            // Add or update cart item
+            if (cart[productId]) {
+                cart[productId].quantity += quantity;
+            } else {
+                cart[productId] = {
+                    id: productId,
+                    name: productName,
+                    price: price,
+                    quantity: quantity,
+                    group: groupName
+                };
+            }
+
+            // Save to localStorage
+            localStorage.setItem('orderCart', JSON.stringify(cart));
+
+            // Update badge
+            updateCartBadge();
+
+            // Reset quantity
+            qtyInput.value = 1;
+
+            // Show notification
+            showAddToCartNotification(productName, quantity);
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cart-count');
+            const itemCount = Object.keys(cart).length;
+
+            if (itemCount > 0) {
+                badge.textContent = itemCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function openCartModal() {
+            renderCartItems();
+            const cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
+            cartModal.show();
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cart-items-container');
+            const summaryContainer = document.getElementById('cart-summary-container');
+
+            if (Object.keys(cart).length === 0) {
+                container.innerHTML = `
+                    <div class="cart-empty-state">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h5 class="text-muted mt-3">Keranjang kosong</h5>
+                        <p class="text-muted small">Tambahkan produk dengan menekan tombol "Tambah ke Cart"</p>
+                    </div>
+                `;
+                summaryContainer.style.display = 'none';
+                return;
+            }
+
+            let html = '';
+            let totalItems = 0;
+            let totalQty = 0;
+            let groupedItems = {};
+
+            // Group items by group name
+            for (let productId in cart) {
+                const item = cart[productId];
+                const group = item.group || 'Uncategorized';
+
+                if (!groupedItems[group]) {
+                    groupedItems[group] = [];
+                }
+                groupedItems[group].push({
+                    id: productId,
+                    ...item
+                });
+                totalItems++;
+                totalQty += item.quantity;
+            }
+
+            // Render grouped items with returns
+            for (let group in groupedItems) {
+                html += `<div style="margin-bottom: 20px;">`;
+                html +=
+                    `<h6 style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 10px 12px; border-radius: 6px; margin-bottom: 12px; font-weight: 600; margin-top: 0;"><i class="fas fa-folder me-2"></i>Orderan ${group}</h6>`;
+
+                for (let item of groupedItems[group]) {
+                    html += `
+                        <div class="cart-item">
+                            <div class="cart-item-info">
+                                <div class="cart-item-name">${item.name}</div>
+                                <div class="cart-item-code">Kode: ${item.id}</div>
+                                <div class="cart-item-price">Rp ${number_format(item.price)} x ${item.quantity}</div>
+                            </div>
+                            <div class="cart-item-qty">${item.quantity} pcs</div>
+                            <button type="button" class="cart-item-remove" onclick="removeFromCart('${item.id}')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+
+                // Load returns for this group
+                loadReturnsForGroupDisplay(group, groupedItems[group], (returnsHtml) => {
+                    if (returnsHtml) {
+                        const groupDiv = container.querySelector(`[data-group="${group}"]`);
+                        if (groupDiv) {
+                            groupDiv.insertAdjacentHTML('beforeend', returnsHtml);
+                        }
+                    }
+                });
+
+                html += `<div data-group="${group}"></div></div>`;
+            }
+
+            container.innerHTML = html;
+            document.getElementById('cart-total-items').textContent = totalItems;
+            document.getElementById('cart-total-qty').textContent = totalQty;
+            summaryContainer.style.display = 'block';
+        }
+
+        // Load and display returns for a group
+        async function loadReturnsForGroupDisplay(groupName, items, callback) {
+            try {
+                let returnsHtml = '';
+                const returns = await getReturnsForGroup(groupName, items);
+
+                if (returns && returns.length > 0) {
+                    returnsHtml = `
+                        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px; border-radius: 8px; margin-top: 12px;">
+                            <div style="font-weight: 600; color: #ef4444; font-size: 0.9rem; margin-bottom: 8px;">
+                                <i class="fas fa-undo me-2"></i>Returan:
+                            </div>
+                    `;
+
+                    for (let ret of returns) {
+                        returnsHtml += `
+                            <div style="color: #1e293b; font-size: 0.85rem; margin-bottom: 4px;">
+                                - ${ret.product_name} = ${ret.quantity_retur} Pcs
+                            </div>
+                        `;
+                    }
+
+                    returnsHtml += `</div>`;
+                }
+
+                callback(returnsHtml);
+            } catch (error) {
+                console.error('Error loading returns:', error);
+                callback('');
+            }
+        }
+
+        function removeFromCart(productId) {
+            delete cart[productId];
+            localStorage.setItem('orderCart', JSON.stringify(cart));
+            updateCartBadge();
+            renderCartItems();
+        }
+
+        function clearCart() {
+            if (confirm('Yakin ingin mengosongkan keranjang?')) {
+                cart = {};
+                localStorage.setItem('orderCart', JSON.stringify(cart));
+                updateCartBadge();
+                renderCartItems();
+            }
+        }
+
+        // Fetch returns data for a group
+        async function getReturnsForGroup(groupName, items) {
+            try {
+                let returns = [];
+
+                // Fetch returns for each product in the group
+                for (let item of items) {
+                    const response = await fetch(`/api/get-returns?product_name=${encodeURIComponent(item.name)}`);
+                    const data = await response.json();
+
+                    if (data.returns) {
+                        returns.push(data.returns);
+                    }
+                }
+
+                return returns;
+            } catch (error) {
+                console.error('Error fetching returns:', error);
+                return [];
+            }
+        }
+
+        async function copyCartList(btn) {
+
+            let copyText = '';
+
+            let groupedItems = {};
+
+            /*
+            |--------------------------------------------------------------------------
+            | GROUP CART
+            |--------------------------------------------------------------------------
+            */
+
+            for (let productId in cart) {
+
+                const item = cart[productId];
+
+                const group = item.group || 'Uncategorized';
+
+                if (!groupedItems[group]) {
+                    groupedItems[group] = [];
+                }
+
+                groupedItems[group].push(item);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | KERANJANG KOSONG
+            |--------------------------------------------------------------------------
+            */
+
+            if (Object.keys(groupedItems).length === 0) {
+
+                alert('Keranjang kosong');
+
+                return;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | LOOP GROUP
+            |--------------------------------------------------------------------------
+            */
+
+            for (let group in groupedItems) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | HEADER GROUP
+                |--------------------------------------------------------------------------
+                */
+
+                copyText += `Orderan ${group}\n`;
+
+                /*
+                |--------------------------------------------------------------------------
+                | ITEM ORDER
+                |--------------------------------------------------------------------------
+                */
+
+                for (let item of groupedItems[group]) {
+
+                    copyText += `- ${item.name} = ${item.quantity} Pcs\n`;
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | AMBIL RETUR GROUP
+                |--------------------------------------------------------------------------
+                */
+
+                try {
+
+                    const response = await fetch(
+                        `/api/get-returns-by-group?group=${encodeURIComponent(group)}`
+                    );
+
+                    const returns = await response.json();
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | JIKA ADA RETUR
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (returns.length > 0) {
+
+                        copyText += `\nReturan\n`;
+
+                        for (let ret of returns) {
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | NOTE
+                            |--------------------------------------------------------------------------
+                            */
+
+                            let noteText = '';
+
+                            if (
+                                ret.note &&
+                                ret.note.trim() !== ''
+                            ) {
+
+                                noteText = ` (${ret.note})`;
+                            }
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | FORMAT RETUR
+                            |--------------------------------------------------------------------------
+                            */
+
+                            copyText +=
+                                `- ${ret.product_name} = ${ret.quantity} Pcs${noteText}\n`;
+                        }
+                    }
+
+                } catch (error) {
+
+                    console.error(error);
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | SPASI ANTAR GROUP
+                |--------------------------------------------------------------------------
+                */
+
+                copyText += `\n`;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | COPY
+            |--------------------------------------------------------------------------
+            */
+
+            navigator.clipboard.writeText(copyText)
+
+                .then(() => {
+
+                    const originalIcon = btn.innerHTML;
+
+                    const originalBg = btn.style.background;
+
+                    btn.innerHTML =
+                        '<i class="fas fa-check"></i> Tersalin';
+
+                    btn.style.background =
+                        'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
+
+                    setTimeout(() => {
+
+                        btn.innerHTML = originalIcon;
+
+                        btn.style.background = originalBg;
+
+                    }, 2000);
+
+                    showCopyNotification(
+                        'Cart',
+                        'Daftar order berhasil di-copy'
+                    );
+
+                })
+
+                .catch(err => {
+
+                    console.error(err);
+
+                    alert('Gagal mengcopy list order');
+                });
+        }
+
+        function number_format(num) {
+            return new Intl.NumberFormat('id-ID').format(num);
+        }
+
+        function showAddToCartNotification(productName, quantity) {
+            const notification = document.createElement('div');
+            const displayText = `${productName.substring(0, 25)}${productName.length > 25 ? '...' : ''}`;
+
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+                font-weight: 500;
+                max-width: 300px;
+            `;
+            notification.innerHTML = `
+                <i class="fas fa-plus-circle me-2"></i>
+                ${displayText} (${quantity} pcs) ditambahkan ke cart
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Initialize cart badge on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartBadge();
+        });
+
+        // ============ QUANTITY SELECTOR FUNCTIONS ============
+        function increaseQty(btn) {
+
+            const input = btn.closest('.quantity-selector').querySelector('.qty-input');
+
+            let currentVal = parseInt(input.value) || 1;
+
+            input.value = currentVal + 1;
+        }
+
+        function decreaseQty(btn) {
+            const input = btn.closest('.quantity-selector').querySelector('.qty-input');
+            let currentVal = parseInt(input.value) || 1;
+            if (currentVal > 1) {
+                input.value = currentVal - 1;
+            }
+        }
+
+        function validateQty(input) {
+
+            let value = parseInt(input.value) || 1;
+
+            if (value < 1) {
+                value = 1;
+            }
+
+            input.value = value;
+        }
+
         // Copy Product Name Function
         function copyProductName(event, productCode, productName) {
             event.stopPropagation();
@@ -1162,7 +1961,8 @@
         // Toast Notification Function
         function showCopyNotification(productCode, productName) {
             const notification = document.createElement('div');
-            const displayText = `- ${productCode} - ${productName.substring(0, 20)}${productName.length > 20 ? '...' : ''} :`;
+            const displayText =
+                `- ${productCode} - ${productName.substring(0, 20)}${productName.length > 20 ? '...' : ''} :`;
 
             notification.style.cssText = `
                 position: fixed;
@@ -1211,150 +2011,520 @@
             }, 3000);
         }
 
-        // Global scanner state
+        // ==========================================================================
+        // GLOBAL SCANNER STATE
+        // ==========================================================================
+
         let scannerState = {
             isRunning: false,
             lastScannedTime: 0,
-            debounceTime: 1000
+            debounceTime: 1500,
+            stream: null
         };
 
-        function startScanner() {
-            const scannerModal = document.getElementById('scanner-modal');
+        // ==========================================================================
+        // START SCANNER
+        // ==========================================================================
+
+        async function startScanner() {
+
+            const scannerModal =
+                document.getElementById('scanner-modal');
+
             scannerModal.classList.add('active');
 
-            Quagga.init(
-                {
+            updateScannerStatus(
+                'scanning',
+                '📷 Membuka kamera belakang...'
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | STOP DULU JIKA MASIH ADA
+            |--------------------------------------------------------------------------
+            */
+
+            try {
+
+                if (scannerState.isRunning) {
+
+                    Quagga.stop();
+
+                    scannerState.isRunning = false;
+                }
+
+            } catch (e) {}
+
+            /*
+            |--------------------------------------------------------------------------
+            | INIT QUAGGA
+            |--------------------------------------------------------------------------
+            */
+
+            Quagga.init({
+
                     inputStream: {
+
                         name: "Live",
+
                         type: "LiveStream",
+
                         target: document.querySelector('#video-canvas'),
+
                         constraints: {
-                            width: { min: 640 },
-                            height: { min: 480 },
-                            facingMode: "environment"
+
+                            width: {
+                                ideal: 1920
+                            },
+
+                            height: {
+                                ideal: 1080
+                            },
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | PAKSA KAMERA BELAKANG
+                            |--------------------------------------------------------------------------
+                            */
+
+                            facingMode: {
+                                exact: "environment"
+                            }
+
                         }
                     },
+
+                    locator: {
+
+                        patchSize: "medium",
+
+                        halfSample: false
+                    },
+
+                    numOfWorkers: navigator.hardwareConcurrency || 4,
+
+                    frequency: 10,
+
                     decoder: {
-                        workers: 2,
-                        debug: false,
+
                         readers: [
-                            'code_128_reader',
-                            'ean_reader',
-                            'ean_8_reader',
-                            'code_39_reader',
-                            'code_39_vin_reader',
-                            'codabar_reader',
-                            'upc_reader',
-                            'upc_e_reader',
-                            'i2of5_reader',
-                            'qr_code_reader'
+
+                            "ean_reader",
+
+                            "ean_8_reader",
+
+                            "code_128_reader",
+
+                            "upc_reader",
+
+                            "upc_e_reader",
+
+                            "code_39_reader",
+
+                            "codabar_reader",
+
+                            "i2of5_reader"
+
                         ]
                     },
-                    locator: {
-                        halfSample: true
-                    }
+
+                    locate: true
+
                 },
+
                 function(err) {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | FALLBACK JIKA exact environment GAGAL
+                    |--------------------------------------------------------------------------
+                    */
+
                     if (err) {
-                        console.error('Error initializing Quagga:', err);
-                        updateScannerStatus('error', '❌ Gagal membuka kamera. Periksa izin akses.');
+
+                        console.warn(
+                            'Environment camera gagal, fallback...',
+                            err
+                        );
+
+                        Quagga.init({
+
+                                inputStream: {
+
+                                    name: "Live",
+
+                                    type: "LiveStream",
+
+                                    target: document.querySelector('#video-canvas'),
+
+                                    constraints: {
+
+                                        width: {
+                                            ideal: 1280
+                                        },
+
+                                        height: {
+                                            ideal: 720
+                                        },
+
+                                        facingMode: "environment"
+                                    }
+                                },
+
+                                locator: {
+
+                                    patchSize: "medium",
+
+                                    halfSample: false
+                                },
+
+                                decoder: {
+
+                                    readers: [
+
+                                        "ean_reader",
+
+                                        "ean_8_reader",
+
+                                        "code_128_reader",
+
+                                        "upc_reader",
+
+                                        "upc_e_reader",
+
+                                        "code_39_reader"
+
+                                    ]
+                                },
+
+                                locate: true
+
+                            },
+
+                            function(err2) {
+
+                                if (err2) {
+
+                                    console.error(err2);
+
+                                    updateScannerStatus(
+                                        'error',
+                                        '❌ Kamera gagal dibuka'
+                                    );
+
+                                    return;
+                                }
+
+                                startQuaggaEngine();
+                            }
+                        );
+
                         return;
                     }
 
-                    console.log('Quagga initialized');
-                    Quagga.start();
-                    scannerState.isRunning = true;
-                    updateScannerStatus('scanning', '🔍 Scanning...');
+                    startQuaggaEngine();
                 }
             );
+        }
+
+        // ==========================================================================
+        // START ENGINE
+        // ==========================================================================
+
+        function startQuaggaEngine() {
+
+            Quagga.start();
+
+            scannerState.isRunning = true;
+
+            updateScannerStatus(
+                'success',
+                '✅ Kamera siap, arahkan ke barcode'
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | REMOVE EVENT LAMA
+            |--------------------------------------------------------------------------
+            */
+
+            Quagga.offDetected(onScanSuccess);
+
+            Quagga.offProcessed(onProcessed);
+
+            /*
+            |--------------------------------------------------------------------------
+            | EVENT
+            |--------------------------------------------------------------------------
+            */
 
             Quagga.onDetected(onScanSuccess);
+
             Quagga.onProcessed(onProcessed);
         }
 
-        function onProcessed(result) {
-            const drawingCtx = Quagga.canvas.ctx.overlay;
-            const drawingCanvas = Quagga.canvas.canvas;
+        // ==========================================================================
+        // DRAW BOX
+        // ==========================================================================
 
-            if (result === null) {
+        function onProcessed(result) {
+
+            const drawingCtx =
+                Quagga.canvas.ctx.overlay;
+
+            const drawingCanvas =
+                Quagga.canvas.canvas.overlay;
+
+            if (!drawingCtx || !drawingCanvas) {
                 return;
             }
 
-            if (result.boxes) {
-                drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute('width')), parseInt(drawingCanvas.getAttribute('height')));
-                result.boxes.filter(box => box !== result.box).forEach(box => {
-                    Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx);
-                });
+            drawingCtx.clearRect(
+                0,
+                0,
+                drawingCanvas.width,
+                drawingCanvas.height
+            );
+
+            if (result && result.boxes) {
+
+                result.boxes
+
+                    .filter(box => box !== result.box)
+
+                    .forEach(box => {
+
+                        Quagga.ImageDebug.drawPath(
+
+                            box,
+
+                            {
+                                x: 0,
+                                y: 1
+                            },
+
+                            drawingCtx,
+
+                            {
+                                lineWidth: 2
+                            }
+                        );
+                    });
             }
 
-            if (result.box) {
-                Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx);
+            if (result && result.box) {
+
+                Quagga.ImageDebug.drawPath(
+
+                    result.box,
+
+                    {
+                        x: 0,
+                        y: 1
+                    },
+
+                    drawingCtx,
+
+                    {
+                        lineWidth: 3
+                    }
+                );
             }
 
-            if (result.codeResult && result.codeResult.code) {
-                Quagga.ImageDebug.drawPath(result.line, { x: 'x', y: 'y' }, drawingCtx, { color: 'green', lineWidth: 3 });
+            if (
+                result &&
+                result.codeResult &&
+                result.codeResult.code
+            ) {
+
+                Quagga.ImageDebug.drawPath(
+
+                    result.line,
+
+                    {
+                        x: 'x',
+                        y: 'y'
+                    },
+
+                    drawingCtx,
+
+                    {
+                        color: 'green',
+                        lineWidth: 4
+                    }
+                );
             }
         }
+
+        // ==========================================================================
+        // SCAN SUCCESS
+        // ==========================================================================
 
         function onScanSuccess(result) {
+
             const currentTime = Date.now();
 
-            // Debounce: hindari scan duplicate dalam 1 detik
-            if (currentTime - scannerState.lastScannedTime < scannerState.debounceTime) {
+            /*
+            |--------------------------------------------------------------------------
+            | DEBOUNCE
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                currentTime - scannerState.lastScannedTime <
+                scannerState.debounceTime
+            ) {
+
                 return;
             }
 
-            if (result.codeResult && result.codeResult.code) {
-                const scannedValue = result.codeResult.code;
+            if (
+                result.codeResult &&
+                result.codeResult.code
+            ) {
 
-                console.log('Scanned:', scannedValue, 'Format:', result.codeResult.format);
+                const scannedValue =
+                    result.codeResult.code;
 
-                // Update input dan trigger search
-                document.getElementById('searchInput').value = scannedValue;
+                console.log(
+                    'Scanned:',
+                    scannedValue
+                );
 
-                // Update status
-                updateScannerStatus('success', `✅ Berhasil scan: ${scannedValue}`);
-                scannerState.lastScannedTime = currentTime;
+                /*
+                |--------------------------------------------------------------------------
+                | SOUND
+                |--------------------------------------------------------------------------
+                */
 
-                // Auto submit form setelah 1 detik
+                playBeep();
+
+                /*
+                |--------------------------------------------------------------------------
+                | INPUT SEARCH
+                |--------------------------------------------------------------------------
+                */
+
+                document.getElementById('searchInput').value =
+                    scannedValue;
+
+                updateScannerStatus(
+                    'success',
+                    `✅ Barcode: ${scannedValue}`
+                );
+
+                scannerState.lastScannedTime =
+                    currentTime;
+
+                /*
+                |--------------------------------------------------------------------------
+                | AUTO SUBMIT
+                |--------------------------------------------------------------------------
+                */
+
                 setTimeout(() => {
-                    document.querySelector('form[method="GET"]').submit();
-                }, 1000);
+
+                    stopScanner();
+
+                    document
+                        .querySelector('form[method="GET"]')
+                        .submit();
+
+                }, 700);
             }
         }
+
+        // ==========================================================================
+        // SOUND BEEP
+        // ==========================================================================
+
+        function playBeep() {
+
+            try {
+
+                const audio = new Audio(
+                    'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVYGAACBhYqFbF1fd5W...
+                    '
+                );
+
+                audio.volume = 0.3;
+
+                audio.play();
+
+            } catch (e) {}
+        }
+
+        // ==========================================================================
+        // UPDATE STATUS
+        // ==========================================================================
 
         function updateScannerStatus(type, message) {
-            const statusEl = document.getElementById('scanner-status');
-            statusEl.className = 'scanner-status ' + type;
-            statusEl.textContent = message;
+
+            const statusEl =
+                document.getElementById('scanner-status');
+
+            statusEl.className =
+                'scanner-status ' + type;
+
+            statusEl.textContent =
+                message;
         }
+
+        // ==========================================================================
+        // STOP SCANNER
+        // ==========================================================================
 
         function stopScanner() {
-            try {
-                Quagga.stop();
-                Quagga.offDetected(onScanSuccess);
-                Quagga.offProcessed(onProcessed);
-                scannerState.isRunning = false;
 
-                const scannerModal = document.getElementById('scanner-modal');
-                scannerModal.classList.remove('active');
+            try {
+
+                Quagga.offDetected(onScanSuccess);
+
+                Quagga.offProcessed(onProcessed);
+
+                Quagga.stop();
+
             } catch (err) {
-                console.error('Error stopping scanner:', err);
-                const scannerModal = document.getElementById('scanner-modal');
-                scannerModal.classList.remove('active');
+
+                console.error(err);
             }
+
+            scannerState.isRunning = false;
+
+            const scannerModal =
+                document.getElementById('scanner-modal');
+
+            scannerModal.classList.remove('active');
         }
 
-        // Close modal when clicking outside
-        document.getElementById('scanner-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                stopScanner();
-            }
-        });
+        // ==========================================================================
+        // CLOSE MODAL
+        // ==========================================================================
 
-        // Close on Escape key
+        document
+            .getElementById('scanner-modal')
+
+            .addEventListener('click', function(e) {
+
+                if (e.target === this) {
+
+                    stopScanner();
+                }
+            });
+
+        // ==========================================================================
+        // ESC
+        // ==========================================================================
+
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && document.getElementById('scanner-modal').classList.contains('active')) {
+
+            if (
+                e.key === 'Escape' &&
+                document
+                .getElementById('scanner-modal')
+                .classList.contains('active')
+            ) {
+
                 stopScanner();
             }
         });
