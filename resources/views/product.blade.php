@@ -125,12 +125,50 @@
             transform: translateY(-8px);
         }
 
+        .product-header-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
         .product-name {
             font-weight: 600;
             font-size: 0.95rem;
             color: #1e293b;
             margin-bottom: 0;
             line-height: 1.3;
+            flex: 1;
+        }
+
+        .copy-btn {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            color: var(--primary-color);
+            border-radius: 6px;
+            padding: 6px 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-btn:hover {
+            background: rgba(37, 99, 235, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .copy-btn.copied {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--success-color);
+        }
+
+        .copy-btn i {
+            font-size: 0.8rem;
         }
 
         .price-badge {
@@ -218,6 +256,56 @@
             align-items: center;
             gap: 8px;
             justify-content: center;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .sort-buttons .sort-label {
+            font-weight: 600;
+            color: #1e293b;
+            align-self: center;
+            white-space: nowrap;
+            margin-right: 8px;
+            font-size: 0.95rem;
+        }
+
+        .sort-btn {
+            border-radius: 8px;
+            padding: 8px 14px;
+            border: 1.5px solid var(--border-color);
+            background: white;
+            color: #1e293b;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .sort-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .sort-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
         .btn-action:hover {
@@ -715,6 +803,35 @@
 
                 </form>
 
+                <!-- SORTING BUTTONS -->
+                <div class="sort-buttons mb-5">
+                    <span class="sort-label">📊 Urutkan Berdasarkan:</span>
+
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=stock_terendah" class="sort-btn {{ request('sort') == 'stock_terendah' || !request('sort') ? 'active' : '' }}">
+                        <i class="fas fa-arrow-down me-1"></i>Stock Terendah
+                    </a>
+
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=stock_tertinggi" class="sort-btn {{ request('sort') == 'stock_tertinggi' ? 'active' : '' }}">
+                        <i class="fas fa-arrow-up me-1"></i>Stock Tertinggi
+                    </a>
+
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=paling_laris" class="sort-btn {{ request('sort') == 'paling_laris' ? 'active' : '' }}">
+                        <i class="fas fa-fire me-1"></i>Paling Laris
+                    </a>
+
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=gak_jalan" class="sort-btn {{ request('sort') == 'gak_jalan' ? 'active' : '' }}">
+                        <i class="fas fa-snooze me-1"></i>Gak Jalan
+                    </a>
+
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=nama_asc" class="sort-btn {{ request('sort') == 'nama_asc' ? 'active' : '' }}">
+                        <i class="fas fa-sort-alpha-down me-1"></i>A-Z
+                    </a>
+
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=nama_desc" class="sort-btn {{ request('sort') == 'nama_desc' ? 'active' : '' }}">
+                        <i class="fas fa-sort-alpha-up-alt me-1"></i>Z-A
+                    </a>
+                </div>
+
                 <!-- QR READER MODAL -->
                 <div id="scanner-modal" class="scanner-modal">
                     <div class="scanner-container">
@@ -751,11 +868,18 @@
 
                                 <div class="product-card-header">
 
-                                    <h5 class="product-name">
-
-                                        {{ Str::limit($product->name, 35) }}
-
-                                    </h5>
+                                    <div class="product-header-wrapper">
+                                        <h5 class="product-name">
+                                            {{ Str::limit($product->name, 35) }}
+                                        </h5>
+                                        <button
+                                            type="button"
+                                            class="copy-btn"
+                                            onclick="copyProductName(event, '{{ addslashes($product->name) }}')"
+                                            title="Copy nama produk">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
 
                                 </div>
 
@@ -1004,6 +1128,83 @@
 
     <!-- SCRIPT -->
     <script>
+        // Copy Product Name Function
+        function copyProductName(event, productName) {
+            event.stopPropagation();
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(productName).then(() => {
+                const btn = event.target.closest('.copy-btn');
+                const originalIcon = btn.innerHTML;
+
+                // Change button appearance
+                btn.classList.add('copied');
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = originalIcon;
+                }, 2000);
+
+                // Optional: Show toast notification
+                showCopyNotification(productName);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Gagal mengcopy nama produk');
+            });
+        }
+
+        // Toast Notification Function
+        function showCopyNotification(productName) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+                font-weight: 500;
+                max-width: 300px;
+            `;
+            notification.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                Nama produk tercopy: "${productName.substring(0, 30)}${productName.length > 30 ? '...' : ''}"
+            `;
+
+            document.body.appendChild(notification);
+
+            // Add animation
+            const style = document.createElement('style');
+            if (!document.querySelector('style[data-copy-animation]')) {
+                style.setAttribute('data-copy-animation', 'true');
+                style.textContent = `
+                    @keyframes slideIn {
+                        from {
+                            transform: translateX(400px);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
         // Global scanner state
         let scannerState = {
             isRunning: false,

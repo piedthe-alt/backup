@@ -771,6 +771,7 @@ Route::get('/', function (Request $request) {
 
     $keyword = $request->keyword;
     $productgroup = $request->productgroup;
+    $sort = $request->sort ?? 'nama_asc'; // Default sorting
 
     $query = DB::table('product')
 
@@ -845,9 +846,31 @@ Route::get('/', function (Request $request) {
             'productgroup.name',
             'supplier.name'
 
-        )
+        );
 
-        ->orderBy('product.name', 'ASC');
+    // Apply sorting based on selected option
+    switch ($sort) {
+        case 'stock_terendah':
+            $query->orderBy('stock', 'ASC');
+            break;
+        case 'stock_tertinggi':
+            $query->orderBy('stock', 'DESC');
+            break;
+        case 'paling_laris':
+            $query->orderByRaw('COALESCE(SUM(inventory.invout),0) DESC');
+            break;
+        case 'gak_jalan':
+            $query->orderByRaw('COALESCE(SUM(inventory.invout),0) ASC');
+            break;
+        case 'nama_asc':
+            $query->orderBy('product.name', 'ASC');
+            break;
+        case 'nama_desc':
+            $query->orderBy('product.name', 'DESC');
+            break;
+        default:
+            $query->orderBy('product.name', 'ASC');
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -904,7 +927,8 @@ Route::get('/', function (Request $request) {
 
         compact(
             'products',
-            'productgroups'
+            'productgroups',
+            'sort'
         )
     );
 });
