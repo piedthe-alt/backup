@@ -8,41 +8,77 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\ProductReturnController;
 use App\Http\Controllers\PesananShopeeController;
 
-Route::get('/sales-detail/{date}', function ($date) {
+Route::get('/sales-detail/{tanggal}', function ($tanggal) {
 
-    $salesDetails = DB::table('salesdetail')
+    /*
+    |--------------------------------------------------------------------------
+    | DETAIL NOTA
+    |--------------------------------------------------------------------------
+    */
+
+    $notas = DB::table('salesdetail')
 
         ->select(
 
             'salesid',
 
-            DB::raw('MAX(transdate) as waktu'),
+            DB::raw('MIN(transdate) as transdate'),
 
-            DB::raw('SUM(salesqty) as total_qty'),
+            DB::raw('SUM(netamount) as total_belanja'),
 
-            DB::raw('SUM(netamount) as omzet'),
+            DB::raw('SUM(cogs) as total_hpp'),
 
-            DB::raw('SUM(netamount - cogs) as margin'),
-
-            DB::raw('COUNT(productid) as total_item')
+            DB::raw('SUM(netamount - cogs) as total_margin')
 
         )
 
-        ->whereDate('transdate', $date)
+        ->whereDate('updatetimestamp', $tanggal)
 
         ->groupBy('salesid')
 
-        ->orderBy('waktu', 'DESC')
+        ->orderBy('transdate', 'DESC')
 
-        ->paginate(30);
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL ITEM PER NOTA
+    |--------------------------------------------------------------------------
+    */
+
+    foreach ($notas as $nota) {
+
+        $nota->items = DB::table('salesdetail')
+
+            ->select(
+
+                'productid',
+                'snproduct',
+                'salesqty',
+                'price',
+                'grossamount',
+                'netamount',
+                'cogs',
+
+                DB::raw('
+                    (netamount - cogs)
+                    as margin
+                ')
+
+            )
+
+            ->where('salesid', $nota->salesid)
+
+            ->get();
+    }
 
     return view(
 
         'sales-detail',
 
         compact(
-            'salesDetails',
-            'date'
+            'tanggal',
+            'notas'
         )
 
     );

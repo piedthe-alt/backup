@@ -7,7 +7,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Detail Penjualan</title>
+    <title>Detail Nota Penjualan</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -21,23 +21,25 @@
 
     <style>
 
-        body{
-            background:#f8fafc;
+        body {
+            background: #f1f5f9;
         }
 
-        .card-custom{
-            border:none;
-            border-radius:20px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.08);
+        .nota-card {
+
+            border-radius: 16px;
+            border: none;
+
+            box-shadow:
+                0 4px 12px rgba(0,0,0,0.05);
+
         }
 
-        .table thead{
-            background:#0f172a;
-            color:white;
-        }
+        .item-table td,
+        .item-table th {
 
-        .table tbody tr:hover{
-            background:#f1f5f9;
+            vertical-align: middle;
+
         }
 
     </style>
@@ -48,128 +50,194 @@
 
 <div class="container py-4">
 
-    <div class="card card-custom">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-        <div class="card-body">
+        <div>
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-1">
+                <i class="fas fa-receipt me-2"></i>
+                Detail Nota Penjualan
+            </h2>
 
-                <div>
+            <div class="text-muted">
+                Tanggal:
+                {{ $tanggal }}
+            </div>
 
-                    <h3 class="fw-bold mb-1">
+        </div>
 
-                        <i class="fas fa-receipt me-2"></i>
-                        Detail Nota Penjualan
+        <a href="/sales-chart" class="btn btn-dark">
 
-                    </h3>
+            <i class="fas fa-arrow-left me-2"></i>
+            Kembali
 
-                    <small class="text-muted">
+        </a>
 
-                        Tanggal:
-                        {{ $date }}
+    </div>
 
-                    </small>
+    @foreach($notas as $nota)
+
+        <div class="card nota-card mb-4">
+
+            <div class="card-body">
+
+                <div class="row mb-4">
+
+                    <div class="col-md-3 mb-3">
+
+                        <div class="bg-light p-3 rounded">
+
+                            <small class="text-muted d-block">
+                                No Nota
+                            </small>
+
+                            <strong>
+                                {{ $nota->salesid }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+
+                        <div class="bg-light p-3 rounded">
+
+                            <small class="text-muted d-block">
+                                Total Belanja
+                            </small>
+
+                            <strong class="text-success">
+
+                                Rp {{ number_format($nota->total_belanja,0,',','.') }}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+
+                        <div class="bg-light p-3 rounded">
+
+                            <small class="text-muted d-block">
+                                Total HPP
+                            </small>
+
+                            <strong class="text-danger">
+
+                                Rp {{ number_format($nota->total_hpp,0,',','.') }}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+
+                        <div class="bg-light p-3 rounded">
+
+                            <small class="text-muted d-block">
+                                Total Margin
+                            </small>
+
+                            <strong class="text-primary">
+
+                                Rp {{ number_format($nota->total_margin,0,',','.') }}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
-                <a href="/sales-chart" class="btn btn-dark">
+                <div class="table-responsive">
 
-                    <i class="fas fa-arrow-left me-2"></i>
-                    Kembali
+                    <table class="table table-bordered item-table">
 
-                </a>
+                        <thead class="table-dark">
 
-            </div>
+                            <tr>
 
-            <div class="table-responsive">
+                                <th>Kode</th>
+                                <th>Nama Barang</th>
+                                <th>Qty</th>
+                                <th>Harga</th>
+                                <th>Net</th>
+                                <th>HPP</th>
+                                <th>Margin</th>
 
-                <table class="table align-middle table-hover">
+                            </tr>
 
-                    <thead>
+                        </thead>
 
-                        <tr>
+                        <tbody>
 
-                            <th>No Nota</th>
+                        @foreach($nota->items as $item)
 
-                            <th>Jam</th>
+                            <tr>
 
-                            <th>Total Item</th>
+                                <td>
 
-                            <th>Total Qty</th>
+                                    {{ $item->productid }}
 
-                            <th>Omzet</th>
+                                </td>
 
-                            <th>Margin</th>
+                                <td>
 
-                        </tr>
+                                    {{ $item->snproduct }}
 
-                    </thead>
+                                </td>
 
-                    <tbody>
+                                <td>
 
-                        @foreach($salesDetails as $item)
+                                    {{ number_format($item->salesqty,0,',','.') }}
 
-                        <tr>
+                                </td>
 
-                            <td>
+                                <td>
 
-                                <strong>
+                                    Rp {{ number_format($item->price,0,',','.') }}
 
-                                    {{ $item->salesid }}
+                                </td>
 
-                                </strong>
+                                <td class="text-success fw-bold">
 
-                            </td>
+                                    Rp {{ number_format($item->netamount,0,',','.') }}
 
-                            <td>
+                                </td>
 
-                                {{ \Carbon\Carbon::parse($item->waktu)->format('H:i') }}
+                                <td class="text-danger fw-bold">
 
-                            </td>
+                                    Rp {{ number_format($item->cogs,0,',','.') }}
 
-                            <td>
+                                </td>
 
-                                {{ number_format($item->total_item,0,',','.') }}
+                                <td class="text-primary fw-bold">
 
-                            </td>
+                                    Rp {{ number_format($item->margin,0,',','.') }}
 
-                            <td>
+                                </td>
 
-                                {{ number_format($item->total_qty,0,',','.') }}
-
-                            </td>
-
-                            <td class="text-success fw-bold">
-
-                                Rp {{ number_format($item->omzet,0,',','.') }}
-
-                            </td>
-
-                            <td class="text-primary fw-bold">
-
-                                Rp {{ number_format($item->margin,0,',','.') }}
-
-                            </td>
-
-                        </tr>
+                            </tr>
 
                         @endforeach
 
-                    </tbody>
+                        </tbody>
 
-                </table>
+                    </table>
 
-            </div>
-
-            <div class="mt-4">
-
-                {{ $salesDetails->links() }}
+                </div>
 
             </div>
 
         </div>
 
-    </div>
+    @endforeach
 
 </div>
 
