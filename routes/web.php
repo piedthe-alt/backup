@@ -41,7 +41,7 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
 
         ->groupBy('salesid')
 
-        ->orderBy('transdate', 'DESC')
+        ->orderBy('salesid', 'DESC')
 
         ->get();
 
@@ -106,7 +106,6 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
         )
 
     );
-
 });
 
 Route::get('/api/pesanan-shopee', [PesananShopeeController::class, 'apiList']);
