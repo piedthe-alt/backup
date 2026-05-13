@@ -2098,6 +2098,32 @@
 
                 /*
                 |--------------------------------------------------------------------------
+                | AMBIL RETUR GROUP DARI DOM
+                |--------------------------------------------------------------------------
+                */
+
+                // Cari div yang menyimpan returns untuk group ini
+                const groupDiv = document.querySelector(`[data-group="${group}"]`);
+                if (groupDiv) {
+                    const returnsDiv = groupDiv.querySelector('div[style*="rgba(239, 68, 68"]');
+                    if (returnsDiv) {
+                        // Ambil semua text dari returns div
+                        const returnsText = returnsDiv.innerText;
+                        if (returnsText && returnsText.includes('Barang Retur') || returnsText.includes('Returan')) {
+                            copyText += `\nBarang Retur : \n`;
+                            // Parse setiap baris yang dimulai dengan "-"
+                            const lines = returnsText.split('\n');
+                            for (let line of lines) {
+                                if (line.trim().startsWith('-')) {
+                                    copyText += `${line.trim()}\n`;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                /*
+                |--------------------------------------------------------------------------
                 | SPASI ANTAR GROUP
                 |--------------------------------------------------------------------------
                 */
