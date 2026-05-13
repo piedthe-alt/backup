@@ -121,79 +121,37 @@
                     Tambah Produk
                 </button>
 
-                <div class="row mb-3">
-
-                    <div class="col-md-6">
-                        <label class="form-label">
-                            Nama Pembeli
-                        </label>
-
-                        <input
-                            type="text"
-                            id="namaPembeli"
-                            class="form-control"
-                        >
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">
-                            Jenis Pengiriman
-                        </label>
-
-                        <select
-                            id="jenis"
-                            class="form-select"
-                            required
-                        >
-                            <option value="">
-                                -- Pilih --
-                            </option>
-
-                            <option value="Instant">
-                                Instant
-                            </option>
-
-                            <option value="SPX">
-                                SPX
-                            </option>
-
-                            <option value="JNE">
-                                JNE
-                            </option>
-
-                            <option value="JNT">
-                                JNT
-                            </option>
-                        </select>
-                    </div>
-
-                </div>
-
-                <div class="mb-3">
-
-                    <label class="form-label">
-                        Alamat
-                    </label>
-
-                    <textarea
-                        id="alamat"
-                        class="form-control"
-                        rows="3"
-                    ></textarea>
-
-                </div>
-
                 <div class="mb-4">
 
                     <label class="form-label">
-                        Catatan
+                        Jenis Pengiriman
                     </label>
 
-                    <textarea
-                        id="catatan"
-                        class="form-control"
-                        rows="2"
-                    ></textarea>
+                    <select
+                        id="jenis"
+                        class="form-select"
+                        required
+                    >
+                        <option value="">
+                            -- Pilih --
+                        </option>
+
+                        <option value="Instant">
+                            Instant
+                        </option>
+
+                        <option value="SPX">
+                            SPX
+                        </option>
+
+                        <option value="JNE">
+                            JNE
+                        </option>
+
+                        <option value="JNT">
+                            JNT
+                        </option>
+                    </select>
 
                 </div>
 
@@ -306,8 +264,6 @@
 
             products =
                 await response.json();
-
-            console.log(products);
 
         }catch(error){
 
@@ -557,16 +513,8 @@
                             jumlah_produk:jumlahProduk,
 
                             jenis:
-                                document.getElementById('jenis').value,
+                                document.getElementById('jenis').value
 
-                            nama_pembeli:
-                                document.getElementById('namaPembeli').value,
-
-                            alamat:
-                                document.getElementById('alamat').value,
-
-                            catatan:
-                                document.getElementById('catatan').value
                         })
                     });
 
@@ -663,11 +611,6 @@
 
                         </div>
 
-                        <div class="mb-2">
-                            <strong>Pembeli:</strong>
-                            ${pesanan.nama_pembeli ?? '-'}
-                        </div>
-
                         <div>
                             <strong>Total:</strong>
                             Rp ${numberFormat(pesanan.total_harga_jual)}
@@ -704,11 +647,6 @@
                 data.produk_details;
 
             let html = `
-                <div class="mb-3">
-                    <strong>Pembeli:</strong>
-                    ${pesanan.nama_pembeli ?? '-'}
-                </div>
-
                 <div class="mb-3">
                     <strong>Jenis:</strong>
                     ${pesanan.jenis}
