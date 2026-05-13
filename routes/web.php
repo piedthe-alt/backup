@@ -85,8 +85,17 @@ Route::get('/api/get-returns', function (Request $request) {
         return response()->json(['returns' => null]);
     }
 
+    $masterDb = config('database.connections.mysql.database');
+
     $return = DB::connection('mysql_app')->table('product_returns')
-        ->where('product_name', 'like', "%{$productName}%")
+        ->leftJoin(
+            DB::raw("{$masterDb}.product as product"),
+            'product_returns.product_id',
+            '=',
+            'product.id'
+        )
+        ->where('product.name', 'like', "%{$productName}%")
+        ->select('product_returns.*', 'product.name as product_name')
         ->first();
 
     return response()->json(['returns' => $return]);
