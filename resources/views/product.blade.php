@@ -1348,14 +1348,14 @@
 
                                     <!-- HARGA -->
                                     <div class="price-badge" onclick="event.stopPropagation()" data-bs-toggle="modal"
-                                        data-bs-target="#productModal{{ $product->id }}" style="cursor: pointer;">
+                                        data-bs-target="#productModal{{ $loop->index }}" data-product-id="{{ $product->id }}" style="cursor: pointer;">
                                         Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
                                     </div>
 
                                     <!-- INFO HORIZONTAL -->
                                     <div class="product-info" onclick="event.stopPropagation()"
-                                        data-bs-toggle="modal" data-bs-target="#productModal{{ $product->id }}"
-                                        style="cursor: pointer;">
+                                        data-bs-toggle="modal" data-bs-target="#productModal{{ $loop->index }}"
+                                        data-product-id="{{ $product->id }}" style="cursor: pointer;">
 
                                         <!-- STOCK -->
                                         <div class="info-item">
@@ -1438,7 +1438,7 @@
 
     <!-- MODAL -->
     @foreach ($products as $product)
-        <div class="modal fade" id="productModal{{ $product->id }}" tabindex="-1">
+        <div class="modal fade" id="productModal{{ $loop->index }}" tabindex="-1" data-product-id="{{ $product->id }}">
 
             <div class="modal-dialog modal-lg modal-dialog-centered">
 
