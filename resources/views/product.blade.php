@@ -1670,10 +1670,20 @@
                 // Fetch returns for each product in the group
                 for (let item of items) {
                     const response = await fetch(`/api/get-returns?product_name=${encodeURIComponent(item.name)}`);
+
+                    if (!response.ok) {
+                        console.error(`API error for ${item.name}: Status ${response.status}`);
+                        continue;
+                    }
+
                     const data = await response.json();
 
                     if (data.returns) {
                         returns.push(data.returns);
+                    }
+
+                    if (data.error) {
+                        console.error(`API error: ${data.error}`);
                     }
                 }
 

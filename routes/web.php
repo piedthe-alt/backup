@@ -85,20 +85,24 @@ Route::get('/api/get-returns', function (Request $request) {
         return response()->json(['returns' => null]);
     }
 
-    $masterDb = config('database.connections.mysql.database');
+    try {
+        $masterDb = config('database.connections.mysql.database');
 
-    $return = DB::connection('u990824557_db_app')->table('product_returns')
-        ->leftJoin(
-            DB::raw("{$masterDb}.product as product"),
-            'product_returns.product_id',
-            '=',
-            'product.id'
-        )
-        ->where('product.name', 'like', "%{$productName}%")
-        ->select('product_returns.*', 'product.name as product_name')
-        ->first();
+        $return = DB::connection('mysql_app')->table('product_returns')
+            ->leftJoin(
+                DB::raw("{$masterDb}.product as product"),
+                'product_returns.product_id',
+                '=',
+                'product.id'
+            )
+            ->where('product.name', 'like', "%{$productName}%")
+            ->select('product_returns.*', 'product.name as product_name')
+            ->first();
 
-    return response()->json(['returns' => $return]);
+        return response()->json(['returns' => $return]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
 });
 
 // Route::get('/list-models', function () {
