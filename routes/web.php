@@ -55,7 +55,7 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
             CAST(
                 SUBSTRING_INDEX(salesid, '-', -1)
                 AS UNSIGNED
-            ) DESC
+            ) ASC
         ")
 
         ->get();
