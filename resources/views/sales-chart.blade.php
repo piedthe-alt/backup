@@ -23,56 +23,17 @@
     <!-- ChartJS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <link href="{{ asset('css/modern-design-system.css') }}" rel="stylesheet">
+
     <style>
         * {
             font-family: 'Inter', sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #f0fdf4 100%);
             min-height: 100vh;
             color: #1e293b;
-        }
-
-        .header-section {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
-        }
-
-        .header-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 400px;
-            height: 400px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transform: translate(100px, -100px);
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .btn-action {
-            border-radius: 8px;
-            font-weight: 600;
-            border: none;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .btn-action:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         .form-control, .form-select {
@@ -270,26 +231,26 @@
     <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
 
         <!-- HEADER -->
-        <div class="header-section p-4">
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; margin-bottom: 2rem;">
 
-            <div class="header-content">
+            <div class="card-body p-5">
 
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
                     <div>
 
-                        <h2 class="mb-2 fw-bold">
+                        <h1 class="mb-2 fw-bold" style="font-size: 2rem;">
                             <i class="fas fa-chart-line me-2"></i>Grafik Penjualan
-                        </h2>
+                        </h1>
 
-                        <small class="opacity-75">
-                            Analisis penjualan dan margin dalam periode waktu
-                        </small>
+                        <p class="mb-0 opacity-75" style="font-size: 1rem;">
+                            Analisis penjualan, margin, dan performa dalam periode waktu
+                        </p>
 
                     </div>
 
-                    <a href="/" class="btn btn-action btn-light">
-                        <i class="fas fa-arrow-left"></i> Kembali
+                    <a href="/" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left me-2"></i>Kembali
                     </a>
 
                 </div>

@@ -14,6 +14,8 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
+    <link href="{{ asset('css/modern-design-system.css') }}" rel="stylesheet">
+
     <style>
         body {
             background: #f1f5f9;
@@ -220,131 +222,113 @@
 
     <div class="container py-4">
 
-        <!-- HEADER -->
-        <div class="page-header">
+        <!-- Modern Header -->
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white;">
 
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 header-mobile">
+            <div class="card-body p-5">
 
-                <div>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-                    <h2 class="fw-bold mb-2">
+                    <div>
 
-                        <i class="fas fa-rotate-left me-2"></i>
+                        <h1 class="mb-2 fw-bold" style="font-size: 2rem;">
+                            <i class="fas fa-rotate-left me-2"></i>Retur Barang
+                        </h1>
 
-                        Retur Barang
-
-                    </h2>
-
-                    <div class="opacity-75">
-
-                        Kelola barang retur dan status pengambilannya
+                        <p class="mb-0 opacity-75" style="font-size: 1rem;">
+                            Kelola barang retur dan status pengambilannya
+                        </p>
 
                     </div>
 
+                    <a href="/" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left me-2"></i>Kembali
+                    </a>
+
                 </div>
-
-                <a href="/" class="btn btn-back px-4 py-2">
-
-                    <i class="fas fa-arrow-left me-2"></i>
-
-                    Back
-
-                </a>
 
             </div>
 
         </div>
 
-        <!-- FORM -->
-        <div class="form-card mb-4">
+        <!-- Form Card -->
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4">
 
-            <h5 class="fw-bold mb-4">
+            <div class="card-body p-4">
 
-                <i class="fas fa-plus-circle me-2 text-danger"></i>
+                <h5 class="fw-bold mb-4" style="color: var(--slate-800);">
+                    <i class="fas fa-plus-circle me-2" style="color: var(--danger-500);"></i>
+                    Tambah Retur Baru
+                </h5>
 
-                Tambah Retur Baru
+                <form method="POST" action="/returns/store">
 
-            </h5>
+                    @csrf
 
-            <form method="POST" action="/returns/store">
+                    <div class="row g-3">
 
-                @csrf
+                        <!-- PRODUK -->
+                        <div class="col-12 col-lg-5">
 
-                <div class="row g-3">
+                            <label class="form-label fw-semibold" style="color: var(--slate-700);">Cari Produk</label>
 
-                    <!-- PRODUK -->
-                    <div class="col-md-5">
+                            <input type="text"
+                                id="search-product"
+                                class="form-control mb-2"
+                                placeholder="Cari nama / ID produk..."
+                                style="border-radius: var(--radius-lg); border: 1px solid var(--slate-200); padding: var(--spacing-md);">
 
-                        <label class="form-label fw-semibold">
-                            Cari Produk
-                        </label>
+                            <select name="product_id"
+                                id="product-select"
+                                class="form-select"
+                                size="8"
+                                required
+                                style="border-radius: var(--radius-lg); border: 1px solid var(--slate-200); padding: var(--spacing-md);">
 
-                        <input type="text"
-                            id="search-product"
-                            class="form-control mb-2"
-                            placeholder="Cari nama / ID produk...">
+                                <option value="">Pilih Produk</option>
 
-                        <select name="product_id"
-                            id="product-select"
-                            class="form-select"
-                            size="8"
-                            required>
+                                @foreach (DB::table('product')->orderBy('name')->get() as $p)
 
-                            <option value="">
-                                Pilih Produk
-                            </option>
+                                    <option value="{{ $p->id }}">{{ $p->id }} - {{ $p->name }}</option>
 
-                            @foreach (DB::table('product')->orderBy('name')->get() as $p)
+                                @endforeach
 
-                                <option value="{{ $p->id }}">
+                            </select>
 
-                                    {{ $p->id }} - {{ $p->name }}
+                        </div>
 
-                                </option>
+                        <!-- QTY -->
+                        <div class="col-12 col-sm-6 col-lg-2">
 
-                            @endforeach
+                            <label class="form-label fw-semibold" style="color: var(--slate-700);">Qty</label>
 
-                        </select>
+                            <input type="number"
+                                name="quantity"
+                                class="form-control"
+                                placeholder="Jumlah"
+                                required
+                                style="border-radius: var(--radius-lg); border: 1px solid var(--slate-200); padding: var(--spacing-md);">
 
-                    </div>
+                        </div>
 
-                    <!-- QTY -->
-                    <div class="col-md-2">
+                        <!-- NOTE -->
+                        <div class="col-12 col-sm-6 col-lg-3">
 
-                        <label class="form-label fw-semibold">
-                            Qty
-                        </label>
+                            <label class="form-label fw-semibold" style="color: var(--slate-700);">Keterangan</label>
 
-                        <input type="number"
-                            name="quantity"
-                            class="form-control"
-                            placeholder="Jumlah"
-                            required>
+                            <input type="text"
+                                name="note"
+                                class="form-control"
+                                placeholder="Contoh: Kemasan rusak"
+                                style="border-radius: var(--radius-lg); border: 1px solid var(--slate-200); padding: var(--spacing-md);">
 
-                    </div>
+                        </div>
 
-                    <!-- NOTE -->
-                    <div class="col-md-3">
+                        <!-- BUTTON -->
+                        <div class="col-12 col-lg-2 d-flex align-items-end">
 
-                        <label class="form-label fw-semibold">
-                            Keterangan
-                        </label>
-
-                        <input type="text"
-                            name="note"
-                            class="form-control"
-                            placeholder="Contoh: Kemasan rusak">
-
-                    </div>
-
-                    <!-- BUTTON -->
-                    <div class="col-md-2 d-flex align-items-end">
-
-                        <button class="btn btn-save w-100 py-3">
-
-                            <i class="fas fa-save me-2"></i>
-
-                            Simpan
+                            <button class="btn btn-danger w-100" style="border-radius: var(--radius-lg); padding: var(--spacing-md); font-weight: 600;">
+                                <i class="fas fa-save me-2"></i>Simpan
 
                         </button>
 
@@ -357,13 +341,13 @@
         </div>
 
         <!-- TABLE -->
-        <div class="table-card">
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
 
-            <div class="p-4 border-bottom">
+            <div class="card-header bg-slate-50 border-bottom border-slate-200 p-4">
 
-                <h5 class="fw-bold mb-0">
+                <h5 class="mb-0" style="color: var(--slate-800); font-weight: 600;">
 
-                    <i class="fas fa-table me-2 text-danger"></i>
+                    <i class="fas fa-table me-2" style="color: var(--danger-500);"></i>
 
                     Data Barang Retur
 
@@ -372,22 +356,22 @@
             </div>
 
             <!-- DESKTOP -->
-            <div class="table-responsive">
+            <div style="overflow-x: auto;">
 
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover mb-0">
 
-                    <thead>
+                    <thead style="background-color: var(--slate-50);">
 
                         <tr>
 
-                            <th>ID Produk</th>
-                            <th>Nama Produk</th>
-                            <th>Group</th>
-                            <th>Qty Retur</th>
-                            <th>Keterangan</th>
-                            <th>Tanggal</th>
-                            <th>Status</th>
-                            <th width="160">Aksi</th>
+                            <th style="color: var(--slate-700); font-weight: 600; padding: var(--spacing-md); border-bottom: 1px solid var(--slate-200);">ID Produk</th>
+                            <th style="color: var(--slate-700); font-weight: 600; padding: var(--spacing-md); border-bottom: 1px solid var(--slate-200);">Nama Produk</th>
+                            <th style="color: var(--slate-700); font-weight: 600; padding: var(--spacing-md); border-bottom: 1px solid var(--slate-200);">Group</th>
+                            <th style="color: var(--slate-700); font-weight: 600; padding: var(--spacing-md); border-bottom: 1px solid var(--slate-200);">Qty</th>
+                            <th style="color: var(--slate-700); font-weight: 600; padding: var(--spacing-md); border-bottom: 1px solid var(--slate-200);">Ket</th>
+                            <th style="color: var(--slate-700); font-weight: 600; padding: var(--spacing-md); border-bottom: 1px solid var(--slate-200);">Tanggal</th>
+                            <th style="color: var(--slate-700); font-weight: 600; padding: var(--spacing-md); border-bottom: 1px solid var(--slate-200);">Status</th>
+                            <th style="color: var(--slate-700); font-weight: 600; padding: var(--spacing-md); border-bottom: 1px solid var(--slate-200);">Aksi</th>
 
                         </tr>
 
@@ -407,12 +391,10 @@
                                     $hasData = true;
                                 @endphp
 
-                                <tr>
+                                <tr style="border-bottom: 1px solid var(--slate-200);">
 
-                                    <td>
-                                        <strong>
-                                            {{ $r->product_id_view }}
-                                        </strong>
+                                    <td style="padding: var(--spacing-md); font-weight: 600; color: var(--primary-600);">
+                                        {{ $r->product_id_view }}
                                     </td>
 
                                     <td>

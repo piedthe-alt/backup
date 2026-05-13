@@ -12,6 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="{{ asset('css/modern-design-system.css') }}" rel="stylesheet">
 
     <style>
         * {
@@ -19,13 +20,13 @@
         }
 
         body {
-            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #cffafe 100%);
             min-height: 100vh;
             color: #1e293b;
         }
 
         .header-section {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
             color: white;
             position: relative;
             overflow: hidden;
@@ -72,8 +73,8 @@
         }
 
         .form-select:focus, .form-control:focus {
-            border-color: #f59e0b;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
         }
 
         @media (max-width: 768px) {
@@ -163,38 +164,38 @@
 
 <body>
 
-    <div class="container-fluid py-4">
+    <div class="container py-4">
 
-        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <!-- Modern Header -->
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white;">
 
-            <!-- HEADER -->
-            <div class="header-section p-4 rounded-top-4">
+            <div class="card-body p-5">
 
-                <div class="header-content">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
 
-                        <div>
+                        <h1 class="mb-2 fw-bold" style="font-size: 2rem;">
+                            <i class="fas fa-robot me-2"></i>AI Inventory Analysis
+                        </h1>
 
-                            <h2 class="mb-2 fw-bold">
-                                <i class="fas fa-robot me-2"></i>AI Inventory Analysis
-                            </h2>
-
-                            <small class="opacity-75">
-                                Analisis stok & penjualan menggunakan Gemini AI
-                            </small>
-
-                        </div>
-
-                        <a href="/" class="btn btn-action btn-dark">
-                            <i class="fas fa-arrow-left"></i> Kembali
-                        </a>
+                        <p class="mb-0 opacity-75" style="font-size: 1rem;">
+                            Analisis stok & penjualan menggunakan Gemini AI untuk prediksi akurat
+                        </p>
 
                     </div>
+
+                    <a href="/" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left me-2"></i>Kembali
+                    </a>
 
                 </div>
 
             </div>
+
+        </div>
+
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
 
             <!-- BODY -->
             <div class="card-body p-4">
