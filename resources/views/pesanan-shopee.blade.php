@@ -167,6 +167,86 @@
         </div>
     </div>
 
+    <!-- FILTER -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+
+                    <label class="form-label fw-bold">
+                        Filter Status
+                    </label>
+
+                    <select
+                        id="filterStatus"
+                        class="form-select"
+                        onchange="renderPesanan()"
+                    >
+                        <option value="ALL">
+                            Semua
+                        </option>
+
+                        <option value="BELUM DIKIRIM">
+                            Belum Dikirim
+                        </option>
+
+                        <option value="DIKIRIM">
+                            Sudah Dikirim
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-4 mb-3">
+
+                    <label class="form-label fw-bold">
+                        Filter Tanggal
+                    </label>
+
+                    <input
+                        type="date"
+                        id="filterTanggal"
+                        class="form-control"
+                        onchange="renderPesanan()"
+                    >
+
+                </div>
+
+                <div class="col-md-4 mb-3">
+
+                    <label class="form-label fw-bold">
+                        Urutkan
+                    </label>
+
+                    <select
+                        id="sortTanggal"
+                        class="form-select"
+                        onchange="renderPesanan()"
+                    >
+
+                        <option value="DESC">
+                            Terbaru
+                        </option>
+
+                        <option value="ASC">
+                            Terlama
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
     <!-- LIST PESANAN -->
 
     <div>
@@ -246,6 +326,17 @@
     let currentPesananId = null;
 
     document.addEventListener('DOMContentLoaded', async function(){
+
+        const today = new Date();
+
+        const yyyy = today.getFullYear();
+
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+
+        const dd = String(today.getDate()).padStart(2, '0');
+
+        document.getElementById('filterTanggal').value =
+            `${yyyy}-${mm}-${dd}`;
 
         await loadProducts();
 
@@ -555,8 +646,72 @@
             const response =
                 await fetch('/api/pesanan-shopee');
 
-            const pesanans =
+            let pesanans =
                 await response.json();
+
+            const filterStatus =
+                document.getElementById('filterStatus').value;
+
+            const filterTanggal =
+                document.getElementById('filterTanggal').value;
+
+            const sortTanggal =
+                document.getElementById('sortTanggal').value;
+
+            /*
+            |--------------------------------------------------------------------------
+            | FILTER STATUS
+            |--------------------------------------------------------------------------
+            */
+
+            if(filterStatus !== 'ALL'){
+
+                pesanans = pesanans.filter(item => {
+
+                    return item.status === filterStatus;
+                });
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | FILTER TANGGAL
+            |--------------------------------------------------------------------------
+            */
+
+            if(filterTanggal){
+
+                pesanans = pesanans.filter(item => {
+
+                    const itemDate =
+                        new Date(item.created_at)
+                        .toISOString()
+                        .split('T')[0];
+
+                    return itemDate === filterTanggal;
+                });
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | SORTING
+            |--------------------------------------------------------------------------
+            */
+
+            pesanans.sort((a, b) => {
+
+                const dateA =
+                    new Date(a.created_at);
+
+                const dateB =
+                    new Date(b.created_at);
+
+                if(sortTanggal === 'ASC'){
+
+                    return dateA - dateB;
+                }
+
+                return dateB - dateA;
+            });
 
             const container =
                 document.getElementById('pesananContainer');
@@ -565,7 +720,7 @@
 
                 container.innerHTML = `
                     <div class="alert alert-light border">
-                        Belum ada pesanan
+                        Tidak ada pesanan
                     </div>
                 `;
 
@@ -598,6 +753,12 @@
                                 <small class="text-muted">
                                     ${pesanan.jenis}
                                 </small>
+
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        ${formatTanggal(pesanan.created_at)}
+                                    </small>
+                                </div>
 
                             </div>
 
@@ -652,6 +813,11 @@
                     ${pesanan.jenis}
                 </div>
 
+                <div class="mb-3">
+                    <strong>Tanggal:</strong>
+                    ${formatTanggal(pesanan.created_at)}
+                </div>
+
                 <div class="mb-4">
                     <strong>Status:</strong>
                     ${pesanan.status}
@@ -692,6 +858,18 @@
 
             document.getElementById('detailContent').innerHTML =
                 html;
+
+            const updateBtn =
+                document.getElementById('updateStatusBtn');
+
+            if(pesanan.status === 'DIKIRIM'){
+
+                updateBtn.style.display = 'none';
+
+            }else{
+
+                updateBtn.style.display = 'inline-block';
+            }
 
             const modal =
                 new bootstrap.Modal(
@@ -756,6 +934,18 @@
 
         return new Intl.NumberFormat('id-ID')
             .format(num || 0);
+    }
+
+    function formatTanggal(dateString){
+
+        return new Date(dateString)
+            .toLocaleString('id-ID',{
+                year:'numeric',
+                month:'long',
+                day:'numeric',
+                hour:'2-digit',
+                minute:'2-digit'
+            });
     }
 
 </script>
