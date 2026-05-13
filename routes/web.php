@@ -164,7 +164,7 @@ Route::get('/ai-analysis', function (Request $request) {
 
     $groupName = $request->group ?? 'ROKOK';
 
-    $days = $request->days ?? 30;
+    $days = $request->days ?? 360;
 
     /*
     |--------------------------------------------------------------------------
