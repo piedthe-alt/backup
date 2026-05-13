@@ -42,7 +42,7 @@ class ProductReturnController extends Controller
 
     public function store(Request $request)
     {
-        DB::connection('mysql_app')
+        DB::connection('u990824557_db_app')
             ->table('product_returns')
             ->insert([
                 'product_id' => $request->product_id,

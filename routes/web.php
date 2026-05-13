@@ -14,7 +14,7 @@ Route::get('/api/get-returns-by-group', function (Request $request) {
 
     $masterDb = config('database.connections.mysql.database');
 
-    $returns = DB::connection('mysql_app')
+    $returns = DB::connection('u990824557_db_app')
 
         ->table('product_returns')
 
@@ -53,14 +53,14 @@ Route::get('/api/get-returns-by-group', function (Request $request) {
 });
 
 Route::get('/test-db-app', function () {
-    return DB::connection('mysql_app')->select("SELECT DATABASE() as db");
+    return DB::connection('u990824557_db_app')->select("SELECT DATABASE() as db");
 });
 
 Route::post('/returns/store', [ProductReturnController::class, 'store']);
 Route::get('/return', [ProductReturnController::class, 'index']);
 Route::post('/returns/taken/{id}', function ($id) {
 
-    DB::connection('mysql_app')
+    DB::connection('u990824557_db_app')
 
         ->table('product_returns')
 
