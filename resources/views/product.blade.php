@@ -1046,37 +1046,25 @@
                         </div>
 
                         <!-- FILTER GROUP -->
-<!-- FILTER GROUP -->
-<div class="col-md-3">
+                        <!-- FILTER GROUP -->
+                        <div class="col-md-3">
 
-    <div class="position-relative">
+                            <div class="position-relative">
 
-        <!-- INPUT SEARCH -->
-        <input
-            type="text"
-            id="groupSearch"
-            class="form-control search-input"
-            placeholder="📂 Cari Group..."
-            autocomplete="off"
-            value="@php
-                $selectedGroup = $productgroups->firstWhere('id', request('productgroup'));
-                echo $selectedGroup ? $selectedGroup->name : '';
-            @endphp"
-        >
+                                <!-- INPUT SEARCH -->
+                                <input type="text" id="groupSearch" class="form-control search-input"
+                                    placeholder="📂 Cari Group..." autocomplete="off"
+                                    value="@php
+$selectedGroup = $productgroups->firstWhere('id', request('productgroup'));
+                echo $selectedGroup ? $selectedGroup->name : ''; @endphp">
 
-        <!-- HIDDEN -->
-        <input
-            type="hidden"
-            name="productgroup"
-            id="selectedGroup"
-            value="{{ request('productgroup') }}"
-        >
+                                <!-- HIDDEN -->
+                                <input type="hidden" name="productgroup" id="selectedGroup"
+                                    value="{{ request('productgroup') }}">
 
-        <!-- DROPDOWN -->
-        <div
-            id="groupDropdown"
-            class="bg-white border rounded shadow-sm"
-            style="
+                                <!-- DROPDOWN -->
+                                <div id="groupDropdown" class="bg-white border rounded shadow-sm"
+                                    style="
                 position:absolute;
                 top:100%;
                 left:0;
@@ -1085,169 +1073,156 @@
                 overflow-y:auto;
                 z-index:9999;
                 display:none;
-            "
-        >
+            ">
 
-            <!-- SEMUA -->
-            <div
-                class="group-item p-2 border-bottom"
-                data-id=""
-                data-name="Semua Group"
-                style="cursor:pointer;"
-            >
-                📂 Semua Group
-            </div>
+                                    <!-- SEMUA -->
+                                    <div class="group-item p-2 border-bottom" data-id="" data-name="Semua Group"
+                                        style="cursor:pointer;">
+                                        📂 Semua Group
+                                    </div>
 
-            <!-- GROUP -->
-            @foreach ($productgroups as $group)
+                                    <!-- GROUP -->
+                                    @foreach ($productgroups as $group)
+                                        <div class="group-item p-2 border-bottom" data-id="{{ $group->id }}"
+                                            data-name="{{ strtolower($group->name) }}" data-label="{{ $group->name }}"
+                                            style="cursor:pointer;">
 
-                <div
-                    class="group-item p-2 border-bottom"
-                    data-id="{{ $group->id }}"
-                    data-name="{{ strtolower($group->name) }}"
-                    data-label="{{ $group->name }}"
-                    style="cursor:pointer;"
-                >
+                                            {{ $group->name }}
 
-                    {{ $group->name }}
+                                        </div>
+                                    @endforeach
 
-                </div>
+                                </div>
 
-            @endforeach
+                            </div>
 
-        </div>
+                        </div>
 
-    </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
 
-</div>
+                                const searchInput =
+                                    document.getElementById('groupSearch');
 
-<script>
+                                const dropdown =
+                                    document.getElementById('groupDropdown');
 
-    document.addEventListener('DOMContentLoaded', function(){
+                                const hiddenInput =
+                                    document.getElementById('selectedGroup');
 
-        const searchInput =
-            document.getElementById('groupSearch');
+                                const items =
+                                    document.querySelectorAll('.group-item');
 
-        const dropdown =
-            document.getElementById('groupDropdown');
+                                /*
+                                |--------------------------------------------------------------------------
+                                | SHOW DROPDOWN
+                                |--------------------------------------------------------------------------
+                                */
 
-        const hiddenInput =
-            document.getElementById('selectedGroup');
+                                searchInput.addEventListener('focus', function() {
 
-        const items =
-            document.querySelectorAll('.group-item');
+                                    dropdown.style.display = 'block';
+                                });
 
-        /*
-        |--------------------------------------------------------------------------
-        | SHOW DROPDOWN
-        |--------------------------------------------------------------------------
-        */
+                                /*
+                                |--------------------------------------------------------------------------
+                                | SEARCH
+                                |--------------------------------------------------------------------------
+                                */
 
-        searchInput.addEventListener('focus', function(){
+                                searchInput.addEventListener('keyup', function() {
 
-            dropdown.style.display = 'block';
-        });
+                                    const keyword =
+                                        this.value.toLowerCase();
 
-        /*
-        |--------------------------------------------------------------------------
-        | SEARCH
-        |--------------------------------------------------------------------------
-        */
+                                    dropdown.style.display = 'block';
 
-        searchInput.addEventListener('keyup', function(){
+                                    items.forEach(item => {
 
-            const keyword =
-                this.value.toLowerCase();
+                                        const name =
+                                            item.dataset.name;
 
-            dropdown.style.display = 'block';
+                                        if (name.includes(keyword)) {
 
-            items.forEach(item => {
+                                            item.style.display = 'block';
 
-                const name =
-                    item.dataset.name;
+                                        } else {
 
-                if(name.includes(keyword)){
+                                            item.style.display = 'none';
+                                        }
+                                    });
+                                });
 
-                    item.style.display = 'block';
+                                /*
+                                |--------------------------------------------------------------------------
+                                | SELECT ITEM
+                                |--------------------------------------------------------------------------
+                                */
 
-                }else{
+                                items.forEach(item => {
 
-                    item.style.display = 'none';
-                }
-            });
-        });
+                                    item.addEventListener('click', function() {
 
-        /*
-        |--------------------------------------------------------------------------
-        | SELECT ITEM
-        |--------------------------------------------------------------------------
-        */
+                                        hiddenInput.value =
+                                            this.dataset.id;
 
-        items.forEach(item => {
+                                        searchInput.value =
+                                            this.dataset.label || 'Semua Group';
 
-            item.addEventListener('click', function(){
+                                        dropdown.style.display =
+                                            'none';
 
-                hiddenInput.value =
-                    this.dataset.id;
+                                        /*
+                                        |--------------------------------------------------------------------------
+                                        | AUTO SUBMIT FORM
+                                        |--------------------------------------------------------------------------
+                                        */
 
-                searchInput.value =
-                    this.dataset.label || 'Semua Group';
+                                        const form =
+                                            searchInput.closest('form');
 
-                dropdown.style.display =
-                    'none';
+                                        if (form) {
 
-                /*
-                |--------------------------------------------------------------------------
-                | AUTO SUBMIT FORM
-                |--------------------------------------------------------------------------
-                */
+                                            form.submit();
+                                        }
+                                    });
 
-                const form =
-                    searchInput.closest('form');
+                                    /*
+                                    |--------------------------------------------------------------------------
+                                    | HOVER
+                                    |--------------------------------------------------------------------------
+                                    */
 
-                if(form){
+                                    item.addEventListener('mouseenter', function() {
 
-                    form.submit();
-                }
-            });
+                                        this.style.background =
+                                            '#f8fafc';
+                                    });
 
-            /*
-            |--------------------------------------------------------------------------
-            | HOVER
-            |--------------------------------------------------------------------------
-            */
+                                    item.addEventListener('mouseleave', function() {
 
-            item.addEventListener('mouseenter', function(){
+                                        this.style.background =
+                                            'white';
+                                    });
 
-                this.style.background =
-                    '#f8fafc';
-            });
+                                });
 
-            item.addEventListener('mouseleave', function(){
+                                /*
+                                |--------------------------------------------------------------------------
+                                | CLOSE OUTSIDE
+                                |--------------------------------------------------------------------------
+                                */
 
-                this.style.background =
-                    'white';
-            });
+                                document.addEventListener('click', function(e) {
 
-        });
+                                    if (!e.target.closest('.position-relative')) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | CLOSE OUTSIDE
-        |--------------------------------------------------------------------------
-        */
+                                        dropdown.style.display = 'none';
+                                    }
+                                });
 
-        document.addEventListener('click', function(e){
-
-            if(!e.target.closest('.position-relative')){
-
-                dropdown.style.display = 'none';
-            }
-        });
-
-    });
-
-</script>
+                            });
+                        </script>
 
                         <!-- BUTTON -->
                         <div class="col-md-3">
@@ -1347,15 +1322,16 @@
                                 <div class="card-body p-3 d-flex flex-column">
 
                                     <!-- HARGA -->
-                                    <div class="price-badge" onclick="event.stopPropagation()" data-bs-toggle="modal"
+                                    <div class="price-badge" onclick="event.stopPropagation()"
+                                        onclick="openProductModal({{ $product->id }})"
                                         data-bs-target="#productModal{{ $product->id }}" style="cursor: pointer;">
                                         Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
                                     </div>
 
                                     <!-- INFO HORIZONTAL -->
                                     <div class="product-info" onclick="event.stopPropagation()"
-                                        data-bs-toggle="modal" data-bs-target="#productModal{{ $product->id }}"
-                                        style="cursor: pointer;">
+                                        onclick="openProductModal({{ $product->id }})"
+                                        data-bs-target="#productModal{{ $product->id }}" style="cursor: pointer;">
 
                                         <!-- STOCK -->
                                         <div class="info-item">
@@ -1435,49 +1411,24 @@
         </div>
 
     </div>
-<!-- MODAL -->
-@foreach ($products as $product)
 
-    @php
+    <!-- SINGLE MODAL -->
 
-        $modalId = 'productModal' . ($product->id ?? rand(1,999999));
-
-        $margin =
-            ($product->costprice ?? 0) > 0
-            ? (
-                (
-                    ($product->salesprice1 ?? 0)
-                    -
-                    ($product->costprice ?? 0)
-                )
-                /
-                ($product->costprice ?? 1)
-            ) * 100
-            : 0;
-
-    @endphp
-
-    <div
-        class="modal fade"
-        id="{{ $modalId }}"
-        tabindex="-1"
-        aria-hidden="true"
-    >
+    <div class="modal fade" id="productDetailModal" tabindex="-1">
 
         <div class="modal-dialog modal-lg modal-dialog-centered">
 
             <div class="modal-content border-0 shadow-lg rounded-4">
 
-                <!-- HEADER -->
                 <div class="modal-header">
 
                     <div>
 
-                        <h5 class="modal-title">
+                        <h5 class="modal-title" id="modalProductName">
 
                             <i class="fas fa-box me-2"></i>
 
-                            {{ $product->name ?? '-' }}
+                            Detail Produk
 
                         </h5>
 
@@ -1487,191 +1438,11 @@
 
                     </div>
 
-                    <button
-                        type="button"
-                        class="btn-close btn-close-white"
-                        data-bs-dismiss="modal"
-                    ></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 
                 </div>
 
-                <!-- BODY -->
-                <div class="modal-body p-4">
-
-                    <table class="table">
-
-                        <tbody>
-
-                            <tr>
-
-                                <th width="250">
-
-                                    <i class="fas fa-tag me-2 text-primary"></i>
-                                    Group Produk
-
-                                </th>
-
-                                <td>
-
-                                    <span class="badge bg-light text-dark">
-
-                                        {{ $product->productgroup_name ?? '-' }}
-
-                                    </span>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <th>
-
-                                    <i class="fas fa-truck me-2 text-primary"></i>
-                                    Supplier
-
-                                </th>
-
-                                <td>
-
-                                    {{ $product->supplier_name ?? '-' }}
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <th>
-
-                                    <i class="fas fa-warehouse me-2 text-info"></i>
-                                    Stock Saat Ini
-
-                                </th>
-
-                                <td>
-
-                                    <strong class="text-info">
-
-                                        {{ number_format($product->stock ?? 0, 0, ',', '.') }}
-                                        pcs
-
-                                    </strong>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <th>
-
-                                    <i class="fas fa-arrow-down me-2 text-success"></i>
-                                    Total Barang Masuk
-
-                                </th>
-
-                                <td>
-
-                                    <strong class="text-success">
-
-                                        {{ number_format($product->total_masuk ?? 0, 0, ',', '.') }}
-
-                                    </strong>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <th>
-
-                                    <i class="fas fa-arrow-up me-2 text-warning"></i>
-                                    Total Barang Keluar
-
-                                </th>
-
-                                <td>
-
-                                    <strong class="text-warning">
-
-                                        {{ number_format($product->total_keluar ?? 0, 0, ',', '.') }}
-
-                                    </strong>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <th>
-
-                                    <i class="fas fa-coins me-2 text-danger"></i>
-                                    Harga Modal
-
-                                </th>
-
-                                <td>
-
-                                    <strong class="text-danger">
-
-                                        Rp
-                                        {{ number_format($product->costprice ?? 0, 0, ',', '.') }}
-
-                                    </strong>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <th>
-
-                                    <i class="fas fa-money-bill-wave me-2 text-success"></i>
-                                    Harga Jual
-
-                                </th>
-
-                                <td>
-
-                                    <strong class="text-success">
-
-                                        Rp
-                                        {{ number_format($product->salesprice1 ?? 0, 0, ',', '.') }}
-
-                                    </strong>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <th>
-
-                                    <i class="fas fa-percent me-2 text-primary"></i>
-                                    Margin
-
-                                </th>
-
-                                <td>
-
-                                    <strong class="text-primary">
-
-                                        {{ number_format($margin, 2, ',', '.') }}%
-
-                                    </strong>
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
+                <div class="modal-body p-4" id="modalProductBody">
 
                 </div>
 
@@ -1680,8 +1451,6 @@
         </div>
 
     </div>
-
-@endforeach
 
     <!-- CART MODAL -->
     <div class="modal fade" id="cartModal" tabindex="-1">
@@ -1695,7 +1464,8 @@
                         </h5>
                         <small class="text-white-50">Daftar produk yang akan di-order</small>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <!-- BODY -->
                 <div class="modal-body p-4">
@@ -2802,6 +2572,136 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+
+    <script>
+        const allProducts = @json($products);
+
+        function openProductModal(productId) {
+            const product =
+                allProducts.find(p => p.id == productId);
+
+            if (!product) {
+                alert('Produk tidak ditemukan');
+                return;
+            }
+
+            document.getElementById('modalProductName').innerHTML = `
+            <i class="fas fa-box me-2"></i>
+            ${product.name}
+        `;
+
+            let margin = 0;
+
+            if (product.costprice > 0) {
+                margin =
+                    (
+                        (product.salesprice1 - product.costprice) /
+                        product.costprice
+                    ) * 100;
+            }
+
+            document.getElementById('modalProductBody').innerHTML = `
+
+            <table class="table">
+
+                <tbody>
+
+                    <tr>
+                        <th width="250">
+                            Group Produk
+                        </th>
+
+                        <td>
+                            ${product.productgroup_name ?? '-'}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Supplier</th>
+
+                        <td>
+                            ${product.supplier_name ?? '-'}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Stock Saat Ini</th>
+
+                        <td>
+                            <strong>
+                                ${numberFormat(product.stock)} pcs
+                            </strong>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Total Barang Masuk</th>
+
+                        <td>
+                            <strong>
+                                ${numberFormat(product.total_masuk)}
+                            </strong>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Total Barang Keluar</th>
+
+                        <td>
+                            <strong>
+                                ${numberFormat(product.total_keluar)}
+                            </strong>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Harga Modal</th>
+
+                        <td>
+                            <strong>
+                                Rp ${numberFormat(product.costprice)}
+                            </strong>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Harga Jual</th>
+
+                        <td>
+                            <strong>
+                                Rp ${numberFormat(product.salesprice1)}
+                            </strong>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Margin</th>
+
+                        <td>
+                            <strong>
+                                ${margin.toFixed(2)}%
+                            </strong>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+        `;
+
+            const modal =
+                new bootstrap.Modal(
+                    document.getElementById('productDetailModal')
+                );
+
+            modal.show();
+        }
+
+        function numberFormat(num) {
+            return new Intl.NumberFormat('id-ID')
+                .format(num || 0);
+        }
+    </script>
 </body>
 
 </html>
