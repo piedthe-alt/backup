@@ -1612,6 +1612,20 @@
                                 <tr>
 
                                     <th width="250">
+                                        <i class="fas fa-barcode me-2 text-success"></i>Kode Barang
+                                    </th>
+
+                                    <td>
+
+                                        <span class="badge bg-success text-white">{{ $product->id }}</span>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th width="250">
                                         <i class="fas fa-tag me-2 text-primary"></i>Group Produk
                                     </th>
 
@@ -1916,7 +1930,6 @@
                             <div class="cart-item-info">
                                 <div class="cart-item-name">${item.name}</div>
                                 <div class="cart-item-code">Kode: ${item.id}</div>
-                                <div class="cart-item-price">Rp ${number_format(item.price)} x ${item.quantity}</div>
                             </div>
                             <div class="cart-item-qty">${item.quantity} pcs</div>
                             <button type="button" class="cart-item-remove" onclick="removeFromCart('${item.id}')">
