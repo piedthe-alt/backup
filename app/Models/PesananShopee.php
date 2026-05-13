@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PesananShopee extends Model
 {
+    protected $connection = 'u990824557_db_app';
     protected $table = 'pesanan_shopee';
     protected $primaryKey = 'id_pesanan';
 
