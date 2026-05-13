@@ -41,7 +41,7 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
 
         ->groupBy('salesid')
 
-        ->orderBy('salesid', 'DESC')
+        ->orderBy('salesid', 'ASCEND')
 
         ->get();
 
