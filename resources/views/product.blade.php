@@ -12,7 +12,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="{{ asset('css/modern-design-system.css') }}" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
 
@@ -1078,55 +1077,70 @@
 
     <div class="container-fluid py-4">
 
-        <!-- Modern Page Header -->
-        <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4" style="background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%); color: white;">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
 
-            <div class="card-body p-5">
+            <!-- HEADER -->
+            <div class="header-section p-4">
 
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="header-content">
 
-                    <div>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
 
-                        <h1 class="mb-2 fw-bold" style="font-size: 2rem;">
-                            <i class="fas fa-boxes me-2"></i>Manajemen Stock Produk
-                        </h1>
+                        <div>
 
-                        <p class="mb-0 opacity-75" style="font-size: 1rem;">
-                            Kelola dan pantau inventory produk secara real-time
-                        </p>
+                            <h2 class="mb-2 fw-bold">
+                                <i class="fas fa-boxes me-2"></i>Manajemen Stock Produk
+                            </h2>
 
-                    </div>
+                            <small class="opacity-75">
+                                Kelola dan pantau inventory produk secara real-time
+                            </small>
 
-                    <div class="d-flex gap-2 flex-wrap justify-content-end">
+                        </div>
 
-                        <a href="/ai-dashboard" class="btn btn-light btn-sm">
-                            <i class="fas fa-robot"></i> AI
-                        </a>
+                        <div class="d-flex gap-2 flex-wrap">
 
-                        <a href="/sales-chart" class="btn btn-light btn-sm">
-                            <i class="fas fa-chart-line"></i> Chart
-                        </a>
+                            <a href="/ai-dashboard" class="btn btn-action btn-warning">
+                                <i class="fas fa-robot"></i> AI Analysis
+                            </a>
 
-                        <a href="/return" class="btn btn-light btn-sm">
-                            <i class="fas fa-undo"></i> Retur
-                        </a>
+                            <a href="/sales-chart" class="btn btn-action btn-info">
+                                <i class="fas fa-chart-line"></i> Grafik
+                            </a>
 
-                        <a href="/pesanan-shopee" class="btn btn-light btn-sm">
-                            <i class="fas fa-shopping-bag"></i> Shopee
-                        </a>
+                            <!-- TOMBOL RETUR -->
+                            <a href="/return" class="btn btn-action btn-secondary">
+                                <i class="fas fa-undo"></i> Retur
+                            </a>
 
-                        <button class="btn btn-light btn-sm" onclick="startScanner()">
-                            <i class="fas fa-camera"></i> Scan
-                        </button>
+                            <!-- TOMBOL PESANAN SHOPEE -->
+                            <a href="/pesanan-shopee" class="btn btn-action btn-info">
+                                <i class="fas fa-shopping-bag"></i> Pesanan Shopee
+                            </a>
 
-                        <a href="/import-db" class="btn btn-light btn-sm" onclick="return confirm('Yakin mau import database?')">
-                            <i class="fas fa-database"></i> Import
-                        </a>
+                            <button class="btn btn-action btn-success" onclick="startScanner()">
+                                <i class="fas fa-camera"></i> Scan
+                            </button>
 
-                        <button class="btn btn-light btn-sm" onclick="openCartModal()" style="position: relative;">
-                            <i class="fas fa-shopping-cart"></i> Cart
-                            <span class="cart-badge" id="cart-count" style="display: none;">0</span>
-                        </button>
+                            <a href="/import-db" class="btn btn-action btn-danger"
+                                onclick="return confirm('Yakin mau import database?')">
+
+                                <i class="fas fa-database"></i> Import DB
+
+                            </a>
+
+                            <button class="btn btn-action btn-primary cart-btn-wrapper" onclick="openCartModal()"
+                                style="position: relative;">
+
+                                <i class="fas fa-shopping-cart"></i> Cart
+
+                                <span class="cart-badge" id="cart-count" style="display: none;">
+                                    0
+                                </span>
+
+                            </button>
+
+                        </div>
 
                     </div>
 
@@ -1134,29 +1148,25 @@
 
             </div>
 
-        </div>
-
-        <!-- Main Content Card -->
-
-        <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-
+            <!-- BODY -->
             <div class="card-body p-4">
 
-                <!-- Search & Filter Section -->
-                <div class="card border-0 bg-slate-50 rounded-3 p-4 mb-4">
+                <!-- FORM SEARCH -->
+                <form method="GET" action="/" class="mb-5">
 
-                    <form method="GET" action="/" class="row g-3">
+                    <div class="row g-3 mb-4">
 
-                        <!-- Search Input -->
-                        <div class="col-12 col-lg-6">
+                        <!-- SEARCH -->
+                        <div class="col-md-6">
 
-                            <input type="text" name="keyword" id="searchInput" class="form-control" style="border-radius: var(--radius-lg); border: 1px solid var(--slate-200); padding: var(--spacing-md) var(--spacing-lg); font-size: 1rem;"
+                            <input type="text" name="keyword" id="searchInput" class="form-control search-input"
                                 placeholder="🔍 Cari nama produk atau scan barcode..." value="{{ request('keyword') }}"
                                 autofocus>
 
                         </div>
 
-                        <!-- Group Filter -->
+                        <!-- FILTER GROUP -->
+<!-- FILTER GROUP -->
 <div class="col-md-3">
 
     <div class="position-relative">
@@ -1359,60 +1369,54 @@
 
 </script>
 
-                        <!-- Submit Button -->
-                        <div class="col-12 col-sm-6 col-lg-3">
-                            <button type="submit" class="btn btn-primary w-100" style="border-radius: var(--radius-lg); padding: var(--spacing-md) var(--spacing-lg);">
+                        <!-- BUTTON -->
+                        <div class="col-md-3">
+
+                            <button type="submit" class="btn btn-action btn-primary w-100">
+
                                 <i class="fas fa-search"></i> Cari
+
                             </button>
+
                         </div>
 
                     </div>
 
                 </form>
 
-                </div>
+                <!-- SORTING BUTTONS -->
+                <div class="sort-buttons mb-5">
+                    <span class="sort-label">📊 Urutkan Berdasarkan:</span>
 
-                <!-- Sorting Buttons - Modern Style -->
-                <div class="bg-white rounded-3 p-4 mb-4 border border-slate-200" style="overflow-x: auto;">
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=stock_terendah"
+                        class="sort-btn {{ request('sort') == 'stock_terendah' || !request('sort') ? 'active' : '' }}">
+                        <i class="fas fa-arrow-down me-1"></i>Stock Terendah
+                    </a>
 
-                    <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=stock_tertinggi"
+                        class="sort-btn {{ request('sort') == 'stock_tertinggi' ? 'active' : '' }}">
+                        <i class="fas fa-arrow-up me-1"></i>Stock Tertinggi
+                    </a>
 
-                        <span class="fw-bold text-slate-700" style="align-self: center; white-space: nowrap;">
-                            📊 Urutkan:
-                        </span>
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=paling_laris"
+                        class="sort-btn {{ request('sort') == 'paling_laris' ? 'active' : '' }}">
+                        <i class="fas fa-fire me-1"></i>Paling Laris
+                    </a>
 
-                        <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=stock_terendah"
-                            class="btn btn-sm {{ request('sort') == 'stock_terendah' || !request('sort') ? 'btn-primary' : 'btn-outline-secondary' }}" style="border-radius: 20px; white-space: nowrap;">
-                            <i class="fas fa-arrow-down me-1"></i>Stock Terendah
-                        </a>
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=gak_jalan"
+                        class="sort-btn {{ request('sort') == 'gak_jalan' ? 'active' : '' }}">
+                        <i class="fas fa-snooze me-1"></i>Gak Jalan
+                    </a>
 
-                        <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=stock_tertinggi"
-                            class="btn btn-sm {{ request('sort') == 'stock_tertinggi' ? 'btn-primary' : 'btn-outline-secondary' }}" style="border-radius: 20px; white-space: nowrap;">
-                            <i class="fas fa-arrow-up me-1"></i>Stock Tertinggi
-                        </a>
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=nama_asc"
+                        class="sort-btn {{ request('sort') == 'nama_asc' ? 'active' : '' }}">
+                        <i class="fas fa-sort-alpha-down me-1"></i>A-Z
+                    </a>
 
-                        <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=paling_laris"
-                            class="btn btn-sm {{ request('sort') == 'paling_laris' ? 'btn-primary' : 'btn-outline-secondary' }}" style="border-radius: 20px; white-space: nowrap;">
-                            <i class="fas fa-fire me-1"></i>Paling Laris
-                        </a>
-
-                        <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=gak_jalan"
-                            class="btn btn-sm {{ request('sort') == 'gak_jalan' ? 'btn-primary' : 'btn-outline-secondary' }}" style="border-radius: 20px; white-space: nowrap;">
-                            <i class="fas fa-snooze me-1"></i>Gak Jalan
-                        </a>
-
-                        <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=nama_asc"
-                            class="btn btn-sm {{ request('sort') == 'nama_asc' ? 'btn-primary' : 'btn-outline-secondary' }}" style="border-radius: 20px; white-space: nowrap;">
-                            <i class="fas fa-sort-alpha-down me-1"></i>A-Z
-                        </a>
-
-                        <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=nama_desc"
-                            class="btn btn-sm {{ request('sort') == 'nama_desc' ? 'btn-primary' : 'btn-outline-secondary' }}" style="border-radius: 20px; white-space: nowrap;">
-                            <i class="fas fa-sort-alpha-up-alt me-1"></i>Z-A
-                        </a>
-
-                    </div>
-
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=nama_desc"
+                        class="sort-btn {{ request('sort') == 'nama_desc' ? 'active' : '' }}">
+                        <i class="fas fa-sort-alpha-up-alt me-1"></i>Z-A
+                    </a>
                 </div>
 
                 <!-- QR READER MODAL -->
@@ -1437,15 +1441,15 @@
                     </div>
                 </div>
 
-                <!-- Product Grid - Responsive Modern Grid -->
-                <div class="row g-4 mb-5">
+                <!-- PRODUK -->
+                <div class="row g-4">
 
                     @forelse ($products as $product)
-                        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                        <div class="col-md-6 col-lg-4 col-xl-3">
 
-                            <div class="card border-0 shadow-sm rounded-3 overflow-hidden h-100 d-flex flex-column" style="transition: all 0.3s ease;">
+                            <div class="product-card shadow-sm">
 
-                                <!-- Card Header -->
+                                <div class="product-card-header">
 
                                     <div class="product-header-wrapper">
                                         <h5 class="product-name">
@@ -1460,19 +1464,22 @@
 
                                 </div>
 
-                                <div class="card-body p-4 d-flex flex-column flex-grow-1" style="background: white;">
+                                <div class="card-body p-3 d-flex flex-column">
 
-                                    <!-- Price Badge -->
-                                    <div style="background: linear-gradient(135deg, var(--primary-600), var(--primary-700)); color: white; display: inline-block; padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-lg); font-weight: 600; font-size: 0.9rem; margin-bottom: var(--spacing-md); cursor: pointer;" onclick="event.stopPropagation()" data-bs-toggle="modal" data-bs-target="#productModal{{ $loop->index }}" data-product-id="{{ $product->id }}">
+                                    <!-- HARGA -->
+                                    <div class="price-badge" onclick="event.stopPropagation()" data-bs-toggle="modal"
+                                        data-bs-target="#productModal{{ $loop->index }}" data-product-id="{{ $product->id }}" style="cursor: pointer;">
                                         Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
                                     </div>
 
-                                    <!-- Product Info -->
-                                    <div class="flex gap-md mb-md" onclick="event.stopPropagation()" data-bs-toggle="modal" data-bs-target="#productModal{{ $loop->index }}" data-product-id="{{ $product->id }}" style="cursor: pointer; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--spacing-md);">
+                                    <!-- INFO HORIZONTAL -->
+                                    <div class="product-info" onclick="event.stopPropagation()"
+                                        data-bs-toggle="modal" data-bs-target="#productModal{{ $loop->index }}"
+                                        data-product-id="{{ $product->id }}" style="cursor: pointer;">
 
-                                        <!-- Stock -->
-                                        <div style="background: var(--slate-50); padding: var(--spacing-md); border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
-                                            <small style="color: var(--slate-500); font-weight: 600; text-transform: uppercase; font-size: 0.7rem;">Stock</small>
+                                        <!-- STOCK -->
+                                        <div class="info-item">
+                                            <span class="info-item-label">Stock</span>
                                             @php
                                                 $stockStatus = \App\Helpers\StockStatusHelper::getStockStatus(
                                                     $product->stock,
@@ -1480,36 +1487,48 @@
                                                     $product->created_at ?? null
                                                 );
                                             @endphp
-                                            <div style="font-weight: 700; color: var(--primary-600); font-size: 1rem; margin-bottom: var(--spacing-xs);">{{ number_format($product->stock, 0, ',', '.') }}</div>
-                                            <span class="stock-status-badge status-{{ strtolower(str_replace('_', '-', $stockStatus['status'])) }}" style="display: inline-flex; font-size: 0.75rem; padding: 4px 8px; border-radius: 12px;">
-                                                <i class="fas {{ $stockStatus['icon'] }} me-1"></i>
-                                                {{ $stockStatus['label'] }}
-                                            </span>
+                                            <div class="stock-info-modern">
+                                                <div class="stock-current">
+                                                    <span>Unit: <strong class="stock-current-value">{{ number_format($product->stock, 0, ',', '.') }}</strong></span>
+                                                </div>
+                                                <span class="stock-status-badge status-{{ strtolower(str_replace('_', '-', $stockStatus['status'])) }}"
+                                                    title="Estimasi habis: {{ $stockStatus['estimasi'] }}">
+                                                    <i class="fas {{ $stockStatus['icon'] }}"></i>
+                                                    <span>{{ $stockStatus['label'] }}</span>
+                                                </span>
+                                                <span class="stock-estimasi">{{ $stockStatus['estimasi'] }}</span>
+                                            </div>
                                         </div>
 
-                                        <!-- Masuk -->
-                                        <div style="background: #f0fdf4; padding: var(--spacing-md); border-radius: var(--radius-md); border: 1px solid #dcfce7;">
-                                            <small style="color: #65a30d; font-weight: 600; text-transform: uppercase; font-size: 0.7rem;">Masuk</small>
-                                            <div style="font-weight: 700; color: #16a34a; font-size: 1rem;">{{ number_format($product->total_masuk, 0, ',', '.') }}</div>
+                                        <!-- MASUK -->
+                                        <div class="info-item">
+                                            <span class="info-item-label">Masuk</span>
+                                            <span
+                                                class="info-item-value">{{ number_format($product->total_masuk, 0, ',', '.') }}</span>
                                         </div>
 
-                                        <!-- Keluar -->
-                                        <div style="background: #fffbeb; padding: var(--spacing-md); border-radius: var(--radius-md); border: 1px solid #fef3c7;">
-                                            <small style="color: #d97706; font-weight: 600; text-transform: uppercase; font-size: 0.7rem;">Keluar</small>
-                                            <div style="font-weight: 700; color: #f59e0b; font-size: 1rem;">{{ number_format($product->total_keluar, 0, ',', '.') }}</div>
+                                        <!-- KELUAR -->
+                                        <div class="info-item">
+                                            <span class="info-item-label">Keluar</span>
+                                            <span
+                                                class="info-item-value">{{ number_format($product->total_keluar, 0, ',', '.') }}</span>
                                         </div>
 
                                     </div>
 
-                                    <!-- Quantity Selector -->
-                                    <div style="display: flex; gap: var(--spacing-sm); padding: var(--spacing-md); background: var(--slate-50); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);" onclick="event.stopPropagation();">
-                                        <button type="button" class="btn btn-sm" style="padding: 6px 12px; background: white; border: 1px solid var(--slate-200); color: var(--primary-600); border-radius: 6px; cursor: pointer;" onclick="decreaseQty(this)">−</button>
-                                        <input type="number" style="flex: 1; text-align: center; border: 1px solid var(--slate-200); border-radius: 6px; padding: 6px; font-weight: 600; color: var(--primary-600);" value="1" min="1" max="{{ $product->stock }}" onchange="validateQty(this, {{ $product->stock }})">
-                                        <button type="button" class="btn btn-sm" style="padding: 6px 12px; background: white; border: 1px solid var(--slate-200); color: var(--primary-600); border-radius: 6px; cursor: pointer;" onclick="increaseQty(this, {{ $product->stock }})">+</button>
+                                    <!-- QUANTITY SELECTOR -->
+                                    <div class="quantity-selector" onclick="event.stopPropagation();">
+                                        <button type="button" class="qty-btn" onclick="decreaseQty(this)">−</button>
+                                        <input type="number" class="qty-input" value="1" min="1"
+                                            max="{{ $product->stock }}"
+                                            onchange="validateQty(this, {{ $product->stock }})">
+                                        <button type="button" class="qty-btn"
+                                            onclick="increaseQty(this, {{ $product->stock }})">+</button>
                                     </div>
 
-                                    <!-- Add to Cart Button -->
-                                    <button type="button" class="btn btn-success w-100" style="border-radius: var(--radius-lg); padding: var(--spacing-md); font-weight: 600; cursor: pointer;" onclick="event.stopPropagation(); addToCart(event, '{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->salesprice1 }}, '{{ addslashes($product->productgroup_name) }}')">
+                                    <!-- ADD TO CART BUTTON -->
+                                    <button type="button" class="add-to-cart-btn"
+                                        onclick="event.stopPropagation(); addToCart(event, '{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->salesprice1 }}, '{{ addslashes($product->productgroup_name) }}')">
                                         <i class="fas fa-plus"></i> Tambah ke Cart
                                     </button>
 
@@ -1523,9 +1542,9 @@
 
                         <div class="col-12">
 
-                            <div class="text-center py-5">
+                            <div class="empty-state">
 
-                                <i class="fas fa-inbox" style="font-size: 3rem; color: var(--slate-300); display: block; margin-bottom: var(--spacing-md);"></i>
+                                <i class="fas fa-inbox"></i>
 
                                 <h5 class="text-muted mt-3">Produk tidak ditemukan</h5>
 
@@ -1534,12 +1553,11 @@
                             </div>
 
                         </div>
-
                     @endforelse
 
                 </div>
 
-                <!-- Pagination -->
+                <!-- PAGINATION -->
                 <div class="mt-5 d-flex justify-content-center">
 
                     {{ $products->links('pagination::bootstrap-4') }}

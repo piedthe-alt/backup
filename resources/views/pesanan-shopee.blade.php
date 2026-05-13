@@ -12,8 +12,6 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link href="{{ asset('css/modern-design-system.css') }}" rel="stylesheet">
-
     <style>
         body{
             background:#f1f5f9;
@@ -94,36 +92,10 @@
 
 <div class="container py-4">
 
-    <!-- Modern Header -->
-    <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-4" style="background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); color: white;">
-
-        <div class="card-body p-5">
-
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
-                <div>
-
-                    <h1 class="mb-2 fw-bold" style="font-size: 2rem;">
-                        <i class="fas fa-bag-shopping me-2"></i>Pesanan Shopee
-                    </h1>
-
-                    <p class="mb-0 opacity-75" style="font-size: 1rem;">
-                        Kelola semua pesanan dari Shopee secara terpusat
-                    </p>
-
-                </div>
-
-                <a href="/" class="btn btn-light btn-sm">
-                    <i class="fas fa-arrow-left me-2"></i>Kembali
-                </a>
-
-            </div>
-
-        </div>
-
-    </div>
-
     <div class="mb-4">
+        <h2 class="fw-bold">
+            <i class="fa-solid fa-bag-shopping"></i>
+            Pesanan Shopee
         </h2>
     </div>
 
