@@ -8,6 +8,47 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\ProductReturnController;
 use App\Http\Controllers\PesananShopeeController;
 
+Route::get('/sales-detail/{date}', function ($date) {
+
+    $salesDetails = DB::table('salesdetail')
+
+        ->select(
+
+            'salesid',
+
+            DB::raw('MAX(transdate) as waktu'),
+
+            DB::raw('SUM(salesqty) as total_qty'),
+
+            DB::raw('SUM(netamount) as omzet'),
+
+            DB::raw('SUM(netamount - cogs) as margin'),
+
+            DB::raw('COUNT(productid) as total_item')
+
+        )
+
+        ->whereDate('transdate', $date)
+
+        ->groupBy('salesid')
+
+        ->orderBy('waktu', 'DESC')
+
+        ->paginate(30);
+
+    return view(
+
+        'sales-detail',
+
+        compact(
+            'salesDetails',
+            'date'
+        )
+
+    );
+
+});
+
 Route::get('/api/pesanan-shopee', [PesananShopeeController::class, 'apiList']);
 
 Route::get('/api/get-returns-by-group', function (Request $request) {
