@@ -1046,26 +1046,184 @@
                         </div>
 
                         <!-- FILTER GROUP -->
+                        <!-- FILTER GROUP -->
                         <div class="col-md-3">
 
-                            <select name="productgroup" class="form-select search-input">
+                            <div class="position-relative">
 
-                                <option value="">
-                                    📂 Semua Group
-                                </option>
+                                <!-- INPUT SEARCH -->
+                                <input type="text" id="groupSearch" class="form-control search-input"
+                                    placeholder="📂 Cari Group..." autocomplete="off"
+                                    value="
+                @if (request('productgroup')) {{ optional($productgroups->firstWhere('id', request('productgroup')))->name }} @endif
+            ">
 
-                                @foreach ($productgroups as $group)
-                                    <option value="{{ $group->id }}"
-                                        {{ request('productgroup') == $group->id ? 'selected' : '' }}>
+                                <!-- HIDDEN INPUT -->
+                                <input type="hidden" name="productgroup" id="selectedGroup"
+                                    value="{{ request('productgroup') }}">
 
-                                        {{ $group->name }}
+                                <!-- DROPDOWN -->
+                                <div id="groupDropdown"
+                                    style="
+                position:absolute;
+                top:100%;
+                left:0;
+                right:0;
+                background:white;
+                border:1px solid #ddd;
+                border-radius:10px;
+                max-height:300px;
+                overflow-y:auto;
+                z-index:9999;
+                display:none;
+                box-shadow:0 10px 25px rgba(0,0,0,0.1);
+            ">
 
-                                    </option>
-                                @endforeach
+                                    <!-- SEMUA GROUP -->
+                                    <div class="group-item" data-id="" data-name="Semua Group"
+                                        style="
+                    padding:12px;
+                    cursor:pointer;
+                    border-bottom:1px solid #eee;
+                ">
+                                        📂 Semua Group
+                                    </div>
 
-                            </select>
+                                    @foreach ($productgroups as $group)
+                                        <div class="group-item" data-id="{{ $group->id }}"
+                                            data-name="{{ $group->name }}"
+                                            style="
+                        padding:12px;
+                        cursor:pointer;
+                        border-bottom:1px solid #eee;
+                    ">
+
+                                            {{ $group->name }}
+
+                                        </div>
+                                    @endforeach
+
+                                </div>
+
+                            </div>
 
                         </div>
+
+                        <script>
+                            const groupSearch =
+                                document.getElementById('groupSearch');
+
+                            const groupDropdown =
+                                document.getElementById('groupDropdown');
+
+                            const selectedGroup =
+                                document.getElementById('selectedGroup');
+
+                            const groupItems =
+                                document.querySelectorAll('.group-item');
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | SHOW DROPDOWN
+                            |--------------------------------------------------------------------------
+                            */
+
+                            groupSearch.addEventListener('focus', function() {
+
+                                groupDropdown.style.display = 'block';
+                            });
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | SEARCH FILTER
+                            |--------------------------------------------------------------------------
+                            */
+
+                            groupSearch.addEventListener('keyup', function() {
+
+                                const keyword =
+                                    this.value.toLowerCase();
+
+                                groupDropdown.style.display = 'block';
+
+                                groupItems.forEach(item => {
+
+                                    const name =
+                                        item.dataset.name.toLowerCase();
+
+                                    if (name.includes(keyword)) {
+
+                                        item.style.display = 'block';
+
+                                    } else {
+
+                                        item.style.display = 'none';
+                                    }
+                                });
+                            });
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | SELECT GROUP
+                            |--------------------------------------------------------------------------
+                            */
+
+                            groupItems.forEach(item => {
+
+                                item.addEventListener('click', function() {
+
+                                    groupSearch.value =
+                                        this.dataset.name;
+
+                                    selectedGroup.value =
+                                        this.dataset.id;
+
+                                    groupDropdown.style.display =
+                                        'none';
+
+                                    /*
+                                    |--------------------------------------------------------------------------
+                                    | AUTO SUBMIT
+                                    |--------------------------------------------------------------------------
+                                    */
+
+                                    this.closest('form').submit();
+                                });
+                            });
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | CLOSE DROPDOWN
+                            |--------------------------------------------------------------------------
+                            */
+
+                            document.addEventListener('click', function(e) {
+
+                                if (!e.target.closest('.position-relative')) {
+
+                                    groupDropdown.style.display = 'none';
+                                }
+                            });
+
+                            /*
+                            |--------------------------------------------------------------------------
+                            | HOVER EFFECT
+                            |--------------------------------------------------------------------------
+                            */
+
+                            groupItems.forEach(item => {
+
+                                item.addEventListener('mouseenter', function() {
+
+                                    this.style.background = '#f8fafc';
+                                });
+
+                                item.addEventListener('mouseleave', function() {
+
+                                    this.style.background = 'white';
+                                });
+                            });
+                        </script>
 
                         <!-- BUTTON -->
                         <div class="col-md-3">
@@ -1274,7 +1432,8 @@
                             <small class="text-white-50">Detail Produk</small>
                         </div>
 
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close">
 
                         </button>
 
@@ -1440,7 +1599,8 @@
                         </h5>
                         <small class="text-white-50">Daftar produk yang akan di-order</small>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <!-- BODY -->
                 <div class="modal-body p-4">
