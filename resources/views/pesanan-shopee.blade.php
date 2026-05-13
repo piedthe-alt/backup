@@ -373,7 +373,7 @@
             flex-wrap: wrap;
         }
 
-        .form-group-inline > div {
+        .form-group-inline>div {
             flex: 1;
             min-width: 200px;
         }
@@ -476,7 +476,8 @@
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label class="form-label fw-600">Nama Pembeli</label>
-                        <input type="text" id="namaPembeli" class="form-control" placeholder="Nama pembeli (opsional)">
+                        <input type="text" id="namaPembeli" class="form-control"
+                            placeholder="Nama pembeli (opsional)">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-600">Jenis Pengiriman</label>
@@ -563,29 +564,27 @@
         // Load products on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadProducts();
-            loadPesanan();
+            renderPesanan();
         });
 
         // Load products from API
         async function loadProducts() {
             try {
                 const response = await fetch('/api/products');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 products = await response.json();
+                console.log('Products loaded:', products);
             } catch (error) {
                 console.error('Error loading products:', error);
+                alert('Gagal memuat daftar produk');
             }
         }
 
         // Load pesanan list
         async function loadPesanan() {
-            try {
-                const response = await fetch('/pesanan-shopee');
-                const html = await response.text();
-                // Refresh page or update pesanan container
-                location.reload();
-            } catch (error) {
-                console.error('Error loading pesanan:', error);
-            }
+            renderPesanan();
         }
 
         // Add new product row
@@ -678,7 +677,8 @@
                     document.getElementById('pesananForm').reset();
                     document.getElementById('productsContainer').innerHTML = '';
                     productRowCount = 0;
-                    location.reload();
+                    // Refresh pesanan list tanpa reload halaman
+                    loadPesanan();
                 } else {
                     alert('Error: ' + (data.message || 'Gagal membuat pesanan'));
                 }
@@ -732,32 +732,32 @@
                             </div>
                         </div>
                         ${pesanan.alamat ? `
-                            <div class="info-item mb-3">
-                                <div class="info-label">Alamat</div>
-                                <div class="info-value">${pesanan.alamat}</div>
-                            </div>
-                        ` : ''}
+                                    <div class="info-item mb-3">
+                                        <div class="info-label">Alamat</div>
+                                        <div class="info-value">${pesanan.alamat}</div>
+                                    </div>
+                                ` : ''}
                         ${pesanan.catatan ? `
-                            <div class="info-item mb-3">
-                                <div class="info-label">Catatan</div>
-                                <div class="info-value">${pesanan.catatan}</div>
-                            </div>
-                        ` : ''}
+                                    <div class="info-item mb-3">
+                                        <div class="info-label">Catatan</div>
+                                        <div class="info-value">${pesanan.catatan}</div>
+                                    </div>
+                                ` : ''}
 
                         <hr class="my-4">
                         <h6 class="mb-3">Produk yang dipesan</h6>
                         ${produkDetails.map(prod => `
-                            <div class="product-list-item">
-                                <div>
-                                    <div class="product-list-item-name">${prod.name}</div>
-                                    <div class="product-list-item-price">Rp ${numberFormat(prod.price)}</div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div style="font-weight: 600;">${prod.quantity} x</div>
-                                    <div style="font-size: 0.9rem; color: #64748b;">Rp ${numberFormat(prod.subtotal)}</div>
-                                </div>
-                            </div>
-                        `).join('')}
+                                    <div class="product-list-item">
+                                        <div>
+                                            <div class="product-list-item-name">${prod.name}</div>
+                                            <div class="product-list-item-price">Rp ${numberFormat(prod.price)}</div>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div style="font-weight: 600;">${prod.quantity} x</div>
+                                            <div style="font-size: 0.9rem; color: #64748b;">Rp ${numberFormat(prod.subtotal)}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
 
                         <div class="detail-summary">
                             <div class="summary-row">
@@ -802,7 +802,8 @@
                 if (data.success) {
                     alert('Status pesanan diperbarui menjadi DIKIRIM');
                     bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();
-                    location.reload();
+                    // Refresh pesanan list tanpa reload halaman
+                    loadPesanan();
                 } else {
                     alert('Gagal memperbarui status');
                 }
@@ -825,65 +826,174 @@
 
     <!-- Display pesanan dynamically -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            renderPesanan();
-        });
-
         async function renderPesanan() {
-            // This data is passed from controller
-            const pesanans = @json($pesanans ?? []);
 
-            const container = document.getElementById('pesananContainer');
+            try {
 
-            if (pesanans.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <h5 class="text-muted mt-3">Belum ada pesanan</h5>
-                        <p class="text-muted small">Buat pesanan baru dengan mengisi form di atas</p>
+                const response = await fetch('/api/pesanan-shopee');
+
+                const pesanans = await response.json();
+
+                const container =
+                    document.getElementById('pesananContainer');
+
+                if (pesanans.length === 0) {
+
+                    container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h5 class="text-muted mt-3">
+                        Belum ada pesanan
+                    </h5>
+                    <p class="text-muted small">
+                        Buat pesanan baru
+                    </p>
+                </div>
+            `;
+
+                    return;
+                }
+
+                let html = '';
+
+                pesanans.forEach(pesanan => {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | FIX JSON STRING
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (typeof pesanan.id_produk === 'string') {
+
+                        pesanan.id_produk =
+                            JSON.parse(pesanan.id_produk);
+                    }
+
+                    if (typeof pesanan.jumlah_produk === 'string') {
+
+                        pesanan.jumlah_produk =
+                            JSON.parse(pesanan.jumlah_produk);
+                    }
+
+                    const jenisBadgeClass =
+                        `jenis-${pesanan.jenis.toLowerCase()}`;
+
+                    const statusBadgeClass =
+                        pesanan.status === 'DIKIRIM' ?
+                        'status-dikirim' :
+                        'status-belum-dikirim';
+
+                    html += `
+                <div class="pesanan-card"
+                    onclick="showDetail(${pesanan.id_pesanan})">
+
+                    <div class="pesanan-card-header">
+
+                        <div>
+
+                            <h6>#${pesanan.id_pesanan}</h6>
+
+                            <small>
+                                ${new Date(pesanan.created_at)
+                                    .toLocaleDateString(
+                                        'id-ID',
+                                        {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        }
+                                    )}
+                            </small>
+
+                        </div>
+
+                        <span class="status-badge ${statusBadgeClass}">
+                            ${pesanan.status}
+                        </span>
+
                     </div>
-                `;
-                return;
+
+                    <div class="pesanan-card-body">
+
+                        <div class="pesanan-info">
+
+                            <div class="info-item">
+
+                                <div class="info-label">
+                                    Jumlah Produk
+                                </div>
+
+                                <div class="info-value">
+                                    ${pesanan.id_produk.length} item
+                                </div>
+
+                            </div>
+
+                            <div class="info-item">
+
+                                <div class="info-label">
+                                    Jenis
+                                </div>
+
+                                <div class="info-value">
+
+                                    <span class="jenis-badge ${jenisBadgeClass}">
+                                        ${pesanan.jenis}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="info-item">
+
+                                <div class="info-label">
+                                    Total Harga
+                                </div>
+
+                                <div class="info-value"
+                                    style="color: var(--primary-color);">
+
+                                    Rp ${numberFormat(
+                                        pesanan.total_harga_jual
+                                    )}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        ${pesanan.nama_pembeli
+                            ? `
+                                <div style="
+                                    margin-top:10px;
+                                    padding:10px;
+                                    background:var(--light-bg);
+                                    border-radius:6px;
+                                ">
+                                    <strong>Pembeli:</strong>
+                                    ${pesanan.nama_pembeli}
+                                </div>
+                                `
+                            : ''
+                        }
+
+                    </div>
+
+                </div>
+            `;
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+
+                console.error(error);
             }
-
-            let html = '';
-            pesanans.forEach(pesanan => {
-                const jenisBadgeClass = `jenis-${pesanan.jenis.toLowerCase()}`;
-                const statusBadgeClass = pesanan.status === 'DIKIRIM' ? 'status-dikirim' : 'status-belum-dikirim';
-
-                html += `
-                    <div class="pesanan-card" onclick="showDetail(${pesanan.id_pesanan})">
-                        <div class="pesanan-card-header">
-                            <div>
-                                <h6>#${pesanan.id_pesanan}</h6>
-                                <small>${new Date(pesanan.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</small>
-                            </div>
-                            <span class="status-badge ${statusBadgeClass}">${pesanan.status}</span>
-                        </div>
-                        <div class="pesanan-card-body">
-                            <div class="pesanan-info">
-                                <div class="info-item">
-                                    <div class="info-label">Jumlah Produk</div>
-                                    <div class="info-value">${pesanan.id_produk.length} item</div>
-                                </div>
-                                <div class="info-item">
-                                    <div class="info-label">Jenis</div>
-                                    <div class="info-value">
-                                        <span class="jenis-badge ${jenisBadgeClass}">${pesanan.jenis}</span>
-                                    </div>
-                                </div>
-                                <div class="info-item">
-                                    <div class="info-label">Total Harga</div>
-                                    <div class="info-value" style="color: var(--primary-color);">Rp ${numberFormat(pesanan.total_harga_jual)}</div>
-                                </div>
-                            </div>
-                            ${pesanan.nama_pembeli ? `<div style="margin-top: 10px; padding: 10px; background: var(--light-bg); border-radius: 6px;"><strong>Pembeli:</strong> ${pesanan.nama_pembeli}</div>` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
         }
     </script>
 </body>

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\ProductReturnController;
 use App\Http\Controllers\PesananShopeeController;
 
+Route::get('/api/pesanan-shopee', [PesananShopeeController::class, 'apiList']);
 
 Route::get('/api/get-returns-by-group', function (Request $request) {
 

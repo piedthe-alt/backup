@@ -2,117 +2,309 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PesananShopee;
-use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\PesananShopee;
 
 class PesananShopeeController extends Controller
 {
-    // Display all pesanan shopee
+    /*
+    |--------------------------------------------------------------------------
+    | INDEX
+    |--------------------------------------------------------------------------
+    */
+
     public function index()
     {
-        $pesanans = PesananShopee::orderBy('created_at', 'desc')->get();
-        $products = Product::all();
-
-        return view('pesanan-shopee', [
-            'pesanans' => $pesanans,
-            'products' => $products
-        ]);
+        return view('pesanan-shopee');
     }
 
-    // Store new pesanan shopee
-    public function store(Request $request)
+    /*
+    |--------------------------------------------------------------------------
+    | API LIST PESANAN
+    |--------------------------------------------------------------------------
+    */
+
+    public function apiList()
     {
-        $validated = $request->validate([
-            'id_produk' => 'required|array',
-            'id_produk.*' => 'required|integer|exists:products,id',
-            'jumlah_produk' => 'required|array',
-            'jumlah_produk.*' => 'required|integer|min:1',
-            'jenis' => 'required|in:Instant,SPX,JNE,JNT',
-            'nama_pembeli' => 'nullable|string|max:255',
-            'alamat' => 'nullable|string',
-            'catatan' => 'nullable|string'
-        ]);
+        $pesanans = DB::connection('mysql_app')
+            ->table('pesanan_shopee')
+            ->orderByDesc('id_pesanan')
+            ->get();
 
-        // Calculate total harga jual
-        $totalHarga = 0;
-        foreach ($validated['id_produk'] as $index => $produkId) {
-            $product = Product::find($produkId);
-            if ($product) {
-                $totalHarga += $product->salesprice1 * $validated['jumlah_produk'][$index];
-            }
-        }
-
-        $pesanan = PesananShopee::create([
-            'id_produk' => $validated['id_produk'],
-            'jumlah_produk' => $validated['jumlah_produk'],
-            'jenis' => $validated['jenis'],
-            'status' => 'BELUM_DIKIRIM',
-            'total_harga_jual' => $totalHarga,
-            'nama_pembeli' => $validated['nama_pembeli'] ?? null,
-            'alamat' => $validated['alamat'] ?? null,
-            'catatan' => $validated['catatan'] ?? null
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Pesanan berhasil dibuat',
-            'data' => $pesanan
-        ]);
+        return response()->json($pesanans);
     }
 
-    // Get pesanan detail with product info
-    public function show($id)
-    {
-        $pesanan = PesananShopee::find($id);
+    /*
+    |--------------------------------------------------------------------------
+    | GET PRODUCTS
+    |--------------------------------------------------------------------------
+    */
 
-        if (!$pesanan) {
-            return response()->json(['error' => 'Pesanan tidak ditemukan'], 404);
-        }
-
-        // Enrich with product details
-        $produkDetails = [];
-        foreach ($pesanan->id_produk as $index => $produkId) {
-            $product = Product::find($produkId);
-            if ($product) {
-                $produkDetails[] = [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'price' => $product->salesprice1,
-                    'quantity' => $pesanan->jumlah_produk[$index],
-                    'subtotal' => $product->salesprice1 * $pesanan->jumlah_produk[$index]
-                ];
-            }
-        }
-
-        return response()->json([
-            'pesanan' => $pesanan,
-            'produk_details' => $produkDetails
-        ]);
-    }
-
-    // Update status pesanan to DIKIRIM
-    public function updateStatus($id)
-    {
-        $pesanan = PesananShopee::find($id);
-
-        if (!$pesanan) {
-            return response()->json(['error' => 'Pesanan tidak ditemukan'], 404);
-        }
-
-        $pesanan->update(['status' => 'DIKIRIM']);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Status pesanan diperbarui menjadi DIKIRIM',
-            'data' => $pesanan
-        ]);
-    }
-
-    // Get all products for selection
     public function getProducts()
     {
-        $products = Product::select('id', 'name', 'salesprice1', 'stock')->get();
+        $products = DB::table('product')
+
+            ->leftJoin(
+                'inventory',
+                'product.id',
+                '=',
+                'inventory.productid'
+            )
+
+            ->select(
+                'product.id',
+                'product.name',
+                'product.salesprice1',
+
+                DB::raw('
+                    COALESCE(
+                        SUM(inventory.invin - inventory.invout),
+                        0
+                    ) as stock
+                ')
+            )
+
+            ->where('product.isactive', 1)
+
+            ->groupBy(
+                'product.id',
+                'product.name',
+                'product.salesprice1'
+            )
+
+            ->orderBy('product.name')
+
+            ->limit(1000)
+
+            ->get();
+
         return response()->json($products);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | STORE PESANAN
+    |--------------------------------------------------------------------------
+    */
+
+    public function store(Request $request)
+    {
+        try {
+
+            $request->validate([
+                'id_produk' => 'required|array',
+                'jumlah_produk' => 'required|array',
+                'jenis' => 'required|string'
+            ]);
+
+            $totalHarga = 0;
+
+            /*
+            |--------------------------------------------------------------------------
+            | HITUNG TOTAL
+            |--------------------------------------------------------------------------
+            */
+
+            foreach ($request->id_produk as $index => $productId) {
+
+                $product = DB::table('product')
+                    ->where('id', $productId)
+                    ->first();
+
+                if (!$product) {
+                    continue;
+                }
+
+                $qty = $request->jumlah_produk[$index] ?? 1;
+
+                $totalHarga +=
+                    $product->salesprice1 * $qty;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | INSERT
+            |--------------------------------------------------------------------------
+            */
+
+            $id = DB::connection('mysql_app')
+                ->table('pesanan_shopee')
+                ->insertGetId([
+
+                    'id_produk' => json_encode($request->id_produk),
+
+                    'jumlah_produk' => json_encode($request->jumlah_produk),
+
+                    'status' => 'BELUM DIKIRIM',
+
+                    'jenis' => $request->jenis,
+
+                    'total_harga_jual' => $totalHarga,
+
+                    'nama_pembeli' => $request->nama_pembeli,
+
+                    'alamat' => $request->alamat,
+
+                    'catatan' => $request->catatan,
+
+                    'created_at' => now(),
+
+                    'updated_at' => now()
+                ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesanan berhasil dibuat',
+                'id' => $id
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' => $e->getMessage()
+
+            ], 500);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | DETAIL PESANAN
+    |--------------------------------------------------------------------------
+    */
+
+    public function show($id)
+    {
+        try {
+
+            $pesanan = DB::connection('mysql_app')
+                ->table('pesanan_shopee')
+                ->where('id_pesanan', $id)
+                ->first();
+
+            if (!$pesanan) {
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pesanan tidak ditemukan'
+                ], 404);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | DECODE JSON
+            |--------------------------------------------------------------------------
+            */
+
+            $idProduk = json_decode($pesanan->id_produk, true) ?? [];
+
+            $jumlahProduk = json_decode($pesanan->jumlah_produk, true) ?? [];
+
+            /*
+            |--------------------------------------------------------------------------
+            | AMBIL DETAIL PRODUK
+            |--------------------------------------------------------------------------
+            */
+
+            $produkDetails = [];
+
+            foreach ($idProduk as $index => $productId) {
+
+                $product = DB::table('product')
+                    ->where('id', $productId)
+                    ->first();
+
+                if (!$product) {
+                    continue;
+                }
+
+                $qty = $jumlahProduk[$index] ?? 1;
+
+                $subtotal =
+                    $product->salesprice1 * $qty;
+
+                $produkDetails[] = [
+
+                    'id' => $product->id,
+
+                    'name' => $product->name,
+
+                    'price' => $product->salesprice1,
+
+                    'quantity' => $qty,
+
+                    'subtotal' => $subtotal
+                ];
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | FIX ARRAY UNTUK VIEW
+            |--------------------------------------------------------------------------
+            */
+
+            $pesanan->id_produk = $idProduk;
+            $pesanan->jumlah_produk = $jumlahProduk;
+
+            return response()->json([
+
+                'success' => true,
+
+                'pesanan' => $pesanan,
+
+                'produk_details' => $produkDetails
+
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' => $e->getMessage()
+
+            ], 500);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE STATUS
+    |--------------------------------------------------------------------------
+    */
+
+    public function updateStatus($id)
+    {
+        try {
+
+            DB::connection('mysql_app')
+                ->table('pesanan_shopee')
+                ->where('id_pesanan', $id)
+                ->update([
+
+                    'status' => 'DIKIRIM',
+
+                    'updated_at' => now()
+                ]);
+
+            return response()->json([
+                'success' => true
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+
+                'success' => false,
+
+                'message' => $e->getMessage()
+
+            ], 500);
+        }
     }
 }
