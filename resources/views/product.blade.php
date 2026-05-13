@@ -1435,180 +1435,253 @@
         </div>
 
     </div>
+<!-- MODAL -->
+@foreach ($products as $product)
 
-    <!-- MODAL -->
-    @foreach ($products as $product)
-        <div class="modal fade" id="productModal{{ $product->id }}" tabindex="-1">
+    @php
 
-            <div class="modal-dialog modal-lg modal-dialog-centered">
+        $modalId = 'productModal' . ($product->id ?? rand(1,999999));
 
-                <div class="modal-content border-0 shadow-lg rounded-4">
+        $margin =
+            ($product->costprice ?? 0) > 0
+            ? (
+                (
+                    ($product->salesprice1 ?? 0)
+                    -
+                    ($product->costprice ?? 0)
+                )
+                /
+                ($product->costprice ?? 1)
+            ) * 100
+            : 0;
 
-                    <!-- HEADER -->
-                    <div class="modal-header">
+    @endphp
 
-                        <div>
-                            <h5 class="modal-title">
+    <div
+        class="modal fade"
+        id="{{ $modalId }}"
+        tabindex="-1"
+        aria-hidden="true"
+    >
 
-                                <i class="fas fa-box me-2"></i>{{ $product->name }}
+        <div class="modal-dialog modal-lg modal-dialog-centered">
 
-                            </h5>
-                            <small class="text-white-50">Detail Produk</small>
-                        </div>
+            <div class="modal-content border-0 shadow-lg rounded-4">
 
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
+                <!-- HEADER -->
+                <div class="modal-header">
 
-                        </button>
+                    <div>
+
+                        <h5 class="modal-title">
+
+                            <i class="fas fa-box me-2"></i>
+
+                            {{ $product->name ?? '-' }}
+
+                        </h5>
+
+                        <small class="text-white-50">
+                            Detail Produk
+                        </small>
 
                     </div>
 
-                    <!-- BODY -->
-                    <div class="modal-body p-4">
+                    <button
+                        type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                    ></button>
 
-                        <table class="table">
+                </div>
 
-                            <tbody>
+                <!-- BODY -->
+                <div class="modal-body p-4">
 
-                                <tr>
+                    <table class="table">
 
-                                    <th width="250">
-                                        <i class="fas fa-tag me-2 text-primary"></i>Group Produk
-                                    </th>
+                        <tbody>
 
-                                    <td>
+                            <tr>
 
-                                        <span
-                                            class="badge bg-light text-dark">{{ $product->productgroup_name }}</span>
+                                <th width="250">
 
-                                    </td>
+                                    <i class="fas fa-tag me-2 text-primary"></i>
+                                    Group Produk
 
-                                </tr>
+                                </th>
 
-                                <tr>
+                                <td>
 
-                                    <th>
-                                        <i class="fas fa-truck me-2 text-primary"></i>Supplier
-                                    </th>
+                                    <span class="badge bg-light text-dark">
 
-                                    <td>
+                                        {{ $product->productgroup_name ?? '-' }}
 
-                                        {{ $product->supplier_name }}
+                                    </span>
 
-                                    </td>
+                                </td>
 
-                                </tr>
+                            </tr>
 
-                                <tr>
+                            <tr>
 
-                                    <th>
-                                        <i class="fas fa-warehouse me-2 text-info"></i>Stock Saat Ini
-                                    </th>
+                                <th>
 
-                                    <td>
+                                    <i class="fas fa-truck me-2 text-primary"></i>
+                                    Supplier
 
-                                        <strong class="text-info">{{ number_format($product->stock, 0, ',', '.') }}
-                                            pcs</strong>
+                                </th>
 
-                                    </td>
+                                <td>
 
-                                </tr>
+                                    {{ $product->supplier_name ?? '-' }}
 
-                                <tr>
+                                </td>
 
-                                    <th>
-                                        <i class="fas fa-arrow-down me-2 text-success"></i>Total Barang Masuk
-                                    </th>
+                            </tr>
 
-                                    <td>
+                            <tr>
 
-                                        <strong
-                                            class="text-success">{{ number_format($product->total_masuk, 0, ',', '.') }}</strong>
+                                <th>
 
-                                    </td>
+                                    <i class="fas fa-warehouse me-2 text-info"></i>
+                                    Stock Saat Ini
 
-                                </tr>
+                                </th>
 
-                                <tr>
+                                <td>
 
-                                    <th>
-                                        <i class="fas fa-arrow-up me-2 text-warning"></i>Total Barang Keluar
-                                    </th>
+                                    <strong class="text-info">
 
-                                    <td>
+                                        {{ number_format($product->stock ?? 0, 0, ',', '.') }}
+                                        pcs
 
-                                        <strong
-                                            class="text-warning">{{ number_format($product->total_keluar, 0, ',', '.') }}</strong>
+                                    </strong>
 
-                                    </td>
+                                </td>
 
-                                </tr>
+                            </tr>
 
-                                <tr>
+                            <tr>
 
-                                    <th>
-                                        <i class="fas fa-coins me-2 text-danger"></i>Harga Modal
-                                    </th>
+                                <th>
 
-                                    <td>
+                                    <i class="fas fa-arrow-down me-2 text-success"></i>
+                                    Total Barang Masuk
 
-                                        <strong class="text-danger">Rp
-                                            {{ number_format($product->costprice, 0, ',', '.') }}</strong>
+                                </th>
 
-                                    </td>
+                                <td>
 
-                                </tr>
+                                    <strong class="text-success">
 
-                                <tr>
+                                        {{ number_format($product->total_masuk ?? 0, 0, ',', '.') }}
 
-                                    <th>
-                                        <i class="fas fa-money-bill-wave me-2 text-success"></i>Harga Jual
-                                    </th>
+                                    </strong>
 
-                                    <td>
+                                </td>
 
-                                        <strong class="text-success">Rp
-                                            {{ number_format($product->salesprice1, 0, ',', '.') }}</strong>
+                            </tr>
 
-                                    </td>
+                            <tr>
 
-                                </tr>
+                                <th>
 
-                                <tr>
+                                    <i class="fas fa-arrow-up me-2 text-warning"></i>
+                                    Total Barang Keluar
 
-                                    <th>
-                                        <i class="fas fa-percent me-2 text-primary"></i>Margin
-                                    </th>
+                                </th>
 
-                                    <td>
+                                <td>
 
-                                        @php
-                                            $margin =
-                                                $product->costprice > 0
-                                                    ? (($product->salesprice1 - $product->costprice) /
-                                                            $product->costprice) *
-                                                        100
-                                                    : 0;
-                                        @endphp
+                                    <strong class="text-warning">
 
-                                        <strong
-                                            class="text-primary">{{ number_format($margin, 2, ',', '.') }}%</strong>
+                                        {{ number_format($product->total_keluar ?? 0, 0, ',', '.') }}
 
-                                    </td>
+                                    </strong>
 
-                                </tr>
+                                </td>
 
-                            </tbody>
+                            </tr>
 
-                        </table>
+                            <tr>
 
-                    </div>
+                                <th>
+
+                                    <i class="fas fa-coins me-2 text-danger"></i>
+                                    Harga Modal
+
+                                </th>
+
+                                <td>
+
+                                    <strong class="text-danger">
+
+                                        Rp
+                                        {{ number_format($product->costprice ?? 0, 0, ',', '.') }}
+
+                                    </strong>
+
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>
+
+                                    <i class="fas fa-money-bill-wave me-2 text-success"></i>
+                                    Harga Jual
+
+                                </th>
+
+                                <td>
+
+                                    <strong class="text-success">
+
+                                        Rp
+                                        {{ number_format($product->salesprice1 ?? 0, 0, ',', '.') }}
+
+                                    </strong>
+
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>
+
+                                    <i class="fas fa-percent me-2 text-primary"></i>
+                                    Margin
+
+                                </th>
+
+                                <td>
+
+                                    <strong class="text-primary">
+
+                                        {{ number_format($margin, 2, ',', '.') }}%
+
+                                    </strong>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
 
                 </div>
 
             </div>
 
         </div>
-    @endforeach
+
+    </div>
+
+@endforeach
 
     <!-- CART MODAL -->
     <div class="modal fade" id="cartModal" tabindex="-1">
