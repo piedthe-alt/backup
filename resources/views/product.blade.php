@@ -1322,16 +1322,16 @@ $selectedGroup = $productgroups->firstWhere('id', request('productgroup'));
                                 <div class="card-body p-3 d-flex flex-column">
 
                                     <!-- HARGA -->
-                                    <div class="price-badge" onclick="event.stopPropagation()"
-                                        onclick="openProductModal({{ $product->id }})"
-                                        data-bs-target="#productModal{{ $product->id }}" style="cursor: pointer;">
+                                    <div class="price-badge"
+                                        onclick="event.stopPropagation(); openProductModal({{ $product->id }})"
+                                        style="cursor:pointer;">
                                         Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
                                     </div>
 
                                     <!-- INFO HORIZONTAL -->
-                                    <div class="product-info" onclick="event.stopPropagation()"
-                                        onclick="openProductModal({{ $product->id }})"
-                                        data-bs-target="#productModal{{ $product->id }}" style="cursor: pointer;">
+                                    <div class="product-info"
+                                        onclick="event.stopPropagation(); openProductModal({{ $product->id }})"
+                                        style="cursor:pointer;">
 
                                         <!-- STOCK -->
                                         <div class="info-item">
