@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
 
     <meta charset="UTF-8">
@@ -18,135 +19,82 @@
         rel="stylesheet"
     >
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
     <style>
 
-        *{
-            font-family: 'Inter', sans-serif;
+        body {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f8fafc 0%,
+                    #e2e8f0 100%
+                );
+
+            min-height: 100vh;
+
         }
 
-        body{
-            background: #f8fafc;
-            color: #0f172a;
-        }
+        .nota-card {
 
-        .page-title{
-            font-size: 2rem;
-            font-weight: 700;
-        }
+            border: none;
 
-        .card-nota{
-            background: white;
-            border-radius: 18px;
-            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+
             overflow: hidden;
-            margin-bottom: 24px;
+
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.08);
+
         }
 
-        .card-header-custom{
-            padding: 20px 24px;
-            border-bottom: 1px solid #e2e8f0;
-            background: #ffffff;
+        .nota-header {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0f172a 0%,
+                    #1e293b 100%
+                );
+
+            color: white;
+
         }
 
-        .nota-number{
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #0f172a;
+        .summary-box {
+
+            border-radius: 14px;
+
+            padding: 18px;
+
+            color: white;
+
+            height: 100%;
+
         }
 
-        .meta-text{
-            font-size: .9rem;
-            color: #64748b;
-        }
+        .table th {
 
-        .table{
-            margin-bottom: 0;
-        }
-
-        .table thead th{
-            background: #f8fafc;
-            color: #475569;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: .85rem;
-            font-weight: 600;
-            padding: 14px;
             white-space: nowrap;
+
         }
 
-        .table tbody td{
-            padding: 14px;
+        .table td {
+
             vertical-align: middle;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: .93rem;
+
         }
 
-        .table tbody tr:hover{
-            background: #fafafa;
-        }
+        .product-name {
 
-        .summary-box{
-            border-top: 1px solid #e2e8f0;
-            background: #fafafa;
-            padding: 18px 24px;
-        }
-
-        .summary-item small{
-            color: #64748b;
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .summary-item strong{
-            font-size: 1.05rem;
-        }
-
-        .text-margin{
-            color: #2563eb;
             font-weight: 600;
+
         }
 
-        .text-hpp{
-            color: #dc2626;
-            font-weight: 600;
-        }
+        .money {
 
-        .text-net{
-            color: #16a34a;
-            font-weight: 600;
-        }
+            font-weight: 700;
 
-        .badge-margin{
-            background: #eff6ff;
-            color: #2563eb;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: .82rem;
-            font-weight: 600;
-        }
-
-        @media(max-width:768px){
-
-            .page-title{
-                font-size: 1.5rem;
-            }
-
-            .table{
-                font-size: .82rem;
-            }
-
-            .table thead th,
-            .table tbody td{
-                padding: 10px;
-            }
-
-            .summary-box{
-                padding: 16px;
-            }
+            white-space: nowrap;
 
         }
 
@@ -162,13 +110,18 @@
 
         <div>
 
-            <h1 class="page-title mb-1">
+            <h2 class="fw-bold mb-1">
+
+                <i class="fas fa-receipt me-2"></i>
                 Detail Nota Penjualan
-            </h1>
+
+            </h2>
 
             <div class="text-muted">
+
                 Tanggal:
                 {{ $tanggal }}
+
             </div>
 
         </div>
@@ -177,72 +130,74 @@
             href="/sales-chart"
             class="btn btn-dark"
         >
+
             <i class="fas fa-arrow-left me-2"></i>
             Kembali
+
         </a>
 
     </div>
 
-    @foreach($sales as $nota)
+    @foreach($notas as $nota)
 
-        @php
-
-            $totalBelanja = $nota->sum('netamount');
-
-            $totalHpp = $nota->sum('cogs');
-
-            $totalMargin = $totalBelanja - $totalHpp;
-
-            $marginPercent =
-                $totalBelanja > 0
-                ? ($totalMargin / $totalBelanja) * 100
-                : 0;
-
-            $firstItem = $nota->first();
-
-        @endphp
-
-        <div class="card-nota">
+        <div class="card nota-card mb-5">
 
             <!-- HEADER -->
-            <div class="card-header-custom">
+            <div class="nota-header p-4">
 
-                <div class="row align-items-center">
+                <div class="row">
 
-                    <div class="col-md-4 mb-2 mb-md-0">
+                    <div class="col-md-3 mb-3">
 
-                        <div class="meta-text mb-1">
+                        <small class="opacity-75 d-block">
                             No Nota
-                        </div>
+                        </small>
 
-                        <div class="nota-number">
-                            {{ $firstItem->salesid }}
-                        </div>
+                        <h5 class="fw-bold mb-0">
+                            {{ $nota->salesid }}
+                        </h5>
 
                     </div>
 
-                    <div class="col-md-4 mb-2 mb-md-0">
+                    <div class="col-md-3 mb-3">
 
-                        <div class="meta-text mb-1">
+                        <small class="opacity-75 d-block">
                             Jam
-                        </div>
+                        </small>
 
-                        <strong>
-                            {{ \Carbon\Carbon::parse($firstItem->transdate)->format('H:i:s') }}
-                        </strong>
+                        <h5 class="fw-bold mb-0">
+
+                            {{ \Carbon\Carbon::parse($nota->transdate)->format('H:i:s') }}
+
+                        </h5>
 
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-3 mb-3">
 
-                        <div class="meta-text mb-1">
-                            Total Item
-                        </div>
+                        <small class="opacity-75 d-block">
+                            Total Qty
+                        </small>
 
-                        <strong>
-                            {{ $nota->count() }}
-                            Barang
-                        </strong>
+                        <h5 class="fw-bold mb-0">
+
+                            {{ number_format($nota->total_qty,0,',','.') }}
+
+                        </h5>
+
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+
+                        <small class="opacity-75 d-block">
+                            Jumlah Item
+                        </small>
+
+                        <h5 class="fw-bold mb-0">
+
+                            {{ count($nota->items) }}
+
+                        </h5>
 
                     </div>
 
@@ -250,159 +205,188 @@
 
             </div>
 
-            <!-- TABLE -->
-            <div class="table-responsive">
+            <!-- BODY -->
+            <div class="card-body p-4">
 
-                <table class="table align-middle">
+                <!-- SUMMARY -->
+                <div class="row mb-4">
 
-                    <thead>
+                    <div class="col-md-3 mb-3">
 
-                        <tr>
-
-                            <th>Kode</th>
-                            <th>Nama Barang</th>
-                            <th>Qty</th>
-                            <th>Harga</th>
-                            <th>Net</th>
-                            <th>HPP</th>
-                            <th>Margin</th>
-                            <th>Margin %</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                    @foreach($nota as $item)
-
-                        @php
-
-                            $margin =
-                                $item->netamount
-                                - $item->cogs;
-
-                            $marginPersen =
-                                $item->netamount > 0
-                                ? ($margin / $item->netamount) * 100
-                                : 0;
-
-                        @endphp
-
-                        <tr>
-
-                            <td>
-                                {{ $item->productid }}
-                            </td>
-
-                            <td>
-
-                                <strong>
-                                    {{ $item->product_name }}
-                                </strong>
-
-                            </td>
-
-                            <td>
-                                {{ number_format($item->salesqty,0,',','.') }}
-                            </td>
-
-                            <td>
-                                Rp {{ number_format($item->price,0,',','.') }}
-                            </td>
-
-                            <td class="text-net">
-                                Rp {{ number_format($item->netamount,0,',','.') }}
-                            </td>
-
-                            <td class="text-hpp">
-                                Rp {{ number_format($item->cogs,0,',','.') }}
-                            </td>
-
-                            <td class="text-margin">
-                                Rp {{ number_format($margin,0,',','.') }}
-                            </td>
-
-                            <td>
-
-                                <span class="badge-margin">
-
-                                    {{ number_format($marginPersen,2,',','.') }}%
-
-                                </span>
-
-                            </td>
-
-                        </tr>
-
-                    @endforeach
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-            <!-- SUMMARY -->
-            <div class="summary-box">
-
-                <div class="row">
-
-                    <div class="col-md-3 col-6 mb-3 mb-md-0">
-
-                        <div class="summary-item">
+                        <div
+                            class="summary-box"
+                            style="background:#16a34a;"
+                        >
 
                             <small>Total Belanja</small>
 
-                            <strong class="text-net">
-                                Rp {{ number_format($totalBelanja,0,',','.') }}
-                            </strong>
+                            <h3 class="fw-bold mb-0">
+
+                                Rp {{ number_format($nota->total_belanja,0,',','.') }}
+
+                            </h3>
 
                         </div>
 
                     </div>
 
-                    <div class="col-md-3 col-6 mb-3 mb-md-0">
+                    <div class="col-md-3 mb-3">
 
-                        <div class="summary-item">
+                        <div
+                            class="summary-box"
+                            style="background:#dc2626;"
+                        >
 
                             <small>Total HPP</small>
 
-                            <strong class="text-hpp">
-                                Rp {{ number_format($totalHpp,0,',','.') }}
-                            </strong>
+                            <h3 class="fw-bold mb-0">
+
+                                Rp {{ number_format($nota->total_hpp,0,',','.') }}
+
+                            </h3>
 
                         </div>
 
                     </div>
 
-                    <div class="col-md-3 col-6">
+                    <div class="col-md-3 mb-3">
 
-                        <div class="summary-item">
+                        <div
+                            class="summary-box"
+                            style="background:#2563eb;"
+                        >
 
                             <small>Total Margin</small>
 
-                            <strong class="text-margin">
-                                Rp {{ number_format($totalMargin,0,',','.') }}
-                            </strong>
+                            <h3 class="fw-bold mb-0">
+
+                                Rp {{ number_format($nota->total_margin,0,',','.') }}
+
+                            </h3>
 
                         </div>
 
                     </div>
 
-                    <div class="col-md-3 col-6">
+                    <div class="col-md-3 mb-3">
 
-                        <div class="summary-item">
+                        <div
+                            class="summary-box"
+                            style="background:#7c3aed;"
+                        >
 
                             <small>Margin %</small>
 
-                            <strong>
-                                {{ number_format($marginPercent,2,',','.') }}%
-                            </strong>
+                            <h3 class="fw-bold mb-0">
+
+                                {{ number_format($nota->margin_percent,2,',','.') }}%
+
+                            </h3>
 
                         </div>
 
                     </div>
+
+                </div>
+
+                <!-- TABLE -->
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                <th>Kode</th>
+
+                                <th>Nama Barang</th>
+
+                                <th>Qty</th>
+
+                                <th>Harga</th>
+
+                                <th>Gross</th>
+
+                                <th>Net</th>
+
+                                <th>HPP</th>
+
+                                <th>Margin</th>
+
+                                <th>Margin %</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        @foreach($nota->items as $item)
+
+                            <tr>
+
+                                <td>
+
+                                    {{ $item->productid }}
+
+                                </td>
+
+                                <td class="product-name">
+
+                                    {{ $item->product_name }}
+
+                                </td>
+
+                                <td>
+
+                                    {{ number_format($item->salesqty,0,',','.') }}
+
+                                </td>
+
+                                <td>
+
+                                    Rp {{ number_format($item->price,0,',','.') }}
+
+                                </td>
+
+                                <td class="money text-secondary">
+
+                                    Rp {{ number_format($item->grossamount,0,',','.') }}
+
+                                </td>
+
+                                <td class="money text-success">
+
+                                    Rp {{ number_format($item->netamount,0,',','.') }}
+
+                                </td>
+
+                                <td class="money text-danger">
+
+                                    Rp {{ number_format($item->cogs,0,',','.') }}
+
+                                </td>
+
+                                <td class="money text-primary">
+
+                                    Rp {{ number_format($item->margin,0,',','.') }}
+
+                                </td>
+
+                                <td class="fw-bold text-dark">
+
+                                    {{ number_format($item->margin_percent,2,',','.') }}%
+
+                                </td>
+
+                            </tr>
+
+                        @endforeach
+
+                        </tbody>
+
+                    </table>
 
                 </div>
 
