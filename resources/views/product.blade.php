@@ -993,6 +993,11 @@
                                 <i class="fas fa-undo"></i> Retur
                             </a>
 
+                            <!-- TOMBOL PESANAN SHOPEE -->
+                            <a href="/pesanan-shopee" class="btn btn-action btn-info">
+                                <i class="fas fa-shopping-bag"></i> Pesanan Shopee
+                            </a>
+
                             <button class="btn btn-action btn-success" onclick="startScanner()">
                                 <i class="fas fa-camera"></i> Scan
                             </button>

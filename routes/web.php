@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\ProductReturnController;
+use App\Http\Controllers\PesananShopeeController;
 
 
 Route::get('/api/get-returns-by-group', function (Request $request) {
@@ -1035,3 +1036,10 @@ Route::get('/', function (Request $request) {
         )
     );
 });
+
+// Pesanan Shopee Routes
+Route::get('/pesanan-shopee', [PesananShopeeController::class, 'index']);
+Route::post('/pesanan-shopee/store', [PesananShopeeController::class, 'store']);
+Route::get('/pesanan-shopee/detail/{id}', [PesananShopeeController::class, 'show']);
+Route::post('/pesanan-shopee/update-status/{id}', [PesananShopeeController::class, 'updateStatus']);
+Route::get('/api/products', [PesananShopeeController::class, 'getProducts']);
