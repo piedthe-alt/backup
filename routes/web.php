@@ -87,7 +87,7 @@ Route::get('/api/get-returns', function (Request $request) {
 
     $masterDb = config('database.connections.mysql.database');
 
-    $return = DB::connection('mysql_app')->table('product_returns')
+    $return = DB::connection('u990824557_db_app')->table('product_returns')
         ->leftJoin(
             DB::raw("{$masterDb}.product as product"),
             'product_returns.product_id',
