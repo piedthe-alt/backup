@@ -10,7 +10,7 @@ class ProductReturnController extends Controller
     public function index()
     {
         // RETUR dari APP DB
-        $returns = DB::connection('u990824557_db_app')
+        $returns = DB::connection('mysql_app')
             ->table('product_returns')
             ->orderByDesc('id')
             ->get();
@@ -42,7 +42,7 @@ class ProductReturnController extends Controller
 
     public function store(Request $request)
     {
-        DB::connection('u990824557_db_app')
+        DB::connection('mysql_app')
             ->table('product_returns')
             ->insert([
                 'product_id' => $request->product_id,
