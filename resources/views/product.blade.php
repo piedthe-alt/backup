@@ -1526,11 +1526,17 @@
                                             onclick="increaseQty(this, {{ $product->stock }})">+</button>
                                     </div>
 
-                                    <!-- ADD TO CART BUTTON -->
-                                    <button type="button" class="add-to-cart-btn"
-                                        onclick="event.stopPropagation(); addToCart(event, '{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->salesprice1 }}, '{{ addslashes($product->productgroup_name) }}')">
-                                        <i class="fas fa-plus"></i> Tambah ke Cart
-                                    </button>
+                                    <!-- ADD TO CART BUTTONS -->
+                                    <div style="display: flex; gap: 8px;">
+                                        <button type="button" class="add-to-cart-btn" style="flex: 1;"
+                                            onclick="event.stopPropagation(); addToCart(event, '{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->salesprice1 }}, '{{ addslashes($product->productgroup_name) }}', 'pcs')">
+                                            <i class="fas fa-box"></i> Beli Pcs
+                                        </button>
+                                        <button type="button" class="add-to-cart-btn" style="flex: 1;"
+                                            onclick="event.stopPropagation(); addToCart(event, '{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->salesprice1 }}, '{{ addslashes($product->productgroup_name) }}', 'box')">
+                                            <i class="fas fa-cubes"></i> Beli Box
+                                        </button>
+                                    </div>
 
                                 </div>
 
