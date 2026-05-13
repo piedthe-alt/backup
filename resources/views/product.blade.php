@@ -1046,25 +1046,37 @@
                         </div>
 
                         <!-- FILTER GROUP -->
-                        <!-- FILTER GROUP -->
-                        <div class="col-md-3">
+<!-- FILTER GROUP -->
+<div class="col-md-3">
 
-                            <div class="position-relative">
+    <div class="position-relative">
 
-                                <!-- INPUT SEARCH -->
-                                <input type="text" id="groupSearch" class="form-control search-input"
-                                    placeholder="📂 Cari Group..." autocomplete="off"
-                                    value="@php
-$selectedGroup = $productgroups->firstWhere('id', request('productgroup'));
-                echo $selectedGroup ? $selectedGroup->name : ''; @endphp">
+        <!-- INPUT SEARCH -->
+        <input
+            type="text"
+            id="groupSearch"
+            class="form-control search-input"
+            placeholder="📂 Cari Group..."
+            autocomplete="off"
+            value="@php
+                $selectedGroup = $productgroups->firstWhere('id', request('productgroup'));
+                echo $selectedGroup ? $selectedGroup->name : '';
+            @endphp"
+        >
 
-                                <!-- HIDDEN -->
-                                <input type="hidden" name="productgroup" id="selectedGroup"
-                                    value="{{ request('productgroup') }}">
+        <!-- HIDDEN -->
+        <input
+            type="hidden"
+            name="productgroup"
+            id="selectedGroup"
+            value="{{ request('productgroup') }}"
+        >
 
-                                <!-- DROPDOWN -->
-                                <div id="groupDropdown" class="bg-white border rounded shadow-sm"
-                                    style="
+        <!-- DROPDOWN -->
+        <div
+            id="groupDropdown"
+            class="bg-white border rounded shadow-sm"
+            style="
                 position:absolute;
                 top:100%;
                 left:0;
@@ -1073,156 +1085,169 @@ $selectedGroup = $productgroups->firstWhere('id', request('productgroup'));
                 overflow-y:auto;
                 z-index:9999;
                 display:none;
-            ">
+            "
+        >
 
-                                    <!-- SEMUA -->
-                                    <div class="group-item p-2 border-bottom" data-id="" data-name="Semua Group"
-                                        style="cursor:pointer;">
-                                        📂 Semua Group
-                                    </div>
+            <!-- SEMUA -->
+            <div
+                class="group-item p-2 border-bottom"
+                data-id=""
+                data-name="Semua Group"
+                style="cursor:pointer;"
+            >
+                📂 Semua Group
+            </div>
 
-                                    <!-- GROUP -->
-                                    @foreach ($productgroups as $group)
-                                        <div class="group-item p-2 border-bottom" data-id="{{ $group->id }}"
-                                            data-name="{{ strtolower($group->name) }}" data-label="{{ $group->name }}"
-                                            style="cursor:pointer;">
+            <!-- GROUP -->
+            @foreach ($productgroups as $group)
 
-                                            {{ $group->name }}
+                <div
+                    class="group-item p-2 border-bottom"
+                    data-id="{{ $group->id }}"
+                    data-name="{{ strtolower($group->name) }}"
+                    data-label="{{ $group->name }}"
+                    style="cursor:pointer;"
+                >
 
-                                        </div>
-                                    @endforeach
+                    {{ $group->name }}
 
-                                </div>
+                </div>
 
-                            </div>
+            @endforeach
 
-                        </div>
+        </div>
 
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function() {
+    </div>
 
-                                const searchInput =
-                                    document.getElementById('groupSearch');
+</div>
 
-                                const dropdown =
-                                    document.getElementById('groupDropdown');
+<script>
 
-                                const hiddenInput =
-                                    document.getElementById('selectedGroup');
+    document.addEventListener('DOMContentLoaded', function(){
 
-                                const items =
-                                    document.querySelectorAll('.group-item');
+        const searchInput =
+            document.getElementById('groupSearch');
 
-                                /*
-                                |--------------------------------------------------------------------------
-                                | SHOW DROPDOWN
-                                |--------------------------------------------------------------------------
-                                */
+        const dropdown =
+            document.getElementById('groupDropdown');
 
-                                searchInput.addEventListener('focus', function() {
+        const hiddenInput =
+            document.getElementById('selectedGroup');
 
-                                    dropdown.style.display = 'block';
-                                });
+        const items =
+            document.querySelectorAll('.group-item');
 
-                                /*
-                                |--------------------------------------------------------------------------
-                                | SEARCH
-                                |--------------------------------------------------------------------------
-                                */
+        /*
+        |--------------------------------------------------------------------------
+        | SHOW DROPDOWN
+        |--------------------------------------------------------------------------
+        */
 
-                                searchInput.addEventListener('keyup', function() {
+        searchInput.addEventListener('focus', function(){
 
-                                    const keyword =
-                                        this.value.toLowerCase();
+            dropdown.style.display = 'block';
+        });
 
-                                    dropdown.style.display = 'block';
+        /*
+        |--------------------------------------------------------------------------
+        | SEARCH
+        |--------------------------------------------------------------------------
+        */
 
-                                    items.forEach(item => {
+        searchInput.addEventListener('keyup', function(){
 
-                                        const name =
-                                            item.dataset.name;
+            const keyword =
+                this.value.toLowerCase();
 
-                                        if (name.includes(keyword)) {
+            dropdown.style.display = 'block';
 
-                                            item.style.display = 'block';
+            items.forEach(item => {
 
-                                        } else {
+                const name =
+                    item.dataset.name;
 
-                                            item.style.display = 'none';
-                                        }
-                                    });
-                                });
+                if(name.includes(keyword)){
 
-                                /*
-                                |--------------------------------------------------------------------------
-                                | SELECT ITEM
-                                |--------------------------------------------------------------------------
-                                */
+                    item.style.display = 'block';
 
-                                items.forEach(item => {
+                }else{
 
-                                    item.addEventListener('click', function() {
+                    item.style.display = 'none';
+                }
+            });
+        });
 
-                                        hiddenInput.value =
-                                            this.dataset.id;
+        /*
+        |--------------------------------------------------------------------------
+        | SELECT ITEM
+        |--------------------------------------------------------------------------
+        */
 
-                                        searchInput.value =
-                                            this.dataset.label || 'Semua Group';
+        items.forEach(item => {
 
-                                        dropdown.style.display =
-                                            'none';
+            item.addEventListener('click', function(){
 
-                                        /*
-                                        |--------------------------------------------------------------------------
-                                        | AUTO SUBMIT FORM
-                                        |--------------------------------------------------------------------------
-                                        */
+                hiddenInput.value =
+                    this.dataset.id;
 
-                                        const form =
-                                            searchInput.closest('form');
+                searchInput.value =
+                    this.dataset.label || 'Semua Group';
 
-                                        if (form) {
+                dropdown.style.display =
+                    'none';
 
-                                            form.submit();
-                                        }
-                                    });
+                /*
+                |--------------------------------------------------------------------------
+                | AUTO SUBMIT FORM
+                |--------------------------------------------------------------------------
+                */
 
-                                    /*
-                                    |--------------------------------------------------------------------------
-                                    | HOVER
-                                    |--------------------------------------------------------------------------
-                                    */
+                const form =
+                    searchInput.closest('form');
 
-                                    item.addEventListener('mouseenter', function() {
+                if(form){
 
-                                        this.style.background =
-                                            '#f8fafc';
-                                    });
+                    form.submit();
+                }
+            });
 
-                                    item.addEventListener('mouseleave', function() {
+            /*
+            |--------------------------------------------------------------------------
+            | HOVER
+            |--------------------------------------------------------------------------
+            */
 
-                                        this.style.background =
-                                            'white';
-                                    });
+            item.addEventListener('mouseenter', function(){
 
-                                });
+                this.style.background =
+                    '#f8fafc';
+            });
 
-                                /*
-                                |--------------------------------------------------------------------------
-                                | CLOSE OUTSIDE
-                                |--------------------------------------------------------------------------
-                                */
+            item.addEventListener('mouseleave', function(){
 
-                                document.addEventListener('click', function(e) {
+                this.style.background =
+                    'white';
+            });
 
-                                    if (!e.target.closest('.position-relative')) {
+        });
 
-                                        dropdown.style.display = 'none';
-                                    }
-                                });
+        /*
+        |--------------------------------------------------------------------------
+        | CLOSE OUTSIDE
+        |--------------------------------------------------------------------------
+        */
 
-                            });
-                        </script>
+        document.addEventListener('click', function(e){
+
+            if(!e.target.closest('.position-relative')){
+
+                dropdown.style.display = 'none';
+            }
+        });
+
+    });
+
+</script>
 
                         <!-- BUTTON -->
                         <div class="col-md-3">
@@ -1322,16 +1347,15 @@ $selectedGroup = $productgroups->firstWhere('id', request('productgroup'));
                                 <div class="card-body p-3 d-flex flex-column">
 
                                     <!-- HARGA -->
-                                    <div class="price-badge"
-                                        onclick="event.stopPropagation(); openProductModal({{ $product->id }})"
-                                        style="cursor:pointer;">
+                                    <div class="price-badge" onclick="event.stopPropagation()" data-bs-toggle="modal"
+                                        data-bs-target="#productModal{{ $product->id }}" style="cursor: pointer;">
                                         Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
                                     </div>
 
                                     <!-- INFO HORIZONTAL -->
-                                    <div class="product-info"
-                                        onclick="event.stopPropagation(); openProductModal({{ $product->id }})"
-                                        style="cursor:pointer;">
+                                    <div class="product-info" onclick="event.stopPropagation()"
+                                        data-bs-toggle="modal" data-bs-target="#productModal{{ $product->id }}"
+                                        style="cursor: pointer;">
 
                                         <!-- STOCK -->
                                         <div class="info-item">
@@ -1412,45 +1436,179 @@ $selectedGroup = $productgroups->firstWhere('id', request('productgroup'));
 
     </div>
 
-    <!-- SINGLE MODAL -->
+    <!-- MODAL -->
+    @foreach ($products as $product)
+        <div class="modal fade" id="productModal{{ $product->id }}" tabindex="-1">
 
-    <div class="modal fade" id="productDetailModal" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
 
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
 
-            <div class="modal-content border-0 shadow-lg rounded-4">
+                    <!-- HEADER -->
+                    <div class="modal-header">
 
-                <div class="modal-header">
+                        <div>
+                            <h5 class="modal-title">
 
-                    <div>
+                                <i class="fas fa-box me-2"></i>{{ $product->name }}
 
-                        <h5 class="modal-title" id="modalProductName">
+                            </h5>
+                            <small class="text-white-50">Detail Produk</small>
+                        </div>
 
-                            <i class="fas fa-box me-2"></i>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
 
-                            Detail Produk
-
-                        </h5>
-
-                        <small class="text-white-50">
-                            Detail Produk
-                        </small>
+                        </button>
 
                     </div>
 
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <!-- BODY -->
+                    <div class="modal-body p-4">
 
-                </div>
+                        <table class="table">
 
-                <div class="modal-body p-4" id="modalProductBody">
+                            <tbody>
+
+                                <tr>
+
+                                    <th width="250">
+                                        <i class="fas fa-tag me-2 text-primary"></i>Group Produk
+                                    </th>
+
+                                    <td>
+
+                                        <span
+                                            class="badge bg-light text-dark">{{ $product->productgroup_name }}</span>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-truck me-2 text-primary"></i>Supplier
+                                    </th>
+
+                                    <td>
+
+                                        {{ $product->supplier_name }}
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-warehouse me-2 text-info"></i>Stock Saat Ini
+                                    </th>
+
+                                    <td>
+
+                                        <strong class="text-info">{{ number_format($product->stock, 0, ',', '.') }}
+                                            pcs</strong>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-arrow-down me-2 text-success"></i>Total Barang Masuk
+                                    </th>
+
+                                    <td>
+
+                                        <strong
+                                            class="text-success">{{ number_format($product->total_masuk, 0, ',', '.') }}</strong>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-arrow-up me-2 text-warning"></i>Total Barang Keluar
+                                    </th>
+
+                                    <td>
+
+                                        <strong
+                                            class="text-warning">{{ number_format($product->total_keluar, 0, ',', '.') }}</strong>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-coins me-2 text-danger"></i>Harga Modal
+                                    </th>
+
+                                    <td>
+
+                                        <strong class="text-danger">Rp
+                                            {{ number_format($product->costprice, 0, ',', '.') }}</strong>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-money-bill-wave me-2 text-success"></i>Harga Jual
+                                    </th>
+
+                                    <td>
+
+                                        <strong class="text-success">Rp
+                                            {{ number_format($product->salesprice1, 0, ',', '.') }}</strong>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-percent me-2 text-primary"></i>Margin
+                                    </th>
+
+                                    <td>
+
+                                        @php
+                                            $margin =
+                                                $product->costprice > 0
+                                                    ? (($product->salesprice1 - $product->costprice) /
+                                                            $product->costprice) *
+                                                        100
+                                                    : 0;
+                                        @endphp
+
+                                        <strong
+                                            class="text-primary">{{ number_format($margin, 2, ',', '.') }}%</strong>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
             </div>
 
         </div>
-
-    </div>
+    @endforeach
 
     <!-- CART MODAL -->
     <div class="modal fade" id="cartModal" tabindex="-1">
@@ -1464,8 +1622,7 @@ $selectedGroup = $productgroups->firstWhere('id', request('productgroup'));
                         </h5>
                         <small class="text-white-50">Daftar produk yang akan di-order</small>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <!-- BODY -->
                 <div class="modal-body p-4">
@@ -2572,136 +2729,6 @@ $selectedGroup = $productgroups->firstWhere('id', request('productgroup'));
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-
-    <script>
-        const allProducts = @json($products);
-
-        function openProductModal(productId) {
-            const product =
-                allProducts.find(p => p.id == productId);
-
-            if (!product) {
-                alert('Produk tidak ditemukan');
-                return;
-            }
-
-            document.getElementById('modalProductName').innerHTML = `
-            <i class="fas fa-box me-2"></i>
-            ${product.name}
-        `;
-
-            let margin = 0;
-
-            if (product.costprice > 0) {
-                margin =
-                    (
-                        (product.salesprice1 - product.costprice) /
-                        product.costprice
-                    ) * 100;
-            }
-
-            document.getElementById('modalProductBody').innerHTML = `
-
-            <table class="table">
-
-                <tbody>
-
-                    <tr>
-                        <th width="250">
-                            Group Produk
-                        </th>
-
-                        <td>
-                            ${product.productgroup_name ?? '-'}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Supplier</th>
-
-                        <td>
-                            ${product.supplier_name ?? '-'}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Stock Saat Ini</th>
-
-                        <td>
-                            <strong>
-                                ${numberFormat(product.stock)} pcs
-                            </strong>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Total Barang Masuk</th>
-
-                        <td>
-                            <strong>
-                                ${numberFormat(product.total_masuk)}
-                            </strong>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Total Barang Keluar</th>
-
-                        <td>
-                            <strong>
-                                ${numberFormat(product.total_keluar)}
-                            </strong>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Harga Modal</th>
-
-                        <td>
-                            <strong>
-                                Rp ${numberFormat(product.costprice)}
-                            </strong>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Harga Jual</th>
-
-                        <td>
-                            <strong>
-                                Rp ${numberFormat(product.salesprice1)}
-                            </strong>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Margin</th>
-
-                        <td>
-                            <strong>
-                                ${margin.toFixed(2)}%
-                            </strong>
-                        </td>
-                    </tr>
-
-                </tbody>
-
-            </table>
-        `;
-
-            const modal =
-                new bootstrap.Modal(
-                    document.getElementById('productDetailModal')
-                );
-
-            modal.show();
-        }
-
-        function numberFormat(num) {
-            return new Intl.NumberFormat('id-ID')
-                .format(num || 0);
-        }
-    </script>
 </body>
 
 </html>
