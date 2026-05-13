@@ -639,7 +639,7 @@ Route::get('/import-db', function () {
     // ⚠️ IMPORT ULANG SQL
     DB::unprepared($sql);
 
-    return "Database berhasil direset & diimport ulang";
+    return redirect('/')->with('success', 'Database berhasil direset & diimport ulang');
 });
 
 Route::get('/ai-dashboard', function () {

@@ -949,6 +949,126 @@
             background: rgba(239, 68, 68, 0.2);
             border-color: var(--danger-color);
         }
+
+        /* ============================================
+           MODERN STOCK STATUS BADGE
+           ============================================ */
+
+        .stock-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            border: 1px solid transparent;
+        }
+
+        .stock-status-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stock-status-badge i {
+            font-size: 13px;
+        }
+
+        /* DEAD STOCK - Abu-abu */
+        .stock-status-badge.status-dead-stock {
+            background: rgba(108, 117, 125, 0.12);
+            color: #495057;
+            border-color: rgba(108, 117, 125, 0.2);
+        }
+
+        .stock-status-badge.status-dead-stock:hover {
+            background: rgba(108, 117, 125, 0.18);
+            border-color: rgba(108, 117, 125, 0.3);
+        }
+
+        /* KRITIS - Merah */
+        .stock-status-badge.status-kritis {
+            background: rgba(220, 53, 69, 0.12);
+            color: #dc3545;
+            border-color: rgba(220, 53, 69, 0.2);
+        }
+
+        .stock-status-badge.status-kritis:hover {
+            background: rgba(220, 53, 69, 0.18);
+            border-color: rgba(220, 53, 69, 0.3);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
+        }
+
+        /* MENIPIS - Orange */
+        .stock-status-badge.status-menipis {
+            background: rgba(255, 152, 0, 0.12);
+            color: #ff9800;
+            border-color: rgba(255, 152, 0, 0.2);
+        }
+
+        .stock-status-badge.status-menipis:hover {
+            background: rgba(255, 152, 0, 0.18);
+            border-color: rgba(255, 152, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
+        }
+
+        /* AMAN - Hijau */
+        .stock-status-badge.status-aman {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .stock-status-badge.status-aman:hover {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
+
+        /* Stock info dengan badge modern */
+        .stock-info-modern {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stock-current {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .stock-current-value {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 16px;
+        }
+
+        .stock-estimasi {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* Animasi pulse untuk KRITIS */
+        @keyframes pulse-kritis {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .stock-status-badge.status-kritis {
+            animation: pulse-kritis 2s infinite;
+        }
+
     </style>
 
 </head>
@@ -1360,10 +1480,24 @@
                                         <!-- STOCK -->
                                         <div class="info-item">
                                             <span class="info-item-label">Stock</span>
-                                            <span
-                                                class="stock-status {{ $product->stock > 20 ? 'stock-high' : ($product->stock > 5 ? 'stock-medium' : 'stock-low') }}">
-                                                {{ number_format($product->stock, 0, ',', '.') }}
-                                            </span>
+                                            @php
+                                                $stockStatus = \App\Helpers\StockStatusHelper::getStockStatus(
+                                                    $product->stock,
+                                                    $product->total_keluar ?? 0,
+                                                    $product->created_at ?? null
+                                                );
+                                            @endphp
+                                            <div class="stock-info-modern">
+                                                <div class="stock-current">
+                                                    <span>Unit: <strong class="stock-current-value">{{ number_format($product->stock, 0, ',', '.') }}</strong></span>
+                                                </div>
+                                                <span class="stock-status-badge status-{{ strtolower(str_replace('_', '-', $stockStatus['status'])) }}"
+                                                    title="Estimasi habis: {{ $stockStatus['estimasi'] }}">
+                                                    <i class="fas {{ $stockStatus['icon'] }}"></i>
+                                                    <span>{{ $stockStatus['label'] }}</span>
+                                                </span>
+                                                <span class="stock-estimasi">{{ $stockStatus['estimasi'] }}</span>
+                                            </div>
                                         </div>
 
                                         <!-- MASUK -->
