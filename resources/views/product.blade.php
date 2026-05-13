@@ -550,21 +550,6 @@
             }
         }
 
-        /* Modal Focus & Accessibility Fix */
-        .modal:not(.show) .btn-close:focus {
-            outline: 2px solid transparent;
-            box-shadow: none;
-        }
-
-        .modal.show {
-            visibility: visible !important;
-        }
-
-        .modal .modal-content {
-            border: none;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-
         /* Scanner Modal Styles */
         .scanner-modal {
             display: none;
@@ -1921,49 +1906,6 @@
         // Initialize cart badge on page load
         document.addEventListener('DOMContentLoaded', function() {
             updateCartBadge();
-
-            // Initialize all modal triggers with error handling
-            document.querySelectorAll('[data-bs-toggle="modal"]').forEach(trigger => {
-                trigger.addEventListener('click', function(e) {
-                    try {
-                        const target = this.getAttribute('data-bs-target');
-                        if (!target) return;
-
-                        const modalElement = document.querySelector(target);
-                        if (!modalElement) {
-                            console.error('Modal element not found:', target);
-                            return;
-                        }
-
-                        // Clear any previous focus
-                        document.activeElement.blur();
-
-                        // Initialize and show modal
-                        const modal = new bootstrap.Modal(modalElement, {
-                            backdrop: true,
-                            keyboard: true,
-                            focus: true
-                        });
-                        modal.show();
-
-                        e.preventDefault();
-                    } catch (error) {
-                        console.error('Error initializing modal:', error);
-                    }
-                });
-            });
-
-            // Handle modal hide to clear focus
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('hide.bs.modal', function() {
-                    // Clear focus from any element inside modal
-                    this.querySelectorAll('*').forEach(el => {
-                        if (el === document.activeElement) {
-                            el.blur();
-                        }
-                    });
-                });
-            });
         });
 
         // ============ QUANTITY SELECTOR FUNCTIONS ============
@@ -2597,6 +2539,7 @@
         });
     </script>
 
+    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
