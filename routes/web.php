@@ -86,14 +86,16 @@ Route::get('/api/get-returns', function (Request $request) {
     }
 
     try {
-        $masterDb = config('database.connections.mysql.database');
+        $appDb = config('database.connections.mysql_app.database');
 
-        $return = DB::connection('mysql_app')->table('product_returns')
+        // Query dari master DB (mysql connection punya permission ke master DB)
+        // JOIN dengan app DB untuk product_returns
+        $return = DB::connection('mysql')->table('product')
             ->leftJoin(
-                DB::raw("{$masterDb}.product as product"),
-                'product_returns.product_id',
+                DB::raw("{$appDb}.product_returns as product_returns"),
+                'product.id',
                 '=',
-                'product.id'
+                'product_returns.product_id'
             )
             ->where('product.name', 'like', "%{$productName}%")
             ->select('product_returns.*', 'product.name as product_name')
