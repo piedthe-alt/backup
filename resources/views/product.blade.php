@@ -2108,6 +2108,13 @@
                         `/api/get-returns-by-group?group=${encodeURIComponent(group)}`
                     );
 
+                    // Cek apakah response OK sebelum parse JSON
+                    if (!response.ok) {
+                        console.warn(`API error: Status ${response.status}`);
+                        copyText += `\n`;
+                        continue;
+                    }
+
                     const returns = await response.json();
 
                     /*
@@ -2116,7 +2123,7 @@
                     |--------------------------------------------------------------------------
                     */
 
-                    if (returns.length > 0) {
+                    if (returns && returns.length > 0) {
 
                         copyText += `\nReturan\n`;
 
@@ -2140,18 +2147,27 @@
 
                             /*
                             |--------------------------------------------------------------------------
+                            | FIELD FALLBACK
+                            |--------------------------------------------------------------------------
+                            */
+
+                            const qty = ret.quantity_retur || ret.quantity || ret.qty || 0;
+
+                            /*
+                            |--------------------------------------------------------------------------
                             | FORMAT RETUR
                             |--------------------------------------------------------------------------
                             */
 
                             copyText +=
-                                `- ${ret.product_name} = ${ret.quantity} Pcs${noteText}\n`;
+                                `- ${ret.product_name} = ${qty} Pcs${noteText}\n`;
                         }
                     }
 
                 } catch (error) {
 
-                    console.error(error);
+                    console.error('Error fetching returns:', error);
+                    // Lanjut ke group berikutnya jika error
                 }
 
                 /*
