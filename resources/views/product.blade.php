@@ -1959,9 +1959,11 @@
                     `;
 
                     for (let ret of returns) {
+                        // Cek berbagai kemungkinan field name untuk quantity
+                        const qty = ret.quantity_retur || ret.quantity || ret.qty || ret.jumlah || 0;
                         returnsHtml += `
                             <div style="color: #1e293b; font-size: 0.85rem; margin-bottom: 4px;">
-                                - ${ret.product_name} = ${ret.quantity_retur} Pcs
+                                - ${ret.product_name} = ${qty} Pcs
                             </div>
                         `;
                     }
@@ -2008,7 +2010,11 @@
 
                     const data = await response.json();
 
-                    if (data.returns) {
+                    if (data.returns && Array.isArray(data.returns)) {
+                        // Jika returns adalah array, spread ke returns utama
+                        returns = [...returns, ...data.returns];
+                    } else if (data.returns) {
+                        // Jika returns adalah single object, push ke array
                         returns.push(data.returns);
                     }
 
