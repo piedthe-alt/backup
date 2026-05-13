@@ -1805,6 +1805,7 @@
     <script>
         // ============ CART MANAGEMENT ============
         let cart = JSON.parse(localStorage.getItem('orderCart')) || {};
+        let cartReturns = {}; // Simpan returns data per group
 
         function addToCart(event, productId, productName, price, groupName, type = 'pcs') {
             event.stopPropagation();
@@ -1949,6 +1950,13 @@
             try {
                 let returnsHtml = '';
                 const returns = await getReturnsForGroup(groupName, items);
+
+                // Simpan returns ke variable global
+                if (returns && returns.length > 0) {
+                    cartReturns[groupName] = returns;
+                } else {
+                    cartReturns[groupName] = [];
+                }
 
                 if (returns && returns.length > 0) {
                     returnsHtml = `
@@ -2098,27 +2106,15 @@
 
                 /*
                 |--------------------------------------------------------------------------
-                | AMBIL RETUR GROUP DARI DOM
+                | AMBIL RETUR GROUP DARI cartReturns
                 |--------------------------------------------------------------------------
                 */
 
-                // Cari div yang menyimpan returns untuk group ini
-                const groupDiv = document.querySelector(`[data-group="${group}"]`);
-                if (groupDiv) {
-                    const returnsDiv = groupDiv.querySelector('div[style*="rgba(239, 68, 68"]');
-                    if (returnsDiv) {
-                        // Ambil semua text dari returns div
-                        const returnsText = returnsDiv.innerText;
-                        if (returnsText && returnsText.includes('Barang Retur') || returnsText.includes('Returan')) {
-                            copyText += `\nBarang Retur : \n`;
-                            // Parse setiap baris yang dimulai dengan "-"
-                            const lines = returnsText.split('\n');
-                            for (let line of lines) {
-                                if (line.trim().startsWith('-')) {
-                                    copyText += `${line.trim()}\n`;
-                                }
-                            }
-                        }
+                if (cartReturns[group] && cartReturns[group].length > 0) {
+                    copyText += `Barang Retur : \n`;
+                    for (let ret of cartReturns[group]) {
+                        const qty = ret.quantity_retur || ret.quantity || ret.qty || ret.jumlah || 0;
+                        copyText += `- ${ret.product_name} = ${qty} Pcs\n`;
                     }
                 }
 
