@@ -150,15 +150,11 @@
                     <div class="col-md-3 mb-3">
 
                         <small class="opacity-75 d-block">
-
                             No Nota
-
                         </small>
 
                         <h5 class="fw-bold mb-0">
-
                             {{ $nota->salesid }}
-
                         </h5>
 
                     </div>
@@ -166,9 +162,7 @@
                     <div class="col-md-3 mb-3">
 
                         <small class="opacity-75 d-block">
-
                             Jam
-
                         </small>
 
                         <h5 class="fw-bold mb-0">
@@ -182,9 +176,7 @@
                     <div class="col-md-3 mb-3">
 
                         <small class="opacity-75 d-block">
-
                             Total Qty
-
                         </small>
 
                         <h5 class="fw-bold mb-0">
@@ -198,9 +190,7 @@
                     <div class="col-md-3 mb-3">
 
                         <small class="opacity-75 d-block">
-
                             Jumlah Item
-
                         </small>
 
                         <h5 class="fw-bold mb-0">
@@ -221,7 +211,7 @@
                 <!-- SUMMARY -->
                 <div class="row mb-4">
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
 
                         <div
                             class="summary-box"
@@ -240,7 +230,7 @@
 
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
 
                         <div
                             class="summary-box"
@@ -259,7 +249,7 @@
 
                     </div>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-3 mb-3">
 
                         <div
                             class="summary-box"
@@ -271,6 +261,25 @@
                             <h3 class="fw-bold mb-0">
 
                                 Rp {{ number_format($nota->total_margin,0,',','.') }}
+
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+
+                        <div
+                            class="summary-box"
+                            style="background:#7c3aed;"
+                        >
+
+                            <small>Margin %</small>
+
+                            <h3 class="fw-bold mb-0">
+
+                                {{ number_format($nota->margin_percent,2,',','.') }}%
 
                             </h3>
 
@@ -304,6 +313,8 @@
                                 <th>HPP</th>
 
                                 <th>Margin</th>
+
+                                <th>Margin %</th>
 
                             </tr>
 
@@ -360,6 +371,12 @@
                                 <td class="money text-primary">
 
                                     Rp {{ number_format($item->margin,0,',','.') }}
+
+                                </td>
+
+                                <td class="fw-bold text-dark">
+
+                                    {{ number_format($item->margin_percent,2,',','.') }}%
 
                                 </td>
 

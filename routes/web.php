@@ -30,7 +30,17 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
 
             DB::raw('SUM(netamount - cogs) as total_margin'),
 
-            DB::raw('SUM(salesqty) as total_qty')
+            DB::raw('SUM(salesqty) as total_qty'),
+
+            DB::raw('
+                (
+                    (
+                        SUM(netamount - cogs)
+                        / NULLIF(SUM(netamount),0)
+                    ) * 100
+                )
+                as margin_percent
+            ')
 
         )
 
@@ -41,7 +51,12 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
 
         ->groupBy('salesid')
 
-        ->orderBy('salesid', 'ASC')
+        ->orderByRaw("
+            CAST(
+                SUBSTRING_INDEX(salesid, '-', -1)
+                AS UNSIGNED
+            ) DESC
+        ")
 
         ->get();
 
@@ -84,6 +99,17 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
                         - salesdetail.cogs
                     )
                     as margin
+                '),
+
+                DB::raw('
+                    (
+                        (
+                            salesdetail.netamount
+                            - salesdetail.cogs
+                        )
+                        / NULLIF(salesdetail.netamount,0)
+                    ) * 100
+                    as margin_percent
                 ')
 
             )
