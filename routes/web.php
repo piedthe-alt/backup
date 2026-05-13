@@ -12,7 +12,7 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
 
     /*
     |--------------------------------------------------------------------------
-    | DETAIL NOTA
+    | AMBIL SEMUA NOTA
     |--------------------------------------------------------------------------
     */
 
@@ -28,11 +28,16 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
 
             DB::raw('SUM(cogs) as total_hpp'),
 
-            DB::raw('SUM(netamount - cogs) as total_margin')
+            DB::raw('SUM(netamount - cogs) as total_margin'),
+
+            DB::raw('SUM(salesqty) as total_qty')
 
         )
 
-        ->whereDate('updatetimestamp', $tanggal)
+        ->whereDate(
+            'updatetimestamp',
+            $tanggal
+        )
 
         ->groupBy('salesid')
 
@@ -50,24 +55,43 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
 
         $nota->items = DB::table('salesdetail')
 
+            ->leftJoin(
+                'product',
+                'salesdetail.productid',
+                '=',
+                'product.id'
+            )
+
             ->select(
 
-                'productid',
-                'snproduct',
-                'salesqty',
-                'price',
-                'grossamount',
-                'netamount',
-                'cogs',
+                'salesdetail.productid',
+
+                'product.name as product_name',
+
+                'salesdetail.salesqty',
+
+                'salesdetail.price',
+
+                'salesdetail.grossamount',
+
+                'salesdetail.netamount',
+
+                'salesdetail.cogs',
 
                 DB::raw('
-                    (netamount - cogs)
+                    (
+                        salesdetail.netamount
+                        - salesdetail.cogs
+                    )
                     as margin
                 ')
 
             )
 
-            ->where('salesid', $nota->salesid)
+            ->where(
+                'salesdetail.salesid',
+                $nota->salesid
+            )
 
             ->get();
     }

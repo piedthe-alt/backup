@@ -22,23 +22,79 @@
     <style>
 
         body {
-            background: #f1f5f9;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f8fafc 0%,
+                    #e2e8f0 100%
+                );
+
+            min-height: 100vh;
+
         }
 
         .nota-card {
 
-            border-radius: 16px;
             border: none;
 
+            border-radius: 20px;
+
+            overflow: hidden;
+
             box-shadow:
-                0 4px 12px rgba(0,0,0,0.05);
+                0 10px 30px rgba(0,0,0,0.08);
 
         }
 
-        .item-table td,
-        .item-table th {
+        .nota-header {
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0f172a 0%,
+                    #1e293b 100%
+                );
+
+            color: white;
+
+        }
+
+        .summary-box {
+
+            border-radius: 14px;
+
+            padding: 18px;
+
+            color: white;
+
+            height: 100%;
+
+        }
+
+        .table th {
+
+            white-space: nowrap;
+
+        }
+
+        .table td {
 
             vertical-align: middle;
+
+        }
+
+        .product-name {
+
+            font-weight: 600;
+
+        }
+
+        .money {
+
+            font-weight: 700;
+
+            white-space: nowrap;
 
         }
 
@@ -48,25 +104,32 @@
 
 <body>
 
-<div class="container py-4">
+<div class="container-fluid py-4">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
 
             <h2 class="fw-bold mb-1">
+
                 <i class="fas fa-receipt me-2"></i>
                 Detail Nota Penjualan
+
             </h2>
 
             <div class="text-muted">
+
                 Tanggal:
                 {{ $tanggal }}
+
             </div>
 
         </div>
 
-        <a href="/sales-chart" class="btn btn-dark">
+        <a
+            href="/sales-chart"
+            class="btn btn-dark"
+        >
 
             <i class="fas fa-arrow-left me-2"></i>
             Kembali
@@ -77,77 +140,139 @@
 
     @foreach($notas as $nota)
 
-        <div class="card nota-card mb-4">
+        <div class="card nota-card mb-5">
 
-            <div class="card-body">
+            <!-- HEADER -->
+            <div class="nota-header p-4">
 
-                <div class="row mb-4">
+                <div class="row">
 
                     <div class="col-md-3 mb-3">
 
-                        <div class="bg-light p-3 rounded">
+                        <small class="opacity-75 d-block">
 
-                            <small class="text-muted d-block">
-                                No Nota
-                            </small>
+                            No Nota
 
-                            <strong>
-                                {{ $nota->salesid }}
-                            </strong>
+                        </small>
 
-                        </div>
+                        <h5 class="fw-bold mb-0">
+
+                            {{ $nota->salesid }}
+
+                        </h5>
 
                     </div>
 
                     <div class="col-md-3 mb-3">
 
-                        <div class="bg-light p-3 rounded">
+                        <small class="opacity-75 d-block">
 
-                            <small class="text-muted d-block">
-                                Total Belanja
-                            </small>
+                            Jam
 
-                            <strong class="text-success">
+                        </small>
+
+                        <h5 class="fw-bold mb-0">
+
+                            {{ \Carbon\Carbon::parse($nota->transdate)->format('H:i:s') }}
+
+                        </h5>
+
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+
+                        <small class="opacity-75 d-block">
+
+                            Total Qty
+
+                        </small>
+
+                        <h5 class="fw-bold mb-0">
+
+                            {{ number_format($nota->total_qty,0,',','.') }}
+
+                        </h5>
+
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+
+                        <small class="opacity-75 d-block">
+
+                            Jumlah Item
+
+                        </small>
+
+                        <h5 class="fw-bold mb-0">
+
+                            {{ count($nota->items) }}
+
+                        </h5>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- BODY -->
+            <div class="card-body p-4">
+
+                <!-- SUMMARY -->
+                <div class="row mb-4">
+
+                    <div class="col-md-4 mb-3">
+
+                        <div
+                            class="summary-box"
+                            style="background:#16a34a;"
+                        >
+
+                            <small>Total Belanja</small>
+
+                            <h3 class="fw-bold mb-0">
 
                                 Rp {{ number_format($nota->total_belanja,0,',','.') }}
 
-                            </strong>
+                            </h3>
 
                         </div>
 
                     </div>
 
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
 
-                        <div class="bg-light p-3 rounded">
+                        <div
+                            class="summary-box"
+                            style="background:#dc2626;"
+                        >
 
-                            <small class="text-muted d-block">
-                                Total HPP
-                            </small>
+                            <small>Total HPP</small>
 
-                            <strong class="text-danger">
+                            <h3 class="fw-bold mb-0">
 
                                 Rp {{ number_format($nota->total_hpp,0,',','.') }}
 
-                            </strong>
+                            </h3>
 
                         </div>
 
                     </div>
 
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-4 mb-3">
 
-                        <div class="bg-light p-3 rounded">
+                        <div
+                            class="summary-box"
+                            style="background:#2563eb;"
+                        >
 
-                            <small class="text-muted d-block">
-                                Total Margin
-                            </small>
+                            <small>Total Margin</small>
 
-                            <strong class="text-primary">
+                            <h3 class="fw-bold mb-0">
 
                                 Rp {{ number_format($nota->total_margin,0,',','.') }}
 
-                            </strong>
+                            </h3>
 
                         </div>
 
@@ -155,20 +280,29 @@
 
                 </div>
 
+                <!-- TABLE -->
                 <div class="table-responsive">
 
-                    <table class="table table-bordered item-table">
+                    <table class="table table-hover align-middle">
 
                         <thead class="table-dark">
 
                             <tr>
 
                                 <th>Kode</th>
+
                                 <th>Nama Barang</th>
+
                                 <th>Qty</th>
+
                                 <th>Harga</th>
+
+                                <th>Gross</th>
+
                                 <th>Net</th>
+
                                 <th>HPP</th>
+
                                 <th>Margin</th>
 
                             </tr>
@@ -187,9 +321,9 @@
 
                                 </td>
 
-                                <td>
+                                <td class="product-name">
 
-                                    {{ $item->snproduct }}
+                                    {{ $item->product_name }}
 
                                 </td>
 
@@ -205,19 +339,25 @@
 
                                 </td>
 
-                                <td class="text-success fw-bold">
+                                <td class="money text-secondary">
+
+                                    Rp {{ number_format($item->grossamount,0,',','.') }}
+
+                                </td>
+
+                                <td class="money text-success">
 
                                     Rp {{ number_format($item->netamount,0,',','.') }}
 
                                 </td>
 
-                                <td class="text-danger fw-bold">
+                                <td class="money text-danger">
 
                                     Rp {{ number_format($item->cogs,0,',','.') }}
 
                                 </td>
 
-                                <td class="text-primary fw-bold">
+                                <td class="money text-primary">
 
                                     Rp {{ number_format($item->margin,0,',','.') }}
 
