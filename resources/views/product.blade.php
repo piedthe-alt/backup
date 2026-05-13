@@ -1489,7 +1489,7 @@
                                             @endphp
                                             <div class="stock-info-modern">
                                                 <div class="stock-current">
-                                                    <span>Unit: <strong class="stock-current-value">{{ number_format($product->stock, 0, ',', '.') }}</strong></span>
+                                                    <span>Sisa: <strong class="stock-current-value">{{ number_format($product->stock, 0, ',', '.') }}</strong></span>
                                                 </div>
                                                 <span class="stock-status-badge status-{{ strtolower(str_replace('_', '-', $stockStatus['status'])) }}"
                                                     title="Estimasi habis: {{ $stockStatus['estimasi'] }}">
@@ -1800,7 +1800,7 @@
         // ============ CART MANAGEMENT ============
         let cart = JSON.parse(localStorage.getItem('orderCart')) || {};
 
-        function addToCart(event, productId, productName, price, groupName) {
+        function addToCart(event, productId, productName, price, groupName, type = 'pcs') {
             event.stopPropagation();
 
             // Get quantity from the input field
@@ -1812,16 +1812,20 @@
                 return;
             }
 
+            // Create unique key for cart item (productId + type)
+            const cartKey = `${productId}_${type}`;
+
             // Add or update cart item
-            if (cart[productId]) {
-                cart[productId].quantity += quantity;
+            if (cart[cartKey]) {
+                cart[cartKey].quantity += quantity;
             } else {
-                cart[productId] = {
+                cart[cartKey] = {
                     id: productId,
                     name: productName,
                     price: price,
                     quantity: quantity,
-                    group: groupName
+                    group: groupName,
+                    type: type
                 };
             }
 
@@ -1835,7 +1839,7 @@
             qtyInput.value = 1;
 
             // Show notification
-            showAddToCartNotification(productName, quantity);
+            showAddToCartNotification(productName, quantity, type);
         }
 
         function updateCartBadge() {
@@ -2076,7 +2080,8 @@
 
                 for (let item of groupedItems[group]) {
 
-                    copyText += `- ${item.name} = ${item.quantity} Pcs\n`;
+                    const unitType = item.type === 'box' ? 'Box' : 'Pcs';
+                    copyText += `- ${item.name} = ${item.quantity} ${unitType}\n`;
                 }
 
                 /*
@@ -2193,9 +2198,10 @@
             return new Intl.NumberFormat('id-ID').format(num);
         }
 
-        function showAddToCartNotification(productName, quantity) {
+        function showAddToCartNotification(productName, quantity, type = 'pcs') {
             const notification = document.createElement('div');
             const displayText = `${productName.substring(0, 25)}${productName.length > 25 ? '...' : ''}`;
+            const unitType = type === 'box' ? 'Box' : 'Pcs';
 
             notification.style.cssText = `
                 position: fixed;
@@ -2213,7 +2219,7 @@
             `;
             notification.innerHTML = `
                 <i class="fas fa-plus-circle me-2"></i>
-                ${displayText} (${quantity} pcs) ditambahkan ke cart
+                ${displayText} (${quantity} ${unitType}) ditambahkan ke cart
             `;
 
             document.body.appendChild(notification);
