@@ -14,7 +14,7 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
-<script src="https://unpkg.com/@zxing/library@0.19.1"></script>
+    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
 
     <style>
 
@@ -32,16 +32,14 @@
         }
 
         .form-card,
-        .table-card,
-        .scanner-card {
+        .table-card {
             background: white;
             border-radius: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             overflow: hidden;
         }
 
-        .form-card,
-        .scanner-card {
+        .form-card {
             padding: 25px;
         }
 
@@ -128,29 +126,17 @@
             border-bottom: 1px solid #f1f5f9;
         }
 
-        #reader {
-
-            width: 100%;
-            max-width: 420px;
-
-            margin: auto;
-
-            border-radius: 18px;
-
-            overflow: hidden;
-
-            border: 3px solid #dc2626;
-
-            background: black;
+        #scanner-container {
+            display: none;
         }
 
-        .scan-result {
-
-            font-size: 18px;
-
-            font-weight: 700;
-
-            color: #dc2626;
+        #preview {
+            width: 100%;
+            max-width: 450px;
+            border-radius: 16px;
+            border: 3px solid #dc2626;
+            overflow: hidden;
+            background: black;
         }
 
         @media (max-width: 768px) {
@@ -169,8 +155,7 @@
                 font-size: 1.4rem;
             }
 
-            .form-card,
-            .scanner-card {
+            .form-card {
                 padding: 18px;
                 border-radius: 16px;
             }
@@ -221,6 +206,11 @@
                 font-weight: 600;
             }
 
+            .btn-back {
+                width: 100%;
+                text-align: center;
+            }
+
             .header-mobile {
                 flex-direction: column;
                 align-items: stretch !important;
@@ -237,304 +227,311 @@
 
 <body>
 
-<div class="container py-4">
+    <div class="container py-4">
 
-    <!-- HEADER -->
-    <div class="page-header">
+        <!-- HEADER -->
+        <div class="page-header">
 
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 header-mobile">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 header-mobile">
 
-            <div>
+                <div>
 
-                <h2 class="fw-bold mb-2">
+                    <h2 class="fw-bold mb-2">
 
-                    <i class="fas fa-rotate-left me-2"></i>
+                        <i class="fas fa-rotate-left me-2"></i>
 
-                    Retur Barang
+                        Retur Barang
 
-                </h2>
+                    </h2>
 
-                <div class="opacity-75">
+                    <div class="opacity-75">
 
-                    Kelola barang retur dan status pengambilannya
+                        Kelola barang retur dan status pengambilannya
+
+                    </div>
 
                 </div>
 
+                <a href="/" class="btn btn-back px-4 py-2">
+
+                    <i class="fas fa-arrow-left me-2"></i>
+
+                    Back
+
+                </a>
+
             </div>
-
-            <a href="/" class="btn btn-back px-4 py-2">
-
-                <i class="fas fa-arrow-left me-2"></i>
-
-                Back
-
-            </a>
 
         </div>
 
-    </div>
+        <!-- FORM -->
+        <div class="form-card mb-4">
 
-    <!-- SCANNER -->
-    <div class="scanner-card mb-4">
+            <h5 class="fw-bold mb-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
+                <i class="fas fa-plus-circle me-2 text-danger"></i>
 
-            <h5 class="fw-bold mb-0">
-
-                <i class="fas fa-barcode me-2 text-danger"></i>
-
-                Scanner Barcode
+                Tambah Retur Baru
 
             </h5>
 
-            <button
-                type="button"
-                class="btn btn-danger"
-                id="startScan">
+            <form method="POST" action="/returns/store">
 
-                Start Scan
+                @csrf
 
-            </button>
+                <div class="row g-3">
 
-        </div>
+                    <!-- PRODUK -->
+                    <div class="col-md-5">
 
-        <div id="reader"></div>
+                        <label class="form-label fw-semibold">
+                            Cari Produk
+                        </label>
 
-        <div class="mt-3">
+                        <!-- BUTTON SCAN -->
+                        <button
+                            type="button"
+                            id="startScan"
+                            class="btn btn-dark w-100 mb-2">
 
-            <div class="text-muted small mb-1">
+                            <i class="fas fa-barcode me-2"></i>
 
-                Hasil Scan
+                            Scan Barcode
 
-            </div>
+                        </button>
 
-            <div id="scanResult" class="scan-result">
+                        <!-- CAMERA -->
+                        <div
+                            id="scanner-container"
+                            class="mb-3 text-center">
 
-                -
+                            <video id="preview"></video>
 
-            </div>
+                        </div>
 
-        </div>
+                        <!-- SEARCH -->
+                        <input type="text"
+                            id="search-product"
+                            class="form-control mb-2"
+                            placeholder="Cari nama / ID produk...">
 
-    </div>
+                        <!-- SELECT -->
+                        <select name="product_id"
+                            id="product-select"
+                            class="form-select"
+                            size="8"
+                            required>
 
-    <!-- FORM -->
-    <div class="form-card mb-4">
-
-        <h5 class="fw-bold mb-4">
-
-            <i class="fas fa-plus-circle me-2 text-danger"></i>
-
-            Tambah Retur Baru
-
-        </h5>
-
-        <form method="POST" action="/returns/store">
-
-            @csrf
-
-            <div class="row g-3">
-
-                <!-- PRODUK -->
-                <div class="col-md-5">
-
-                    <label class="form-label fw-semibold">
-                        Cari Produk
-                    </label>
-
-                    <input type="text"
-                        id="search-product"
-                        class="form-control mb-2"
-                        placeholder="Cari nama / ID produk...">
-
-                    <select name="product_id"
-                        id="product-select"
-                        class="form-select"
-                        size="8"
-                        required>
-
-                        <option value="">
-                            Pilih Produk
-                        </option>
-
-                        @foreach (DB::table('product')->orderBy('name')->get() as $p)
-
-                            <option
-                                value="{{ $p->id }}"
-                                data-barcode="{{ $p->barcode ?? '' }}">
-
-                                {{ $p->id }} - {{ $p->name }}
-
+                            <option value="">
+                                Pilih Produk
                             </option>
+
+                            @foreach (DB::table('product')->orderBy('name')->get() as $p)
+
+                                <option
+                                    value="{{ $p->id }}"
+                                    data-barcode="{{ $p->barcode ?? '' }}">
+
+                                    {{ $p->id }} - {{ $p->name }}
+
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+                    <!-- QTY -->
+                    <div class="col-md-2">
+
+                        <label class="form-label fw-semibold">
+                            Qty
+                        </label>
+
+                        <input type="number"
+                            name="quantity"
+                            class="form-control"
+                            placeholder="Jumlah"
+                            required>
+
+                    </div>
+
+                    <!-- NOTE -->
+                    <div class="col-md-3">
+
+                        <label class="form-label fw-semibold">
+                            Keterangan
+                        </label>
+
+                        <input type="text"
+                            name="note"
+                            class="form-control"
+                            placeholder="Contoh: Kemasan rusak">
+
+                    </div>
+
+                    <!-- BUTTON -->
+                    <div class="col-md-2 d-flex align-items-end">
+
+                        <button class="btn btn-save w-100 py-3">
+
+                            <i class="fas fa-save me-2"></i>
+
+                            Simpan
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-card">
+
+            <div class="p-4 border-bottom">
+
+                <h5 class="fw-bold mb-0">
+
+                    <i class="fas fa-table me-2 text-danger"></i>
+
+                    Data Barang Retur
+
+                </h5>
+
+            </div>
+
+            <!-- DESKTOP -->
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID Produk</th>
+                            <th>Nama Produk</th>
+                            <th>Group</th>
+                            <th>Qty Retur</th>
+                            <th>Keterangan</th>
+                            <th>Tanggal</th>
+                            <th>Status</th>
+                            <th width="160">Aksi</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @php
+                            $hasData = false;
+                        @endphp
+
+                        @foreach ($returns as $r)
+
+                            @if (strtoupper(trim($r->status)) != 'SUDAH_DIAMBIL')
+
+                                @php
+                                    $hasData = true;
+                                @endphp
+
+                                <tr>
+
+                                    <td>
+                                        <strong>
+                                            {{ $r->product_id_view }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        {{ $r->product_name }}
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge bg-secondary">
+                                            {{ $r->group_name }}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge badge-retur">
+                                            -{{ $r->quantity }}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        {{ $r->note ?: '-' }}
+                                    </td>
+
+                                    <td>
+
+                                        {{ \Carbon\Carbon::parse($r->created_at)->format('d M Y H:i') }}
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge badge-status">
+                                            BELUM DIAMBIL
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <form method="POST"
+                                            action="/returns/taken/{{ $r->id }}"
+                                            onsubmit="return confirm('Tandai barang sudah diambil?')">
+
+                                            @csrf
+
+                                            <button class="btn btn-success btn-sm w-100">
+
+                                                <i class="fas fa-check-circle me-1"></i>
+
+                                                SUDAH DIAMBIL
+
+                                            </button>
+
+                                        </form>
+
+                                    </td>
+
+                                </tr>
+
+                            @endif
 
                         @endforeach
 
-                    </select>
-
-                </div>
-
-                <!-- QTY -->
-                <div class="col-md-2">
-
-                    <label class="form-label fw-semibold">
-                        Qty
-                    </label>
-
-                    <input type="number"
-                        name="quantity"
-                        class="form-control"
-                        placeholder="Jumlah"
-                        required>
-
-                </div>
-
-                <!-- NOTE -->
-                <div class="col-md-3">
-
-                    <label class="form-label fw-semibold">
-                        Keterangan
-                    </label>
-
-                    <input type="text"
-                        name="note"
-                        class="form-control"
-                        placeholder="Contoh: Kemasan rusak">
-
-                </div>
-
-                <!-- BUTTON -->
-                <div class="col-md-2 d-flex align-items-end">
-
-                    <button class="btn btn-save w-100 py-3">
-
-                        <i class="fas fa-save me-2"></i>
-
-                        Simpan
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </form>
-
-    </div>
-
-    <!-- TABLE -->
-    <div class="table-card">
-
-        <div class="p-4 border-bottom">
-
-            <h5 class="fw-bold mb-0">
-
-                <i class="fas fa-table me-2 text-danger"></i>
-
-                Data Barang Retur
-
-            </h5>
-
-        </div>
-
-        <!-- DESKTOP -->
-        <div class="table-responsive">
-
-            <table class="table table-hover align-middle mb-0">
-
-                <thead>
-
-                    <tr>
-
-                        <th>ID Produk</th>
-                        <th>Nama Produk</th>
-                        <th>Group</th>
-                        <th>Qty Retur</th>
-                        <th>Keterangan</th>
-                        <th>Tanggal</th>
-                        <th>Status</th>
-                        <th width="160">Aksi</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    @php
-                        $hasData = false;
-                    @endphp
-
-                    @foreach ($returns as $r)
-
-                        @if (strtoupper(trim($r->status)) != 'SUDAH_DIAMBIL')
-
-                            @php
-                                $hasData = true;
-                            @endphp
+                        @if (!$hasData)
 
                             <tr>
 
-                                <td>
-                                    <strong>
-                                        {{ $r->product_id_view }}
-                                    </strong>
-                                </td>
+                                <td colspan="8">
 
-                                <td>
-                                    {{ $r->product_name }}
-                                </td>
+                                    <div class="empty-state">
 
-                                <td>
+                                        <i class="fas fa-box-open fa-3x mb-3"></i>
 
-                                    <span class="badge bg-secondary">
-                                        {{ $r->group_name }}
-                                    </span>
+                                        <h5 class="fw-bold">
+                                            Tidak ada barang retur
+                                        </h5>
 
-                                </td>
+                                        <div>
+                                            Semua barang retur sudah diambil
+                                        </div>
 
-                                <td>
-
-                                    <span class="badge badge-retur">
-                                        -{{ $r->quantity }}
-                                    </span>
-
-                                </td>
-
-                                <td>
-                                    {{ $r->note ?: '-' }}
-                                </td>
-
-                                <td>
-
-                                    {{ \Carbon\Carbon::parse($r->created_at)->format('d M Y H:i') }}
-
-                                </td>
-
-                                <td>
-
-                                    <span class="badge badge-status">
-                                        BELUM DIAMBIL
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <form method="POST"
-                                        action="/returns/taken/{{ $r->id }}"
-                                        onsubmit="return confirm('Tandai barang sudah diambil?')">
-
-                                        @csrf
-
-                                        <button class="btn btn-success btn-sm w-100">
-
-                                            <i class="fas fa-check-circle me-1"></i>
-
-                                            SUDAH DIAMBIL
-
-                                        </button>
-
-                                    </form>
+                                    </div>
 
                                 </td>
 
@@ -542,65 +539,42 @@
 
                         @endif
 
-                    @endforeach
+                    </tbody>
 
-                    @if (!$hasData)
+                </table>
 
-                        <tr>
-
-                            <td colspan="8">
-
-                                <div class="empty-state">
-
-                                    <i class="fas fa-box-open fa-3x mb-3"></i>
-
-                                    <h5 class="fw-bold">
-                                        Tidak ada barang retur
-                                    </h5>
-
-                                    <div>
-                                        Semua barang retur sudah diambil
-                                    </div>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    @endif
-
-                </tbody>
-
-            </table>
+            </div>
 
         </div>
 
     </div>
 
-</div>
-
 <script>
-
-const searchInput = document.getElementById('search-product');
-
-const productSelect = document.getElementById('product-select');
 
 /*
 |--------------------------------------------------------------------------
-| SEARCH PRODUCT
+| SEARCH
 |--------------------------------------------------------------------------
 */
 
+const searchInput =
+    document.getElementById('search-product');
+
+const productSelect =
+    document.getElementById('product-select');
+
 searchInput.addEventListener('input', function () {
 
-    const keyword = this.value.toLowerCase();
+    const keyword =
+        this.value.toLowerCase();
 
-    const options = productSelect.options;
+    const options =
+        productSelect.options;
 
     for (let i = 0; i < options.length; i++) {
 
-        const text = options[i].text.toLowerCase();
+        const text =
+            options[i].text.toLowerCase();
 
         if (
             text.includes(keyword)
@@ -621,116 +595,94 @@ searchInput.addEventListener('input', function () {
 
 /*
 |--------------------------------------------------------------------------
-| BARCODE SCANNER
+| INSTASCAN
 |--------------------------------------------------------------------------
 */
 
-const codeReader =
-    new ZXing.BrowserMultiFormatReader();
+let scanner = null;
 
-const resultEl =
-    document.getElementById('scanResult');
+document
+    .getElementById('startScan')
+    .addEventListener('click', function () {
 
-let selectedDeviceId = null;
+        document
+            .getElementById('scanner-container')
+            .style.display = 'block';
 
-async function startScanner() {
+        scanner = new Instascan.Scanner({
 
-    try {
+            video:
+                document.getElementById('preview'),
 
-        /*
-        |--------------------------------------------------------------------------
-        | AMBIL DEVICE CAMERA
-        |--------------------------------------------------------------------------
-        */
+            scanPeriod: 2,
 
-        const devices =
-            await codeReader.getVideoInputDevices();
-
-        if (!devices.length) {
-
-            alert('Camera tidak ditemukan');
-
-            return;
-
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | PILIH BACK CAMERA
-        |--------------------------------------------------------------------------
-        */
-
-        selectedDeviceId = devices[0].deviceId;
-
-        devices.forEach(device => {
-
-            const label =
-                device.label.toLowerCase();
-
-            if (
-                label.includes('back')
-                ||
-                label.includes('rear')
-            ) {
-
-                selectedDeviceId =
-                    device.deviceId;
-
-            }
+            mirror: false
 
         });
 
         /*
         |--------------------------------------------------------------------------
-        | START SCAN
+        | HASIL SCAN
         |--------------------------------------------------------------------------
         */
 
-        codeReader.decodeFromVideoDevice(
+        scanner.addListener('scan', function (content) {
 
-            selectedDeviceId,
+            findProductByBarcode(content);
 
-            'reader',
+            navigator.vibrate?.(100);
 
-            (result, err) => {
+            scanner.stop();
 
-                if (result) {
+            document
+                .getElementById('scanner-container')
+                .style.display = 'none';
 
-                    const barcode =
-                        result.text;
+        });
 
-                    resultEl.innerHTML =
-                        barcode;
+        /*
+        |--------------------------------------------------------------------------
+        | CAMERA
+        |--------------------------------------------------------------------------
+        */
 
-                    findProductByBarcode(
-                        barcode
+        Instascan.Camera.getCameras()
+
+            .then(function (cameras) {
+
+                if (cameras.length > 0) {
+
+                    let backCamera = cameras.find(c =>
+
+                        c.name
+                            .toLowerCase()
+                            .includes('back')
+
                     );
 
-                    navigator.vibrate?.(100);
+                    scanner.start(
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | STOP SETELAH BERHASIL
-                    |--------------------------------------------------------------------------
-                    */
+                        backCamera || cameras[0]
 
-                    codeReader.reset();
+                    );
+
+                } else {
+
+                    alert('Camera tidak ditemukan');
 
                 }
 
-            }
+            })
 
-        );
+            .catch(function (e) {
 
-    } catch (error) {
+                console.error(e);
 
-        console.log(error);
+                alert('Gagal membuka kamera');
 
-        alert('Gagal membuka scanner');
+            });
 
-    }
-
-}
+    });
 
 /*
 |--------------------------------------------------------------------------
@@ -782,13 +734,6 @@ function findProductByBarcode(barcode) {
     }
 
 }
-
-document
-    .getElementById('startScan')
-    .addEventListener(
-        'click',
-        startScanner
-    );
 
 </script>
 
