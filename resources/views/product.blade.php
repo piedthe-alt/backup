@@ -1801,7 +1801,7 @@
                             $hasPricingStrata = false;
                             for ($i = 1; $i <= 7; $i++) {
                                 $field = 'salesdiscqty' . $i;
-                                if ($product->$field != 0) {
+                                if (isset($product->$field) && $product->$field != 0) {
                                     $hasPricingStrata = true;
                                     break;
                                 }
@@ -1833,10 +1833,10 @@
                                                 @php
                                                     $qtyField = 'salesdiscqty' . $i;
                                                     $priceField = 'salesdiscprice' . $i;
-                                                    $qty = $product->$qtyField ?? 0;
-                                                    $price = $product->$priceField ?? 0;
+                                                    $qty = (isset($product->$qtyField) && $product->$qtyField != 0) ? $product->$qtyField : null;
+                                                    $price = isset($product->$priceField) ? $product->$priceField : 0;
                                                 @endphp
-                                                @if ($qty != 0)
+                                                @if ($qty !== null && $qty != 0)
                                                     <tr style="border-bottom: 1px solid #e5e7eb; background-color: {{ $i % 2 == 0 ? '#f8fafc' : 'white' }};">
                                                         <td style="text-align: center; font-weight: 600; color: #2563eb;">
                                                             {{ number_format($qty, 0, ',', '.') }}
