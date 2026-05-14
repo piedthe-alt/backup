@@ -18,25 +18,27 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
 
     $notas = DB::table('salesdetail')
 
+        ->join('sales', 'salesdetail.salesid', '=', 'sales.salesid')
+
         ->select(
 
-            'salesid',
+            'salesdetail.salesid',
 
-            DB::raw('(SELECT transdate FROM salesdetail sd WHERE sd.salesid = salesdetail.salesid ORDER BY transdate ASC LIMIT 1) as transdate'),
+            'sales.salestime as transdate',
 
-            DB::raw('SUM(netamount) as total_belanja'),
+            DB::raw('SUM(salesdetail.netamount) as total_belanja'),
 
-            DB::raw('SUM(cogs) as total_hpp'),
+            DB::raw('SUM(salesdetail.cogs) as total_hpp'),
 
-            DB::raw('SUM(netamount - cogs) as total_margin'),
+            DB::raw('SUM(salesdetail.netamount - salesdetail.cogs) as total_margin'),
 
-            DB::raw('SUM(salesqty) as total_qty'),
+            DB::raw('SUM(salesdetail.salesqty) as total_qty'),
 
             DB::raw('
                 (
                     (
-                        SUM(netamount - cogs)
-                        / NULLIF(SUM(netamount),0)
+                        SUM(salesdetail.netamount - salesdetail.cogs)
+                        / NULLIF(SUM(salesdetail.netamount),0)
                     ) * 100
                 )
                 as margin_percent
@@ -45,11 +47,11 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
         )
 
         ->whereDate(
-            'updatetimestamp',
+            'salesdetail.updatetimestamp',
             $tanggal
         )
 
-        ->groupBy('salesid')
+        ->groupBy('salesdetail.salesid')
 
         ->orderByRaw("
             CAST(
