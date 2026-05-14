@@ -11,11 +11,13 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
-    <script src="https://unpkg.com/@zxing/library@latest"></script>
+<script src="https://unpkg.com/@zxing/library@0.19.1"></script>
 
     <style>
+
         body {
             background: #f1f5f9;
         }
@@ -228,321 +230,87 @@
                 height: 220px;
             }
         }
+
     </style>
 
 </head>
 
 <body>
 
-    <div class="container py-4">
+<div class="container py-4">
 
-        <!-- HEADER -->
-        <div class="page-header">
+    <!-- HEADER -->
+    <div class="page-header">
 
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 header-mobile">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 header-mobile">
 
-                <div>
+            <div>
 
-                    <h2 class="fw-bold mb-2">
+                <h2 class="fw-bold mb-2">
 
-                        <i class="fas fa-rotate-left me-2"></i>
+                    <i class="fas fa-rotate-left me-2"></i>
 
-                        Retur Barang
+                    Retur Barang
 
-                    </h2>
+                </h2>
 
-                    <div class="opacity-75">
+                <div class="opacity-75">
 
-                        Kelola barang retur dan status pengambilannya
-
-                    </div>
+                    Kelola barang retur dan status pengambilannya
 
                 </div>
 
-                <a href="/" class="btn btn-back px-4 py-2">
-
-                    <i class="fas fa-arrow-left me-2"></i>
-
-                    Back
-
-                </a>
-
             </div>
+
+            <a href="/" class="btn btn-back px-4 py-2">
+
+                <i class="fas fa-arrow-left me-2"></i>
+
+                Back
+
+            </a>
 
         </div>
 
-        <!-- SCANNER -->
-        <div class="scanner-card mb-4">
+    </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- SCANNER -->
+    <div class="scanner-card mb-4">
 
-                <h5 class="fw-bold mb-0">
+        <div class="d-flex justify-content-between align-items-center mb-3">
 
-                    <i class="fas fa-barcode me-2 text-danger"></i>
+            <h5 class="fw-bold mb-0">
 
-                    Scanner Barcode
+                <i class="fas fa-barcode me-2 text-danger"></i>
 
-                </h5>
-
-                <button type="button" class="btn btn-danger" id="startScan">
-
-                    Start Scan
-
-                </button>
-
-            </div>
-
-            <div id="reader"></div>
-
-            <div class="mt-3">
-
-                <div class="text-muted small mb-1">
-
-                    Hasil Scan
-
-                </div>
-
-                <div id="scanResult" class="scan-result">
-
-                    -
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- FORM -->
-        <div class="form-card mb-4">
-
-            <h5 class="fw-bold mb-4">
-
-                <i class="fas fa-plus-circle me-2 text-danger"></i>
-
-                Tambah Retur Baru
+                Scanner Barcode
 
             </h5>
 
-            <form method="POST" action="/returns/store">
+            <button
+                type="button"
+                class="btn btn-danger"
+                id="startScan">
 
-                @csrf
+                Start Scan
 
-                <div class="row g-3">
-
-                    <!-- PRODUK -->
-                    <div class="col-md-5">
-
-                        <label class="form-label fw-semibold">
-                            Cari Produk
-                        </label>
-
-                        <input type="text" id="search-product" class="form-control mb-2"
-                            placeholder="Cari nama / ID produk...">
-
-                        <select name="product_id" id="product-select" class="form-select" size="8" required>
-
-                            <option value="">
-                                Pilih Produk
-                            </option>
-
-                            @foreach (DB::table('product')->orderBy('name')->get() as $p)
-                                <option value="{{ $p->id }}" data-barcode="{{ $p->barcode ?? '' }}">
-
-                                    {{ $p->id }} - {{ $p->name }}
-
-                                </option>
-                            @endforeach
-
-                        </select>
-
-                    </div>
-
-                    <!-- QTY -->
-                    <div class="col-md-2">
-
-                        <label class="form-label fw-semibold">
-                            Qty
-                        </label>
-
-                        <input type="number" name="quantity" class="form-control" placeholder="Jumlah" required>
-
-                    </div>
-
-                    <!-- NOTE -->
-                    <div class="col-md-3">
-
-                        <label class="form-label fw-semibold">
-                            Keterangan
-                        </label>
-
-                        <input type="text" name="note" class="form-control" placeholder="Contoh: Kemasan rusak">
-
-                    </div>
-
-                    <!-- BUTTON -->
-                    <div class="col-md-2 d-flex align-items-end">
-
-                        <button class="btn btn-save w-100 py-3">
-
-                            <i class="fas fa-save me-2"></i>
-
-                            Simpan
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </form>
+            </button>
 
         </div>
 
-        <!-- TABLE -->
-        <div class="table-card">
+        <div id="reader"></div>
 
-            <div class="p-4 border-bottom">
+        <div class="mt-3">
 
-                <h5 class="fw-bold mb-0">
+            <div class="text-muted small mb-1">
 
-                    <i class="fas fa-table me-2 text-danger"></i>
-
-                    Data Barang Retur
-
-                </h5>
+                Hasil Scan
 
             </div>
 
-            <!-- DESKTOP -->
-            <div class="table-responsive">
+            <div id="scanResult" class="scan-result">
 
-                <table class="table table-hover align-middle mb-0">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>ID Produk</th>
-                            <th>Nama Produk</th>
-                            <th>Group</th>
-                            <th>Qty Retur</th>
-                            <th>Keterangan</th>
-                            <th>Tanggal</th>
-                            <th>Status</th>
-                            <th width="160">Aksi</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        @php
-                            $hasData = false;
-                        @endphp
-
-                        @foreach ($returns as $r)
-                            @if (strtoupper(trim($r->status)) != 'SUDAH_DIAMBIL')
-                                @php
-                                    $hasData = true;
-                                @endphp
-
-                                <tr>
-
-                                    <td>
-                                        <strong>
-                                            {{ $r->product_id_view }}
-                                        </strong>
-                                    </td>
-
-                                    <td>
-                                        {{ $r->product_name }}
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge bg-secondary">
-                                            {{ $r->group_name }}
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge badge-retur">
-                                            -{{ $r->quantity }}
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-                                        {{ $r->note ?: '-' }}
-                                    </td>
-
-                                    <td>
-
-                                        {{ \Carbon\Carbon::parse($r->created_at)->format('d M Y H:i') }}
-
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge badge-status">
-                                            BELUM DIAMBIL
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <form method="POST" action="/returns/taken/{{ $r->id }}"
-                                            onsubmit="return confirm('Tandai barang sudah diambil?')">
-
-                                            @csrf
-
-                                            <button class="btn btn-success btn-sm w-100">
-
-                                                <i class="fas fa-check-circle me-1"></i>
-
-                                                SUDAH DIAMBIL
-
-                                            </button>
-
-                                        </form>
-
-                                    </td>
-
-                                </tr>
-                            @endif
-                        @endforeach
-
-                        @if (!$hasData)
-                            <tr>
-
-                                <td colspan="8">
-
-                                    <div class="empty-state">
-
-                                        <i class="fas fa-box-open fa-3x mb-3"></i>
-
-                                        <h5 class="fw-bold">
-                                            Tidak ada barang retur
-                                        </h5>
-
-                                        <div>
-                                            Semua barang retur sudah diambil
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-                        @endif
-
-                    </tbody>
-
-                </table>
+                -
 
             </div>
 
@@ -550,39 +318,363 @@
 
     </div>
 
-    <script>
-        const searchInput = document.getElementById('search-product');
+    <!-- FORM -->
+    <div class="form-card mb-4">
 
-        const productSelect = document.getElementById('product-select');
+        <h5 class="fw-bold mb-4">
+
+            <i class="fas fa-plus-circle me-2 text-danger"></i>
+
+            Tambah Retur Baru
+
+        </h5>
+
+        <form method="POST" action="/returns/store">
+
+            @csrf
+
+            <div class="row g-3">
+
+                <!-- PRODUK -->
+                <div class="col-md-5">
+
+                    <label class="form-label fw-semibold">
+                        Cari Produk
+                    </label>
+
+                    <input type="text"
+                        id="search-product"
+                        class="form-control mb-2"
+                        placeholder="Cari nama / ID produk...">
+
+                    <select name="product_id"
+                        id="product-select"
+                        class="form-select"
+                        size="8"
+                        required>
+
+                        <option value="">
+                            Pilih Produk
+                        </option>
+
+                        @foreach (DB::table('product')->orderBy('name')->get() as $p)
+
+                            <option
+                                value="{{ $p->id }}"
+                                data-barcode="{{ $p->barcode ?? '' }}">
+
+                                {{ $p->id }} - {{ $p->name }}
+
+                            </option>
+
+                        @endforeach
+
+                    </select>
+
+                </div>
+
+                <!-- QTY -->
+                <div class="col-md-2">
+
+                    <label class="form-label fw-semibold">
+                        Qty
+                    </label>
+
+                    <input type="number"
+                        name="quantity"
+                        class="form-control"
+                        placeholder="Jumlah"
+                        required>
+
+                </div>
+
+                <!-- NOTE -->
+                <div class="col-md-3">
+
+                    <label class="form-label fw-semibold">
+                        Keterangan
+                    </label>
+
+                    <input type="text"
+                        name="note"
+                        class="form-control"
+                        placeholder="Contoh: Kemasan rusak">
+
+                </div>
+
+                <!-- BUTTON -->
+                <div class="col-md-2 d-flex align-items-end">
+
+                    <button class="btn btn-save w-100 py-3">
+
+                        <i class="fas fa-save me-2"></i>
+
+                        Simpan
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+
+        <div class="p-4 border-bottom">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="fas fa-table me-2 text-danger"></i>
+
+                Data Barang Retur
+
+            </h5>
+
+        </div>
+
+        <!-- DESKTOP -->
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID Produk</th>
+                        <th>Nama Produk</th>
+                        <th>Group</th>
+                        <th>Qty Retur</th>
+                        <th>Keterangan</th>
+                        <th>Tanggal</th>
+                        <th>Status</th>
+                        <th width="160">Aksi</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @php
+                        $hasData = false;
+                    @endphp
+
+                    @foreach ($returns as $r)
+
+                        @if (strtoupper(trim($r->status)) != 'SUDAH_DIAMBIL')
+
+                            @php
+                                $hasData = true;
+                            @endphp
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        {{ $r->product_id_view }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ $r->product_name }}
+                                </td>
+
+                                <td>
+
+                                    <span class="badge bg-secondary">
+                                        {{ $r->group_name }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="badge badge-retur">
+                                        -{{ $r->quantity }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    {{ $r->note ?: '-' }}
+                                </td>
+
+                                <td>
+
+                                    {{ \Carbon\Carbon::parse($r->created_at)->format('d M Y H:i') }}
+
+                                </td>
+
+                                <td>
+
+                                    <span class="badge badge-status">
+                                        BELUM DIAMBIL
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <form method="POST"
+                                        action="/returns/taken/{{ $r->id }}"
+                                        onsubmit="return confirm('Tandai barang sudah diambil?')">
+
+                                        @csrf
+
+                                        <button class="btn btn-success btn-sm w-100">
+
+                                            <i class="fas fa-check-circle me-1"></i>
+
+                                            SUDAH DIAMBIL
+
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                        @endif
+
+                    @endforeach
+
+                    @if (!$hasData)
+
+                        <tr>
+
+                            <td colspan="8">
+
+                                <div class="empty-state">
+
+                                    <i class="fas fa-box-open fa-3x mb-3"></i>
+
+                                    <h5 class="fw-bold">
+                                        Tidak ada barang retur
+                                    </h5>
+
+                                    <div>
+                                        Semua barang retur sudah diambil
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @endif
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const searchInput = document.getElementById('search-product');
+
+const productSelect = document.getElementById('product-select');
+
+/*
+|--------------------------------------------------------------------------
+| SEARCH PRODUCT
+|--------------------------------------------------------------------------
+*/
+
+searchInput.addEventListener('input', function () {
+
+    const keyword = this.value.toLowerCase();
+
+    const options = productSelect.options;
+
+    for (let i = 0; i < options.length; i++) {
+
+        const text = options[i].text.toLowerCase();
+
+        if (
+            text.includes(keyword)
+            || options[i].value === ""
+        ) {
+
+            options[i].style.display = '';
+
+        } else {
+
+            options[i].style.display = 'none';
+
+        }
+
+    }
+
+});
+
+/*
+|--------------------------------------------------------------------------
+| BARCODE SCANNER
+|--------------------------------------------------------------------------
+*/
+
+const codeReader =
+    new ZXing.BrowserMultiFormatReader();
+
+const resultEl =
+    document.getElementById('scanResult');
+
+let selectedDeviceId = null;
+
+async function startScanner() {
+
+    try {
 
         /*
         |--------------------------------------------------------------------------
-        | SEARCH PRODUCT
+        | AMBIL DEVICE CAMERA
         |--------------------------------------------------------------------------
         */
 
-        searchInput.addEventListener('input', function() {
+        const devices =
+            await codeReader.getVideoInputDevices();
 
-            const keyword = this.value.toLowerCase();
+        if (!devices.length) {
 
-            const options = productSelect.options;
+            alert('Camera tidak ditemukan');
 
-            for (let i = 0; i < options.length; i++) {
+            return;
 
-                const text = options[i].text.toLowerCase();
+        }
 
-                if (
-                    text.includes(keyword) ||
-                    options[i].value === ""
-                ) {
+        /*
+        |--------------------------------------------------------------------------
+        | PILIH BACK CAMERA
+        |--------------------------------------------------------------------------
+        */
 
-                    options[i].style.display = '';
+        selectedDeviceId = devices[0].deviceId;
 
-                } else {
+        devices.forEach(device => {
 
-                    options[i].style.display = 'none';
+            const label =
+                device.label.toLowerCase();
 
-                }
+            if (
+                label.includes('back')
+                ||
+                label.includes('rear')
+            ) {
+
+                selectedDeviceId =
+                    device.deviceId;
 
             }
 
@@ -590,154 +682,115 @@
 
         /*
         |--------------------------------------------------------------------------
-        | BARCODE SCANNER
+        | START SCAN
         |--------------------------------------------------------------------------
         */
 
-        const codeReader = new ZXing.BrowserMultiFormatReader();
+        codeReader.decodeFromVideoDevice(
 
-        const resultEl = document.getElementById('scanResult');
+            selectedDeviceId,
 
-        async function startScanner() {
+            'reader',
 
-            try {
+            (result, err) => {
 
-                const videoInputDevices =
-                    await ZXing.BrowserCodeReader.listVideoInputDevices();
+                if (result) {
 
-                if (videoInputDevices.length === 0) {
+                    const barcode =
+                        result.text;
 
-                    alert('Camera tidak ditemukan');
+                    resultEl.innerHTML =
+                        barcode;
 
-                    return;
+                    findProductByBarcode(
+                        barcode
+                    );
 
-                }
+                    navigator.vibrate?.(100);
 
-                /*
-                |--------------------------------------------------------------------------
-                | PILIH KAMERA BELAKANG
-                |--------------------------------------------------------------------------
-                */
+                    /*
+                    |--------------------------------------------------------------------------
+                    | STOP SETELAH BERHASIL
+                    |--------------------------------------------------------------------------
+                    */
 
-                let selectedDeviceId = videoInputDevices[0].deviceId;
-
-                for (const device of videoInputDevices) {
-
-                    const label = device.label.toLowerCase();
-
-                    if (
-                        label.includes('back') ||
-                        label.includes('rear')
-                    ) {
-
-                        selectedDeviceId = device.deviceId;
-
-                        break;
-
-                    }
+                    codeReader.reset();
 
                 }
-
-                /*
-                |--------------------------------------------------------------------------
-                | START SCAN
-                |--------------------------------------------------------------------------
-                */
-
-                codeReader.decodeFromVideoDevice(
-
-                    selectedDeviceId,
-
-                    'reader',
-
-                    (result, err) => {
-
-                        if (result) {
-
-                            const barcode = result.text;
-
-                            resultEl.innerHTML = barcode;
-
-                            findProductByBarcode(barcode);
-
-                            navigator.vibrate?.(100);
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | STOP SETELAH BERHASIL
-                            |--------------------------------------------------------------------------
-                            */
-
-                            codeReader.reset();
-
-                        }
-
-                    }
-
-                );
-
-            } catch (error) {
-
-                console.log(error);
-
-                alert('Gagal membuka scanner');
 
             }
+
+        );
+
+    } catch (error) {
+
+        console.log(error);
+
+        alert('Gagal membuka scanner');
+
+    }
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| FIND PRODUCT
+|--------------------------------------------------------------------------
+*/
+
+function findProductByBarcode(barcode) {
+
+    const options =
+        productSelect.options;
+
+    let found = false;
+
+    for (let i = 0; i < options.length; i++) {
+
+        const option =
+            options[i];
+
+        const optionBarcode =
+            option.dataset.barcode;
+
+        if (optionBarcode == barcode) {
+
+            option.selected = true;
+
+            option.scrollIntoView({
+
+                behavior: 'smooth',
+
+                block: 'center'
+
+            });
+
+            found = true;
+
+            break;
 
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | FIND PRODUCT BY BARCODE
-        |--------------------------------------------------------------------------
-        */
+    }
 
-        function findProductByBarcode(barcode) {
+    if (!found) {
 
-            const options = productSelect.options;
+        alert(
+            'Produk barcode tidak ditemukan'
+        );
 
-            let found = false;
+    }
 
-            for (let i = 0; i < options.length; i++) {
+}
 
-                const option = options[i];
+document
+    .getElementById('startScan')
+    .addEventListener(
+        'click',
+        startScanner
+    );
 
-                const optionBarcode =
-                    option.dataset.barcode;
-
-                if (optionBarcode == barcode) {
-
-                    option.selected = true;
-
-                    option.scrollIntoView({
-
-                        behavior: 'smooth',
-
-                        block: 'center'
-
-                    });
-
-                    found = true;
-
-                    break;
-
-                }
-
-            }
-
-            if (!found) {
-
-                alert('Produk barcode tidak ditemukan');
-
-            }
-
-        }
-
-        document
-            .getElementById('startScan')
-            .addEventListener('click', startScanner);
-    </script>
+</script>
 
 </body>
-
 </html>
