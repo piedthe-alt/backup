@@ -9,20 +9,12 @@
 
     <title>Retur Barang</title>
 
-    <!-- Bootstrap -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Font Awesome -->
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
-    <!-- html5-qrcode -->
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js"></script>
 
     <style>
 
@@ -40,14 +32,16 @@
         }
 
         .form-card,
-        .table-card {
+        .table-card,
+        .scanner-card {
             background: white;
             border-radius: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             overflow: hidden;
         }
 
-        .form-card {
+        .form-card,
+        .scanner-card {
             padding: 25px;
         }
 
@@ -126,54 +120,37 @@
         }
 
         #product-select {
-            display: none;
-            margin-top: 10px;
-            max-height: 280px;
-            overflow-y: auto;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
+            height: 260px;
         }
 
-        .product-item {
-            padding: 12px 14px;
+        #product-select option {
+            padding: 10px;
             border-bottom: 1px solid #f1f5f9;
-            cursor: pointer;
-            transition: 0.2s;
-            background: white;
-        }
-
-        .product-item:hover {
-            background: #f8fafc;
-        }
-
-        .product-id {
-            font-size: 12px;
-            color: #64748b;
         }
 
         #reader {
+
             width: 100%;
-            border-radius: 16px;
+            max-width: 420px;
+
+            margin: auto;
+
+            border-radius: 18px;
+
             overflow: hidden;
-            display: none;
-            margin-top: 15px;
+
+            border: 3px solid #dc2626;
+
+            background: black;
         }
 
-        .scanner-box {
-            background: #f8fafc;
-            border: 2px dashed #cbd5e1;
-            border-radius: 16px;
-            padding: 15px;
-            margin-top: 10px;
-        }
+        .scan-result {
 
-        .selected-product {
-            background: #ecfdf5;
-            border: 1px solid #10b981;
-            padding: 12px;
-            border-radius: 12px;
-            margin-top: 10px;
-            display: none;
+            font-size: 18px;
+
+            font-weight: 700;
+
+            color: #dc2626;
         }
 
         @media (max-width: 768px) {
@@ -192,7 +169,8 @@
                 font-size: 1.4rem;
             }
 
-            .form-card {
+            .form-card,
+            .scanner-card {
                 padding: 18px;
                 border-radius: 16px;
             }
@@ -214,9 +192,33 @@
                 border: 1px solid #e2e8f0;
             }
 
-            .btn-back {
+            .return-title {
+                font-weight: 700;
+                font-size: 15px;
+                margin-bottom: 10px;
+                color: #111827;
+            }
+
+            .return-group {
+                display: inline-block;
+                background: #64748b;
+                color: white;
+                font-size: 11px;
+                padding: 5px 10px;
+                border-radius: 999px;
+                margin-bottom: 12px;
+            }
+
+            .return-detail {
+                margin-bottom: 8px;
+                font-size: 14px;
+            }
+
+            .btn-mobile {
                 width: 100%;
-                text-align: center;
+                margin-top: 10px;
+                border-radius: 12px;
+                font-weight: 600;
             }
 
             .header-mobile {
@@ -224,6 +226,9 @@
                 align-items: stretch !important;
             }
 
+            #product-select {
+                height: 220px;
+            }
         }
 
     </style>
@@ -269,6 +274,50 @@
 
     </div>
 
+    <!-- SCANNER -->
+    <div class="scanner-card mb-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="fas fa-barcode me-2 text-danger"></i>
+
+                Scanner Barcode
+
+            </h5>
+
+            <button
+                type="button"
+                class="btn btn-danger"
+                id="startScan">
+
+                Start Scan
+
+            </button>
+
+        </div>
+
+        <div id="reader"></div>
+
+        <div class="mt-3">
+
+            <div class="text-muted small mb-1">
+
+                Hasil Scan
+
+            </div>
+
+            <div id="scanResult" class="scan-result">
+
+                -
+
+            </div>
+
+        </div>
+
+    </div>
+
     <!-- FORM -->
     <div class="form-card mb-4">
 
@@ -290,85 +339,37 @@
                 <div class="col-md-5">
 
                     <label class="form-label fw-semibold">
-
-                        Cari / Scan Produk
-
+                        Cari Produk
                     </label>
 
-                    <!-- SEARCH -->
-                    <input
-                        type="text"
+                    <input type="text"
                         id="search-product"
-                        class="form-control"
-                        placeholder="Cari nama / barcode / ID produk..."
-                        autocomplete="off"
-                    >
+                        class="form-control mb-2"
+                        placeholder="Cari nama / ID produk...">
 
-                    <!-- HIDDEN INPUT -->
-                    <input
-                        type="hidden"
-                        name="product_id"
-                        id="selected-product-id"
-                        required
-                    >
+                    <select name="product_id"
+                        id="product-select"
+                        class="form-select"
+                        size="8"
+                        required>
 
-                    <!-- BUTTON SCAN -->
-                    <button
-                        type="button"
-                        class="btn btn-dark w-100 mt-2"
-                        id="start-scan"
-                    >
-
-                        <i class="fas fa-barcode me-2"></i>
-
-                        Scan Barcode
-
-                    </button>
-
-                    <!-- CAMERA -->
-                    <div class="scanner-box">
-
-                        <div id="reader"></div>
-
-                    </div>
-
-                    <!-- SELECTED -->
-                    <div class="selected-product" id="selected-product">
-
-                        <strong>Produk Dipilih:</strong>
-
-                        <div id="selected-product-text"></div>
-
-                    </div>
-
-                    <!-- RESULT -->
-                    <div id="product-select">
+                        <option value="">
+                            Pilih Produk
+                        </option>
 
                         @foreach (DB::table('product')->orderBy('name')->get() as $p)
 
-                            <div
-                                class="product-item"
-                                data-id="{{ $p->id }}"
-                                data-name="{{ strtolower($p->name) }}"
-                            >
+                            <option
+                                value="{{ $p->id }}"
+                                data-barcode="{{ $p->barcode ?? '' }}">
 
-                                <div class="fw-semibold">
+                                {{ $p->id }} - {{ $p->name }}
 
-                                    {{ $p->name }}
-
-                                </div>
-
-                                <div class="product-id">
-
-                                    {{ $p->id }}
-
-                                </div>
-
-                            </div>
+                            </option>
 
                         @endforeach
 
-                    </div>
+                    </select>
 
                 </div>
 
@@ -379,13 +380,11 @@
                         Qty
                     </label>
 
-                    <input
-                        type="number"
+                    <input type="number"
                         name="quantity"
                         class="form-control"
                         placeholder="Jumlah"
-                        required
-                    >
+                        required>
 
                 </div>
 
@@ -396,12 +395,10 @@
                         Keterangan
                     </label>
 
-                    <input
-                        type="text"
+                    <input type="text"
                         name="note"
                         class="form-control"
-                        placeholder="Contoh: Kemasan rusak"
-                    >
+                        placeholder="Contoh: Kemasan rusak">
 
                 </div>
 
@@ -424,186 +421,330 @@
 
     </div>
 
+    <!-- TABLE -->
+    <div class="table-card">
+
+        <div class="p-4 border-bottom">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="fas fa-table me-2 text-danger"></i>
+
+                Data Barang Retur
+
+            </h5>
+
+        </div>
+
+        <!-- DESKTOP -->
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID Produk</th>
+                        <th>Nama Produk</th>
+                        <th>Group</th>
+                        <th>Qty Retur</th>
+                        <th>Keterangan</th>
+                        <th>Tanggal</th>
+                        <th>Status</th>
+                        <th width="160">Aksi</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @php
+                        $hasData = false;
+                    @endphp
+
+                    @foreach ($returns as $r)
+
+                        @if (strtoupper(trim($r->status)) != 'SUDAH_DIAMBIL')
+
+                            @php
+                                $hasData = true;
+                            @endphp
+
+                            <tr>
+
+                                <td>
+                                    <strong>
+                                        {{ $r->product_id_view }}
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    {{ $r->product_name }}
+                                </td>
+
+                                <td>
+
+                                    <span class="badge bg-secondary">
+                                        {{ $r->group_name }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="badge badge-retur">
+                                        -{{ $r->quantity }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    {{ $r->note ?: '-' }}
+                                </td>
+
+                                <td>
+
+                                    {{ \Carbon\Carbon::parse($r->created_at)->format('d M Y H:i') }}
+
+                                </td>
+
+                                <td>
+
+                                    <span class="badge badge-status">
+                                        BELUM DIAMBIL
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <form method="POST"
+                                        action="/returns/taken/{{ $r->id }}"
+                                        onsubmit="return confirm('Tandai barang sudah diambil?')">
+
+                                        @csrf
+
+                                        <button class="btn btn-success btn-sm w-100">
+
+                                            <i class="fas fa-check-circle me-1"></i>
+
+                                            SUDAH DIAMBIL
+
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                        @endif
+
+                    @endforeach
+
+                    @if (!$hasData)
+
+                        <tr>
+
+                            <td colspan="8">
+
+                                <div class="empty-state">
+
+                                    <i class="fas fa-box-open fa-3x mb-3"></i>
+
+                                    <h5 class="fw-bold">
+                                        Tidak ada barang retur
+                                    </h5>
+
+                                    <div>
+                                        Semua barang retur sudah diambil
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @endif
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
 </div>
 
 <script>
 
-    const searchInput = document.getElementById('search-product');
+/*
+|--------------------------------------------------------------------------
+| SEARCH PRODUCT
+|--------------------------------------------------------------------------
+*/
 
-    const productSelect = document.getElementById('product-select');
+const searchInput = document.getElementById('search-product');
 
-    const productItems = document.querySelectorAll('.product-item');
+const productSelect = document.getElementById('product-select');
 
-    const selectedProductId = document.getElementById('selected-product-id');
+searchInput.addEventListener('input', function () {
 
-    const selectedProduct = document.getElementById('selected-product');
+    const keyword = this.value.toLowerCase();
 
-    const selectedProductText = document.getElementById('selected-product-text');
+    const options = productSelect.options;
 
-    /*
-    |--------------------------------------------------------------------------
-    | SEARCH
-    |--------------------------------------------------------------------------
-    */
+    for (let i = 0; i < options.length; i++) {
 
-    searchInput.addEventListener('input', function () {
+        const text = options[i].text.toLowerCase();
 
-        const keyword = this.value.toLowerCase().trim();
+        if (
+            text.includes(keyword)
+            || options[i].value === ""
+        ) {
 
-        let found = false;
-
-        if (keyword.length > 0) {
-
-            productSelect.style.display = 'block';
+            options[i].style.display = '';
 
         } else {
 
-            productSelect.style.display = 'none';
+            options[i].style.display = 'none';
 
         }
 
-        productItems.forEach(item => {
+    }
 
-            const text = item.innerText.toLowerCase();
+});
 
-            if (text.includes(keyword)) {
+/*
+|--------------------------------------------------------------------------
+| BARCODE SCANNER
+|--------------------------------------------------------------------------
+*/
 
-                item.style.display = 'block';
-                found = true;
+let codeReader = new ZXingBrowser.BrowserMultiFormatReader();
 
-            } else {
+const resultEl = document.getElementById('scanResult');
 
-                item.style.display = 'none';
+async function startScanner() {
+
+    try {
+
+        const devices =
+            await ZXingBrowser.BrowserCodeReader
+            .listVideoInputDevices();
+
+        if (devices.length <= 0) {
+
+            alert('Camera tidak ditemukan');
+
+            return;
+        }
+
+        const backCamera = devices.find(device =>
+
+            device.label.toLowerCase().includes('back')
+            ||
+            device.label.toLowerCase().includes('rear')
+
+        );
+
+        const selectedDeviceId =
+            backCamera
+            ? backCamera.deviceId
+            : devices[0].deviceId;
+
+        codeReader.decodeFromVideoDevice(
+
+            selectedDeviceId,
+
+            'reader',
+
+            (result, err) => {
+
+                if (result) {
+
+                    const barcode = result.text;
+
+                    resultEl.innerHTML = barcode;
+
+                    findProductByBarcode(barcode);
+
+                    navigator.vibrate?.(100);
+
+                    codeReader.reset();
+
+                }
 
             }
 
-        });
+        );
 
-        if (!found) {
+    } catch (e) {
 
-            productSelect.style.display = 'none';
+        console.log(e);
 
-        }
+        alert('Gagal membuka kamera');
 
-    });
+    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SELECT PRODUCT
-    |--------------------------------------------------------------------------
-    */
+}
 
-    productItems.forEach(item => {
+/*
+|--------------------------------------------------------------------------
+| FIND PRODUCT
+|--------------------------------------------------------------------------
+*/
 
-        item.addEventListener('click', function () {
+function findProductByBarcode(barcode) {
 
-            const productId = this.dataset.id;
+    const options = productSelect.options;
 
-            const productName = this.querySelector('.fw-semibold').innerText;
+    let found = false;
 
-            selectedProductId.value = productId;
+    for (let i = 0; i < options.length; i++) {
 
-            searchInput.value = productName;
+        const option = options[i];
 
-            selectedProduct.style.display = 'block';
+        const optionBarcode =
+            option.dataset.barcode;
 
-            selectedProductText.innerHTML =
-                '<strong>' + productName + '</strong><br>ID: ' + productId;
+        if (optionBarcode == barcode) {
 
-            productSelect.style.display = 'none';
+            option.selected = true;
 
-        });
+            option.scrollIntoView({
 
-    });
+                behavior: 'smooth',
 
-    /*
-    |--------------------------------------------------------------------------
-    | BARCODE SCANNER
-    |--------------------------------------------------------------------------
-    */
+                block: 'center'
 
-    let scannerStarted = false;
-    let html5QrCode;
+            });
 
-    document.getElementById('start-scan').addEventListener('click', async function () {
+            found = true;
 
-        const reader = document.getElementById('reader');
-
-        if (!scannerStarted) {
-
-            reader.style.display = 'block';
-
-            html5QrCode = new Html5Qrcode("reader");
-
-            try {
-
-                await html5QrCode.start(
-
-                    {
-                        facingMode: "environment"
-                    },
-
-                    {
-                        fps: 10,
-                        qrbox: 250
-                    },
-
-                    function(decodedText) {
-
-                        searchInput.value = decodedText;
-
-                        searchInput.dispatchEvent(new Event('input'));
-
-                        /*
-                        |--------------------------------------------------------------------------
-                        | AUTO PILIH PRODUK
-                        |--------------------------------------------------------------------------
-                        */
-
-                        productItems.forEach(item => {
-
-                            const text = item.innerText.toLowerCase();
-
-                            if (text.includes(decodedText.toLowerCase())) {
-
-                                item.click();
-
-                            }
-
-                        });
-
-                        html5QrCode.stop();
-
-                        scannerStarted = false;
-
-                        reader.style.display = 'none';
-
-                    }
-
-                );
-
-                scannerStarted = true;
-
-            } catch (err) {
-
-                alert('Camera gagal dibuka');
-
-            }
-
-        } else {
-
-            await html5QrCode.stop();
-
-            scannerStarted = false;
-
-            reader.style.display = 'none';
+            break;
 
         }
 
-    });
+    }
+
+    if (!found) {
+
+        alert('Produk barcode tidak ditemukan');
+
+    }
+
+}
+
+document
+    .getElementById('startScan')
+    .addEventListener('click', startScanner);
 
 </script>
 
 </body>
-
 </html>
