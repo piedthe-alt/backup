@@ -11,11 +11,9 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
     <style>
-
         body {
             background: #f1f5f9;
         }
@@ -124,15 +122,6 @@
             border-bottom: 1px solid #f1f5f9;
         }
 
-        #reader {
-            width: 100%;
-            display: none;
-            overflow: hidden;
-            border-radius: 16px;
-            margin-top: 10px;
-            border: 2px solid #e2e8f0;
-        }
-
         @media (max-width: 768px) {
 
             .container {
@@ -222,482 +211,595 @@
                 height: 220px;
             }
         }
-
     </style>
 
 </head>
 
 <body>
 
-<div class="container py-4">
+    <div class="container py-4">
 
-    <!-- HEADER -->
-    <div class="page-header">
+        <!-- HEADER -->
+        <div class="page-header">
 
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 header-mobile">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 header-mobile">
 
-            <div>
+                <div>
 
-                <h2 class="fw-bold mb-2">
+                    <h2 class="fw-bold mb-2">
 
-                    <i class="fas fa-rotate-left me-2"></i>
+                        <i class="fas fa-rotate-left me-2"></i>
 
-                    Retur Barang
+                        Retur Barang
 
-                </h2>
+                    </h2>
 
-                <div class="opacity-75">
+                    <div class="opacity-75">
 
-                    Kelola barang retur dan status pengambilannya
+                        Kelola barang retur dan status pengambilannya
+
+                    </div>
 
                 </div>
 
+                <a href="/" class="btn btn-back px-4 py-2">
+
+                    <i class="fas fa-arrow-left me-2"></i>
+
+                    Back
+
+                </a>
+
             </div>
-
-            <a href="/" class="btn btn-back px-4 py-2">
-
-                <i class="fas fa-arrow-left me-2"></i>
-
-                Back
-
-            </a>
 
         </div>
 
-    </div>
+        <!-- FORM -->
+        <div class="form-card mb-4">
 
-    <!-- FORM -->
-    <div class="form-card mb-4">
+            <h5 class="fw-bold mb-4">
 
-        <h5 class="fw-bold mb-4">
+                <i class="fas fa-plus-circle me-2 text-danger"></i>
 
-            <i class="fas fa-plus-circle me-2 text-danger"></i>
+                Tambah Retur Baru
 
-            Tambah Retur Baru
+            </h5>
 
-        </h5>
+            <form method="POST" action="/returns/store">
 
-        <form method="POST" action="/returns/store">
+                @csrf
 
-            @csrf
+                <div class="row g-3">
 
-            <div class="row g-3">
+                    <!-- PRODUK -->
+                    <div class="col-md-5">
 
-                <!-- PRODUK -->
-                <div class="col-md-5">
+                        <label class="form-label fw-semibold">
+                            Cari Produk / Scan Barcode
+                        </label>
 
-                    <label class="form-label fw-semibold">
-                        Cari Produk / Scan Barcode
-                    </label>
+                        <div class="d-flex gap-2 mb-2">
 
-                    <div class="d-flex gap-2 mb-2">
+                            <input type="text" id="search-product" class="form-control"
+                                placeholder="Cari nama / barcode / id produk...">
 
-                        <input type="text"
-                            id="search-product"
-                            class="form-control"
-                            placeholder="Cari nama / barcode / id produk...">
+                            <button type="button" id="start-scanner" class="btn btn-dark">
+                                <i class="fas fa-barcode"></i>
+                            </button>
 
-                        <button
-                            type="button"
-                            id="start-scanner"
-                            class="btn btn-dark"
-                        >
-                            <i class="fas fa-barcode"></i>
+                        </div>
+
+                        <!-- SCANNER -->
+                        <div id="reader"></div>
+
+                        <select name="product_id" id="product-select" class="form-select" size="8" required>
+
+                            <option value="">
+                                Pilih Produk
+                            </option>
+
+                            @foreach (DB::table('product')->orderBy('name')->get() as $p)
+                                <option value="{{ $p->id }}">
+
+                                    {{ $p->id }} - {{ $p->name }}
+
+                                </option>
+                            @endforeach
+
+                        </select>
+
+                    </div>
+
+                    <!-- QTY -->
+                    <div class="col-md-2">
+
+                        <label class="form-label fw-semibold">
+                            Qty
+                        </label>
+
+                        <input type="number" name="quantity" class="form-control" placeholder="Jumlah" required>
+
+                    </div>
+
+                    <!-- NOTE -->
+                    <div class="col-md-3">
+
+                        <label class="form-label fw-semibold">
+                            Keterangan
+                        </label>
+
+                        <input type="text" name="note" class="form-control" placeholder="Contoh: Kemasan rusak">
+
+                    </div>
+
+                    <!-- BUTTON -->
+                    <div class="col-md-2 d-flex align-items-end">
+
+                        <button class="btn btn-save w-100 py-3">
+
+                            <i class="fas fa-save me-2"></i>
+
+                            Simpan
+
                         </button>
 
                     </div>
 
-                    <!-- SCANNER -->
-                    <div id="reader"></div>
-
-                    <select name="product_id"
-                        id="product-select"
-                        class="form-select"
-                        size="8"
-                        required>
-
-                        <option value="">
-                            Pilih Produk
-                        </option>
-
-                        @foreach (DB::table('product')->orderBy('name')->get() as $p)
-
-                            <option value="{{ $p->id }}">
-
-                                {{ $p->id }} - {{ $p->name }}
-
-                            </option>
-
-                        @endforeach
-
-                    </select>
-
                 </div>
 
-                <!-- QTY -->
-                <div class="col-md-2">
-
-                    <label class="form-label fw-semibold">
-                        Qty
-                    </label>
-
-                    <input type="number"
-                        name="quantity"
-                        class="form-control"
-                        placeholder="Jumlah"
-                        required>
-
-                </div>
-
-                <!-- NOTE -->
-                <div class="col-md-3">
-
-                    <label class="form-label fw-semibold">
-                        Keterangan
-                    </label>
-
-                    <input type="text"
-                        name="note"
-                        class="form-control"
-                        placeholder="Contoh: Kemasan rusak">
-
-                </div>
-
-                <!-- BUTTON -->
-                <div class="col-md-2 d-flex align-items-end">
-
-                    <button class="btn btn-save w-100 py-3">
-
-                        <i class="fas fa-save me-2"></i>
-
-                        Simpan
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </form>
-
-    </div>
-
-    <!-- TABLE -->
-    <div class="table-card">
-
-        <div class="p-4 border-bottom">
-
-            <h5 class="fw-bold mb-0">
-
-                <i class="fas fa-table me-2 text-danger"></i>
-
-                Data Barang Retur
-
-            </h5>
+            </form>
 
         </div>
 
-        <!-- DESKTOP -->
-        <div class="table-responsive">
+        <!-- TABLE -->
+        <div class="table-card">
 
-            <table class="table table-hover align-middle mb-0">
+            <div class="p-4 border-bottom">
 
-                <thead>
+                <h5 class="fw-bold mb-0">
 
-                    <tr>
+                    <i class="fas fa-table me-2 text-danger"></i>
 
-                        <th>ID Produk</th>
-                        <th>Nama Produk</th>
-                        <th>Group</th>
-                        <th>Qty Retur</th>
-                        <th>Keterangan</th>
-                        <th>Tanggal</th>
-                        <th>Status</th>
-                        <th width="160">Aksi</th>
+                    Data Barang Retur
 
-                    </tr>
+                </h5>
 
-                </thead>
+            </div>
 
-                <tbody>
+            <!-- DESKTOP -->
+            <div class="table-responsive">
 
-                    @foreach ($returns as $r)
+                <table class="table table-hover align-middle mb-0">
 
-                        @if (strtoupper(trim($r->status)) != 'SUDAH_DIAMBIL')
+                    <thead>
 
+                        <tr>
+
+                            <th>ID Produk</th>
+                            <th>Nama Produk</th>
+                            <th>Group</th>
+                            <th>Qty Retur</th>
+                            <th>Keterangan</th>
+                            <th>Tanggal</th>
+                            <th>Status</th>
+                            <th width="160">Aksi</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @php
+                            $hasData = false;
+                        @endphp
+
+                        @foreach ($returns as $r)
+                            @if (strtoupper(trim($r->status)) != 'SUDAH_DIAMBIL')
+                                @php
+                                    $hasData = true;
+                                @endphp
+
+                                <tr>
+
+                                    <td>
+                                        <strong>
+                                            {{ $r->product_id_view }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        {{ $r->product_name }}
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge bg-secondary">
+                                            {{ $r->group_name }}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge badge-retur">
+                                            -{{ $r->quantity }}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+                                        {{ $r->note ?: '-' }}
+                                    </td>
+
+                                    <td>
+
+                                        {{ \Carbon\Carbon::parse($r->created_at)->format('d M Y H:i') }}
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge badge-status">
+                                            BELUM DIAMBIL
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <form method="POST" action="/returns/taken/{{ $r->id }}"
+                                            onsubmit="return confirm('Tandai barang sudah diambil?')">
+
+                                            @csrf
+
+                                            <button class="btn btn-success btn-sm w-100">
+
+                                                <i class="fas fa-check-circle me-1"></i>
+
+                                                SUDAH DIAMBIL
+
+                                            </button>
+
+                                        </form>
+
+                                    </td>
+
+                                </tr>
+                            @endif
+                        @endforeach
+
+                        @if (!$hasData)
                             <tr>
 
-                                <td>
-                                    <strong>
-                                        {{ $r->product_id_view }}
-                                    </strong>
-                                </td>
+                                <td colspan="8">
 
-                                <td>
-                                    {{ $r->product_name }}
-                                </td>
+                                    <div class="empty-state">
 
-                                <td>
+                                        <i class="fas fa-box-open fa-3x mb-3"></i>
 
-                                    <span class="badge bg-secondary">
-                                        {{ $r->group_name }}
-                                    </span>
+                                        <h5 class="fw-bold">
+                                            Tidak ada barang retur
+                                        </h5>
 
-                                </td>
+                                        <div>
+                                            Semua barang retur sudah diambil
+                                        </div>
 
-                                <td>
-
-                                    <span class="badge badge-retur">
-                                        -{{ $r->quantity }}
-                                    </span>
-
-                                </td>
-
-                                <td>
-                                    {{ $r->note ?: '-' }}
-                                </td>
-
-                                <td>
-
-                                    {{ \Carbon\Carbon::parse($r->created_at)->format('d M Y H:i') }}
-
-                                </td>
-
-                                <td>
-
-                                    <span class="badge badge-status">
-                                        BELUM DIAMBIL
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <form method="POST"
-                                        action="/returns/taken/{{ $r->id }}"
-                                        onsubmit="return confirm('Tandai barang sudah diambil?')">
-
-                                        @csrf
-
-                                        <button class="btn btn-success btn-sm w-100">
-
-                                            <i class="fas fa-check-circle me-1"></i>
-
-                                            SUDAH DIAMBIL
-
-                                        </button>
-
-                                    </form>
+                                    </div>
 
                                 </td>
 
                             </tr>
-
                         @endif
 
-                    @endforeach
+                    </tbody>
 
-                </tbody>
+                </table>
 
-            </table>
+            </div>
+
+            <!-- MOBILE -->
+            <div class="mobile-card">
+
+                @php
+                    $hasDataMobile = false;
+                @endphp
+
+                @foreach ($returns as $r)
+                    @if (strtoupper(trim($r->status)) != 'SUDAH_DIAMBIL')
+                        @php
+                            $hasDataMobile = true;
+                        @endphp
+
+                        <div class="return-item">
+
+                            <div class="return-title">
+
+                                {{ $r->product_name }}
+
+                            </div>
+
+                            <div class="return-group">
+
+                                {{ $r->group_name }}
+
+                            </div>
+
+                            <div class="return-detail">
+
+                                <strong>ID Produk:</strong>
+
+                                {{ $r->product_id_view }}
+
+                            </div>
+
+                            <div class="return-detail">
+
+                                <strong>Qty Retur:</strong>
+
+                                <span class="badge badge-retur">
+                                    -{{ $r->quantity }}
+                                </span>
+
+                            </div>
+
+                            <div class="return-detail">
+
+                                <strong>Keterangan:</strong>
+
+                                {{ $r->note ?: '-' }}
+
+                            </div>
+
+                            <div class="return-detail">
+
+                                <strong>Tanggal:</strong>
+
+                                {{ \Carbon\Carbon::parse($r->created_at)->format('d M Y H:i') }}
+
+                            </div>
+
+                            <div class="return-detail">
+
+                                <strong>Status:</strong>
+
+                                <span class="badge badge-status">
+                                    BELUM DIAMBIL
+                                </span>
+
+                            </div>
+
+                            <form method="POST" action="/returns/taken/{{ $r->id }}"
+                                onsubmit="return confirm('Tandai barang sudah diambil?')">
+
+                                @csrf
+
+                                <button class="btn btn-success btn-mobile">
+
+                                    <i class="fas fa-check-circle me-1"></i>
+
+                                    SUDAH DIAMBIL
+
+                                </button>
+
+                            </form>
+
+                        </div>
+                    @endif
+                @endforeach
+
+                @if (!$hasDataMobile)
+                    <div class="empty-state">
+
+                        <i class="fas fa-box-open fa-3x mb-3"></i>
+
+                        <h5 class="fw-bold">
+                            Tidak ada barang retur
+                        </h5>
+
+                        <div>
+                            Semua barang retur sudah diambil
+                        </div>
+
+                    </div>
+                @endif
+
+            </div>
 
         </div>
 
     </div>
 
-</div>
+    <!-- HTML5 QR CODE -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
-<!-- HTML5 QR CODE -->
-<script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        const searchInput = document.getElementById('search-product');
+        const productSelect = document.getElementById('product-select');
+        const scannerBtn = document.getElementById('start-scanner');
+        const readerDiv = document.getElementById('reader');
 
-<script>
+        let scannerRunning = false;
+        let html5QrCode = null;
 
-const searchInput = document.getElementById('search-product');
-const productSelect = document.getElementById('product-select');
-const scannerBtn = document.getElementById('start-scanner');
-const readerDiv = document.getElementById('reader');
+        /*
+        |--------------------------------------------------------------------------
+        | SEARCH MANUAL
+        |--------------------------------------------------------------------------
+        */
 
-let scannerRunning = false;
-let html5QrCode = null;
+        searchInput.addEventListener('input', function() {
 
-/*
-|--------------------------------------------------------------------------
-| SEARCH MANUAL
-|--------------------------------------------------------------------------
-*/
+            const keyword = this.value.toLowerCase();
 
-searchInput.addEventListener('input', function () {
+            let found = false;
 
-    const keyword = this.value.toLowerCase();
+            for (let option of productSelect.options) {
 
-    let found = false;
+                const text = option.text.toLowerCase();
 
-    for (let option of productSelect.options) {
+                if (
+                    text.includes(keyword) ||
+                    option.value === ""
+                ) {
 
-        const text = option.text.toLowerCase();
+                    option.style.display = '';
 
-        if (
-            text.includes(keyword)
-            || option.value === ""
-        ) {
+                    if (
+                        !found &&
+                        option.value !== ""
+                    ) {
 
-            option.style.display = '';
+                        option.selected = true;
 
-            if (
-                !found
-                && option.value !== ""
-            ) {
+                        found = true;
+                    }
 
-                option.selected = true;
+                } else {
 
-                found = true;
-            }
-
-        } else {
-
-            option.style.display = 'none';
-
-        }
-
-    }
-
-});
-
-/*
-|--------------------------------------------------------------------------
-| START SCANNER
-|--------------------------------------------------------------------------
-*/
-
-scannerBtn.addEventListener('click', async function () {
-
-    if (scannerRunning) {
-
-        await html5QrCode.stop();
-
-        readerDiv.style.display = 'none';
-
-        scannerRunning = false;
-
-        scannerBtn.innerHTML =
-            '<i class="fas fa-barcode"></i>';
-
-        return;
-    }
-
-    readerDiv.style.display = 'block';
-
-    html5QrCode = new Html5Qrcode("reader");
-
-    scannerRunning = true;
-
-    scannerBtn.innerHTML =
-        '<i class="fas fa-times"></i>';
-
-    Html5Qrcode.getCameras()
-
-        .then(devices => {
-
-            if (devices && devices.length) {
-
-                let cameraId = devices[0].id;
-
-                const backCamera = devices.find(device =>
-
-                    device.label.toLowerCase().includes('back')
-                    ||
-                    device.label.toLowerCase().includes('rear')
-
-                );
-
-                if (backCamera) {
-
-                    cameraId = backCamera.id;
+                    option.style.display = 'none';
 
                 }
 
-                html5QrCode.start(
-
-                    cameraId,
-
-                    {
-
-                        fps: 15,
-
-                        qrbox: {
-                            width: 250,
-                            height: 120
-                        }
-
-                    },
-
-                    async (decodedText) => {
-
-                        searchInput.value = decodedText;
-
-                        const keyword =
-                            decodedText.toLowerCase();
-
-                        let found = false;
-
-                        for (let option of productSelect.options) {
-
-                            const text =
-                                option.text.toLowerCase();
-
-                            if (
-                                text.includes(keyword)
-                            ) {
-
-                                option.style.display = '';
-
-                                option.selected = true;
-
-                                found = true;
-
-                            } else {
-
-                                option.style.display = 'none';
-
-                            }
-
-                        }
-
-                        if (found) {
-
-                            if (navigator.vibrate) {
-                                navigator.vibrate(200);
-                            }
-
-                            await html5QrCode.stop();
-
-                            scannerRunning = false;
-
-                            readerDiv.style.display = 'none';
-
-                            scannerBtn.innerHTML =
-                                '<i class="fas fa-barcode"></i>';
-                        }
-
-                    }
-
-                );
-
             }
-
-        })
-
-        .catch(err => {
-
-            alert('Kamera gagal dibuka');
-
-            console.log(err);
 
         });
 
-});
+        /*
+        |--------------------------------------------------------------------------
+        | START SCANNER
+        |--------------------------------------------------------------------------
+        */
 
-</script>
+        scannerBtn.addEventListener('click', async function() {
+
+            if (scannerRunning) {
+
+                await html5QrCode.stop();
+
+                readerDiv.style.display = 'none';
+
+                scannerRunning = false;
+
+                scannerBtn.innerHTML =
+                    '<i class="fas fa-barcode"></i>';
+
+                return;
+            }
+
+            readerDiv.style.display = 'block';
+
+            html5QrCode = new Html5Qrcode("reader");
+
+            scannerRunning = true;
+
+            scannerBtn.innerHTML =
+                '<i class="fas fa-times"></i>';
+
+            Html5Qrcode.getCameras()
+
+                .then(devices => {
+
+                    if (devices && devices.length) {
+
+                        let cameraId = devices[0].id;
+
+                        const backCamera = devices.find(device =>
+
+                            device.label.toLowerCase().includes('back') ||
+                            device.label.toLowerCase().includes('rear')
+
+                        );
+
+                        if (backCamera) {
+
+                            cameraId = backCamera.id;
+
+                        }
+
+                        html5QrCode.start(
+
+                            cameraId,
+
+                            {
+
+                                fps: 15,
+
+                                qrbox: {
+                                    width: 250,
+                                    height: 120
+                                }
+
+                            },
+
+                            async (decodedText) => {
+
+                                searchInput.value = decodedText;
+
+                                const keyword =
+                                    decodedText.toLowerCase();
+
+                                let found = false;
+
+                                for (let option of productSelect.options) {
+
+                                    const text =
+                                        option.text.toLowerCase();
+
+                                    if (
+                                        text.includes(keyword)
+                                    ) {
+
+                                        option.style.display = '';
+
+                                        option.selected = true;
+
+                                        found = true;
+
+                                    } else {
+
+                                        option.style.display = 'none';
+
+                                    }
+
+                                }
+
+                                if (found) {
+
+                                    if (navigator.vibrate) {
+                                        navigator.vibrate(200);
+                                    }
+
+                                    await html5QrCode.stop();
+
+                                    scannerRunning = false;
+
+                                    readerDiv.style.display = 'none';
+
+                                    scannerBtn.innerHTML =
+                                        '<i class="fas fa-barcode"></i>';
+                                }
+
+                            }
+
+                        );
+
+                    }
+
+                })
+
+                .catch(err => {
+
+                    alert('Kamera gagal dibuka');
+
+                    console.log(err);
+
+                });
+
+        });
+    </script>
 
 </body>
+
 </html>
