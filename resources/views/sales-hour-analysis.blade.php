@@ -281,7 +281,7 @@
 
                             <h6>
                                 <i class="fas fa-money-bill-wave me-2 text-success"></i>
-                                Total Penjualan
+                                Omzet Bersih
                             </h6>
 
                             <h2 class="fw-bold text-success mb-0">
@@ -298,7 +298,7 @@
 
                             <h6>
                                 <i class="fas fa-chart-pie me-2 text-info"></i>
-                                Total Margin
+                                Margin Bersih
                             </h6>
 
                             <h2 class="fw-bold text-info mb-0">
@@ -322,11 +322,11 @@
                             <div>
 
                                 <h5 class="mb-1 fw-bold">
-                                    ⏰ JAM PUNCAK PENJUALAN
+                                    ⏰ JAM PUNCAK OMZET BERSIH
                                 </h5>
 
                                 <p class="mb-0">
-                                    <strong>{{ $peakHour->hour_label }}</strong> dengan total penjualan
+                                    <strong>{{ $peakHour->hour_label }}</strong> dengan omzet bersih
                                     <strong>Rp {{ number_format($peakHour->total_amount, 0, ',', '.') }}</strong>
                                     ({{ $peakHour->transaction_count }} transaksi)
                                 </p>
@@ -347,7 +347,7 @@
 
                         <div class="chart-container">
 
-                            <h6 class="fw-bold mb-3">📊 Penjualan Per Jam</h6>
+                            <h6 class="fw-bold mb-3">📊 Omzet Bersih Per Jam</h6>
 
                             <canvas id="salesChart"></canvas>
 
@@ -412,7 +412,11 @@
 
                                 <th class="text-end">Kuantitas</th>
 
-                                <th class="text-end">Total Penjualan</th>
+                                <th class="text-end">Omzet Kotor</th>
+
+                                <th class="text-end">Retur</th>
+
+                                <th class="text-end">Omzet Bersih</th>
 
                                 <th class="text-end">Total HPP</th>
 
@@ -444,6 +448,26 @@
                                     <td class="text-end">
 
                                         {{ $data->total_qty }}
+
+                                    </td>
+
+                                    <td class="text-end">
+
+                                        <strong class="text-muted">
+
+                                            Rp {{ number_format($data->omzet_kotor, 0, ',', '.') }}
+
+                                        </strong>
+
+                                    </td>
+
+                                    <td class="text-end">
+
+                                        <strong class="text-danger">
+
+                                            -Rp {{ number_format($data->omzet_kotor - $data->total_amount, 0, ',', '.') }}
+
+                                        </strong>
 
                                     </td>
 
@@ -518,7 +542,7 @@
 
                 datasets: [{
 
-                    label: 'Penjualan (Rp)',
+                    label: 'Omzet Bersih (Rp)',
 
                     data: amounts,
 

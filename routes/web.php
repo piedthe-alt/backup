@@ -143,11 +143,14 @@ Route::get('/sales-hour-analysis', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | ANALISIS JAM RAMAI TOKO
+    | ANALISIS JAM RAMAI TOKO - PENJUALAN
+    |--------------------------------------------------------------------------
+    | omzet_kotor  = SUM(netamount)
+    | margin_kotor = SUM(netamount - cogs)
     |--------------------------------------------------------------------------
     */
 
-    $hourlyAnalysis = DB::table('salesdetail')
+    $hourlyData = DB::table('salesdetail')
 
         ->join('sales', 'salesdetail.salesid', '=', 'sales.salesidref')
 
@@ -163,13 +166,11 @@ Route::get('/sales-hour-analysis', function (Request $request) {
 
             DB::raw('SUM(salesdetail.salesqty) as total_qty'),
 
-            DB::raw('SUM(salesdetail.netamount) as total_amount'),
+            DB::raw('SUM(salesdetail.netamount) as omzet_kotor'),
 
             DB::raw('SUM(salesdetail.cogs) as total_cogs'),
 
-            DB::raw('SUM(salesdetail.netamount - salesdetail.cogs) as total_margin'),
-
-            DB::raw('ROUND(SUM(salesdetail.netamount - salesdetail.cogs) / NULLIF(SUM(salesdetail.netamount), 0) * 100, 2) as margin_percent')
+            DB::raw('SUM(salesdetail.netamount - salesdetail.cogs) as margin_kotor')
 
         )
 
@@ -182,6 +183,72 @@ Route::get('/sales-hour-analysis', function (Request $request) {
         ->orderBy('hour', 'ASC')
 
         ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | RETUR PER JAM
+    |--------------------------------------------------------------------------
+    | retur = harga jual sekarang * invin
+    | margin_retur = (harga jual - modal) * qty retur
+    |--------------------------------------------------------------------------
+    */
+
+    $hourlyRetur = DB::table('inventory')
+
+        ->leftJoin('product', 'inventory.productid', '=', 'product.id')
+
+        ->select(
+
+            DB::raw('HOUR(inventory.updatetimestamp) as hour'),
+
+            DB::raw('SUM(product.salesprice1 * inventory.invin) as total_return'),
+
+            DB::raw('SUM((product.salesprice1 - inventory.invvalue) * inventory.invin) as margin_return')
+
+        )
+
+        ->where('inventory.transid', 'like', 'I/SR-%')
+
+        ->whereDate('inventory.updatetimestamp', '>=', $startDate)
+
+        ->whereDate('inventory.updatetimestamp', '<=', $endDate)
+
+        ->groupByRaw('HOUR(inventory.updatetimestamp)')
+
+        ->get()
+
+        ->keyBy('hour');
+
+    /*
+    |--------------------------------------------------------------------------
+    | GABUNGKAN PENJUALAN + RETUR
+    |--------------------------------------------------------------------------
+    */
+
+    $hourlyAnalysis = $hourlyData->map(function ($item) use ($hourlyRetur) {
+
+        $retur = 0;
+        $marginRetur = 0;
+
+        if (isset($hourlyRetur[$item->hour])) {
+
+            $retur = $hourlyRetur[$item->hour]->total_return;
+
+            $marginRetur = $hourlyRetur[$item->hour]->margin_return;
+        }
+
+        // Total dengan retur
+        $item->total_amount = $item->omzet_kotor - $retur;
+
+        $item->total_margin = $item->margin_kotor - $marginRetur;
+
+        $item->margin_percent = $item->total_amount > 0
+            ? round(($item->total_margin / $item->total_amount) * 100, 2)
+            : 0;
+
+        return $item;
+
+    });
 
     /*
     |--------------------------------------------------------------------------
