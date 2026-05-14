@@ -1795,6 +1795,73 @@
 
                         </table>
 
+                        <!-- PRICING STRATA TABLE -->
+                        @php
+                            // Check if any salesdiscqty is not 0
+                            $hasPricingStrata = false;
+                            for ($i = 1; $i <= 7; $i++) {
+                                $field = 'salesdiscqty' . $i;
+                                if ($product->$field != 0) {
+                                    $hasPricingStrata = true;
+                                    break;
+                                }
+                            }
+                        @endphp
+
+                        @if ($hasPricingStrata)
+                            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+                                <h6 style="margin-bottom: 15px; font-weight: 700; color: #1e293b;">
+                                    <i class="fas fa-layer-group me-2 text-success"></i>Harga Bertingkat (Strata)
+                                </h6>
+                                <div style="overflow-x: auto;">
+                                    <table class="table table-sm" style="font-size: 0.9rem; margin-bottom: 0;">
+                                        <thead style="background-color: #f8fafc;">
+                                            <tr>
+                                                <th style="text-align: center; color: #1e293b; font-weight: 600;">
+                                                    <i class="fas fa-cube me-1"></i>Jumlah Beli
+                                                </th>
+                                                <th style="text-align: center; color: #1e293b; font-weight: 600;">
+                                                    <i class="fas fa-tag me-1"></i>Harga Satuan
+                                                </th>
+                                                <th style="text-align: center; color: #1e293b; font-weight: 600;">
+                                                    <i class="fas fa-calculator me-1"></i>Total Harga
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for ($i = 1; $i <= 7; $i++)
+                                                @php
+                                                    $qtyField = 'salesdiscqty' . $i;
+                                                    $priceField = 'salesdiscprice' . $i;
+                                                    $qty = $product->$qtyField ?? 0;
+                                                    $price = $product->$priceField ?? 0;
+                                                @endphp
+                                                @if ($qty != 0)
+                                                    <tr style="border-bottom: 1px solid #e5e7eb; background-color: {{ $i % 2 == 0 ? '#f8fafc' : 'white' }};">
+                                                        <td style="text-align: center; font-weight: 600; color: #2563eb;">
+                                                            {{ number_format($qty, 0, ',', '.') }}
+                                                        </td>
+                                                        <td style="text-align: center; color: #64748b;">
+                                                            Rp {{ number_format($price, 0, ',', '.') }}
+                                                        </td>
+                                                        <td style="text-align: center; font-weight: 700; color: #10b981;">
+                                                            Rp {{ number_format($qty * $price, 0, ',', '.') }}
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endfor
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="margin-top: 12px; padding: 12px; background-color: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; border-radius: 6px;">
+                                    <small style="color: #64748b;">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Tabel ini menunjukkan diskon bertingkat. Semakin banyak jumlah pembelian, harga satuan semakin murah.
+                                    </small>
+                                </div>
+                            </div>
+                        @endif
+
                             </div>
 
                             <!-- HISTORY MASUK TAB -->
