@@ -11,8 +11,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
     <style>
         body {
@@ -279,29 +278,21 @@
                             Cari Produk
                         </label>
 
-                        <input type="text"
-                            id="search-product"
-                            class="form-control mb-2"
+                        <input type="text" id="search-product" class="form-control mb-2"
                             placeholder="Cari nama / ID produk...">
 
-                        <select name="product_id"
-                            id="product-select"
-                            class="form-select"
-                            size="8"
-                            required>
+                        <select name="product_id" id="product-select" class="form-select" size="8" required>
 
                             <option value="">
                                 Pilih Produk
                             </option>
 
                             @foreach (DB::table('product')->orderBy('name')->get() as $p)
-
                                 <option value="{{ $p->id }}">
 
                                     {{ $p->id }} - {{ $p->name }}
 
                                 </option>
-
                             @endforeach
 
                         </select>
@@ -315,11 +306,7 @@
                             Qty
                         </label>
 
-                        <input type="number"
-                            name="quantity"
-                            class="form-control"
-                            placeholder="Jumlah"
-                            required>
+                        <input type="number" name="quantity" class="form-control" placeholder="Jumlah" required>
 
                     </div>
 
@@ -330,10 +317,7 @@
                             Keterangan
                         </label>
 
-                        <input type="text"
-                            name="note"
-                            class="form-control"
-                            placeholder="Contoh: Kemasan rusak">
+                        <input type="text" name="note" class="form-control" placeholder="Contoh: Kemasan rusak">
 
                     </div>
 
@@ -400,9 +384,7 @@
                         @endphp
 
                         @foreach ($returns as $r)
-
                             @if (strtoupper(trim($r->status)) != 'SUDAH_DIAMBIL')
-
                                 @php
                                     $hasData = true;
                                 @endphp
@@ -455,8 +437,7 @@
 
                                     <td>
 
-                                        <form method="POST"
-                                            action="/returns/taken/{{ $r->id }}"
+                                        <form method="POST" action="/returns/taken/{{ $r->id }}"
                                             onsubmit="return confirm('Tandai barang sudah diambil?')">
 
                                             @csrf
@@ -474,13 +455,10 @@
                                     </td>
 
                                 </tr>
-
                             @endif
-
                         @endforeach
 
                         @if (!$hasData)
-
                             <tr>
 
                                 <td colspan="8">
@@ -502,7 +480,6 @@
                                 </td>
 
                             </tr>
-
                         @endif
 
                     </tbody>
@@ -519,9 +496,7 @@
                 @endphp
 
                 @foreach ($returns as $r)
-
                     @if (strtoupper(trim($r->status)) != 'SUDAH_DIAMBIL')
-
                         @php
                             $hasDataMobile = true;
                         @endphp
@@ -584,8 +559,7 @@
 
                             </div>
 
-                            <form method="POST"
-                                action="/returns/taken/{{ $r->id }}"
+                            <form method="POST" action="/returns/taken/{{ $r->id }}"
                                 onsubmit="return confirm('Tandai barang sudah diambil?')">
 
                                 @csrf
@@ -601,13 +575,10 @@
                             </form>
 
                         </div>
-
                     @endif
-
                 @endforeach
 
                 @if (!$hasDataMobile)
-
                     <div class="empty-state">
 
                         <i class="fas fa-box-open fa-3x mb-3"></i>
@@ -621,7 +592,6 @@
                         </div>
 
                     </div>
-
                 @endif
 
             </div>
@@ -631,35 +601,37 @@
     </div>
 
     <script>
-
         const searchInput = document.getElementById('search-product');
 
         const productSelect = document.getElementById('product-select');
 
-        searchInput.addEventListener('keyup', function () {
+        // simpan semua option asli
+        const allOptions = Array.from(productSelect.options);
+
+        searchInput.addEventListener('input', function() {
 
             const keyword = this.value.toLowerCase();
 
-            const options = productSelect.options;
+            // kosongkan select
+            productSelect.innerHTML = '';
 
-            for (let i = 0; i < options.length; i++) {
+            // filter ulang
+            allOptions.forEach(option => {
 
-                const text = options[i].text.toLowerCase();
+                const text = option.text.toLowerCase();
 
-                if (text.includes(keyword) || options[i].value === "") {
+                if (
+                    option.value === '' ||
+                    text.includes(keyword)
+                ) {
 
-                    options[i].style.display = '';
-
-                } else {
-
-                    options[i].style.display = 'none';
+                    productSelect.appendChild(option);
 
                 }
 
-            }
+            });
 
         });
-
     </script>
 
 </body>
