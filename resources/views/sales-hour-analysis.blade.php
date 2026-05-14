@@ -157,7 +157,9 @@
         }
 
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 opacity: 1;
             }
 
@@ -255,17 +257,14 @@
 
                 </form>
 
-                <!-- SUMMARY STATISTICS -->
+                <!-- SUMMARY -->
                 <div class="row mb-4">
 
                     <div class="col-md-4 mb-3">
 
                         <div class="stat-card border-start border-primary border-4">
 
-                            <h6>
-                                <i class="fas fa-exchange-alt me-2 text-primary"></i>
-                                Total Transaksi
-                            </h6>
+                            <h6>Total Transaksi</h6>
 
                             <h2 class="fw-bold text-primary mb-0">
                                 {{ $totalTransactions }}
@@ -279,10 +278,7 @@
 
                         <div class="stat-card border-start border-success border-4">
 
-                            <h6>
-                                <i class="fas fa-money-bill-wave me-2 text-success"></i>
-                                Omzet Bersih
-                            </h6>
+                            <h6>Omzet Bersih</h6>
 
                             <h2 class="fw-bold text-success mb-0">
                                 Rp {{ number_format($totalAmount, 0, ',', '.') }}
@@ -296,10 +292,7 @@
 
                         <div class="stat-card border-start border-info border-4">
 
-                            <h6>
-                                <i class="fas fa-chart-pie me-2 text-info"></i>
-                                Margin Bersih
-                            </h6>
+                            <h6>Margin Bersih</h6>
 
                             <h2 class="fw-bold text-info mb-0">
                                 Rp {{ number_format($totalMargin, 0, ',', '.') }}
@@ -311,93 +304,7 @@
 
                 </div>
 
-                <!-- PEAK HOUR ALERT -->
-                @if ($peakHour)
-                    <div class="alert alert-warning alert-dismissible fade show border-3 border-warning" role="alert">
-
-                        <div class="d-flex align-items-center gap-3">
-
-                            <i class="fas fa-fire fa-2x text-warning"></i>
-
-                            <div>
-
-                                <h5 class="mb-1 fw-bold">
-                                    ⏰ JAM PUNCAK OMZET BERSIH
-                                </h5>
-
-                                <p class="mb-0">
-                                    <strong>{{ $peakHour->hour_label }}</strong> dengan omzet bersih
-                                    <strong>Rp {{ number_format($peakHour->total_amount, 0, ',', '.') }}</strong>
-                                    ({{ $peakHour->transaction_count }} transaksi)
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-
-                    </div>
-                @endif
-
-                <!-- CHARTS -->
-                <div class="row mb-4">
-
-                    <div class="col-lg-6 mb-4">
-
-                        <div class="chart-container">
-
-                            <h6 class="fw-bold mb-3">📊 Omzet Bersih Per Jam</h6>
-
-                            <canvas id="salesChart"></canvas>
-
-                        </div>
-
-                    </div>
-
-                    <div class="col-lg-6 mb-4">
-
-                        <div class="chart-container">
-
-                            <h6 class="fw-bold mb-3">📈 Transaksi Per Jam</h6>
-
-                            <canvas id="transactionChart"></canvas>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div class="row mb-4">
-
-                    <div class="col-lg-6 mb-4">
-
-                        <div class="chart-container">
-
-                            <h6 class="fw-bold mb-3">💰 Margin Per Jam</h6>
-
-                            <canvas id="marginChart"></canvas>
-
-                        </div>
-
-                    </div>
-
-                    <div class="col-lg-6 mb-4">
-
-                        <div class="chart-container">
-
-                            <h6 class="fw-bold mb-3">📦 Kuantitas Terjual Per Jam</h6>
-
-                            <canvas id="quantityChart"></canvas>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- TABLE DETAIL -->
+                <!-- TABLE -->
                 <div class="table-responsive mt-5">
 
                     <table class="table table-hover align-middle">
@@ -410,7 +317,7 @@
 
                                 <th class="text-end">Transaksi</th>
 
-                                <th class="text-end">Kuantitas</th>
+                                <th class="text-end">Qty</th>
 
                                 <th class="text-end">Omzet Kotor</th>
 
@@ -418,9 +325,9 @@
 
                                 <th class="text-end">Omzet Bersih</th>
 
-                                <th class="text-end">Total HPP</th>
+                                <th class="text-end">HPP</th>
 
-                                <th class="text-end">Margin</th>
+                                <th class="text-end">Margin Bersih</th>
 
                                 <th class="text-end">Margin %</th>
 
@@ -431,79 +338,63 @@
                         <tbody>
 
                             @foreach ($hourlyAnalysis as $data)
-                                <tr @if ($peakHour && $peakHour->hour == $data->hour) class="peak-indicator" @endif>
+
+                                @php
+                                    $retur = $data->retur ?? 0;
+
+                                    $omzetBersih = $data->omzet_bersih ?? 0;
+
+                                    $marginBersih = $data->margin_bersih ?? 0;
+
+                                    $marginPercent = $omzetBersih > 0
+                                        ? round(($marginBersih / $omzetBersih) * 100, 2)
+                                        : 0;
+                                @endphp
+
+                                <tr>
 
                                     <td>
-
-                                        <span class="hour-badge">{{ $data->hour_label }}</span>
-
+                                        <span class="hour-badge">
+                                            {{ $data->hour_label }}
+                                        </span>
                                     </td>
 
                                     <td class="text-end">
-
-                                        <strong>{{ $data->transaction_count }}</strong>
-
+                                        {{ $data->transaction_count }}
                                     </td>
 
                                     <td class="text-end">
-
                                         {{ $data->total_qty }}
+                                    </td>
 
+                                    <td class="text-end text-muted">
+                                        Rp {{ number_format($data->omzet_kotor, 0, ',', '.') }}
+                                    </td>
+
+                                    <td class="text-end text-danger">
+                                        -Rp {{ number_format($retur, 0, ',', '.') }}
+                                    </td>
+
+                                    <td class="text-end text-success fw-bold">
+                                        Rp {{ number_format($omzetBersih, 0, ',', '.') }}
                                     </td>
 
                                     <td class="text-end">
-
-                                        <strong class="text-muted">
-
-                                            Rp {{ number_format($data->omzet_kotor, 0, ',', '.') }}
-
-                                        </strong>
-
-                                    </td>
-
-                                    <td class="text-end">
-
-                                        <strong class="text-danger">
-
-                                            -Rp {{ number_format($data->omzet_kotor - $data->total_amount, 0, ',', '.') }}
-
-                                        </strong>
-
-                                    </td>
-
-                                    <td class="text-end">
-
-                                        <strong class="text-success">
-
-                                            Rp {{ number_format($data->total_amount, 0, ',', '.') }}
-
-                                        </strong>
-
-                                    </td>
-
-                                    <td class="text-end">
-
                                         Rp {{ number_format($data->total_cogs, 0, ',', '.') }}
+                                    </td>
 
+                                    <td class="text-end text-info fw-bold">
+                                        Rp {{ number_format($marginBersih, 0, ',', '.') }}
                                     </td>
 
                                     <td class="text-end">
-
-                                        <strong class="text-info">
-
-                                            Rp {{ number_format($data->total_margin, 0, ',', '.') }}
-
-                                        </strong>
-
-                                    </td>
-
-                                    <td class="text-end">
-
-                                        <span class="badge bg-info">{{ $data->margin_percent }}%</span>
-
+                                        <span class="badge bg-info">
+                                            {{ $marginPercent }}%
+                                        </span>
                                     </td>
 
                                 </tr>
+
                             @endforeach
 
                         </tbody>
@@ -517,333 +408,6 @@
         </div>
 
     </div>
-
-    <script>
-        const hourlyData = @json($hourlyAnalysis);
-
-        const hours = hourlyData.map(d => d.hour_label);
-
-        const amounts = hourlyData.map(d => d.total_amount);
-
-        const transactions = hourlyData.map(d => d.transaction_count);
-
-        const margins = hourlyData.map(d => d.total_margin);
-
-        const quantities = hourlyData.map(d => d.total_qty);
-
-        // Sales Chart
-        new Chart(document.getElementById('salesChart'), {
-
-            type: 'bar',
-
-            data: {
-
-                labels: hours,
-
-                datasets: [{
-
-                    label: 'Omzet Bersih (Rp)',
-
-                    data: amounts,
-
-                    backgroundColor: '#8b5cf6',
-
-                    borderColor: '#7c3aed',
-
-                    borderWidth: 2,
-
-                    borderRadius: 8,
-
-                    fill: true,
-
-                }]
-
-            },
-
-            options: {
-
-                responsive: true,
-
-                plugins: {
-
-                    legend: {
-
-                        display: true,
-
-                        labels: {
-
-                            font: {
-
-                                size: 12,
-
-                                weight: 'bold'
-
-                            }
-
-                        }
-
-                    }
-
-                },
-
-                scales: {
-
-                    y: {
-
-                        beginAtZero: true,
-
-                        ticks: {
-
-                            callback: function (value) {
-
-                                return 'Rp ' + value.toLocaleString('id-ID');
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        });
-
-        // Transaction Chart
-        new Chart(document.getElementById('transactionChart'), {
-
-            type: 'line',
-
-            data: {
-
-                labels: hours,
-
-                datasets: [{
-
-                    label: 'Jumlah Transaksi',
-
-                    data: transactions,
-
-                    borderColor: '#7c3aed',
-
-                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-
-                    borderWidth: 3,
-
-                    fill: true,
-
-                    tension: 0.4,
-
-                    pointRadius: 6,
-
-                    pointBackgroundColor: '#8b5cf6',
-
-                    pointBorderColor: '#fff',
-
-                    pointBorderWidth: 2,
-
-                }]
-
-            },
-
-            options: {
-
-                responsive: true,
-
-                plugins: {
-
-                    legend: {
-
-                        display: true,
-
-                        labels: {
-
-                            font: {
-
-                                size: 12,
-
-                                weight: 'bold'
-
-                            }
-
-                        }
-
-                    }
-
-                },
-
-                scales: {
-
-                    y: {
-
-                        beginAtZero: true
-
-                    }
-
-                }
-
-            }
-
-        });
-
-        // Margin Chart
-        new Chart(document.getElementById('marginChart'), {
-
-            type: 'bar',
-
-            data: {
-
-                labels: hours,
-
-                datasets: [{
-
-                    label: 'Margin (Rp)',
-
-                    data: margins,
-
-                    backgroundColor: '#06b6d4',
-
-                    borderColor: '#0891b2',
-
-                    borderWidth: 2,
-
-                    borderRadius: 8,
-
-                }]
-
-            },
-
-            options: {
-
-                responsive: true,
-
-                plugins: {
-
-                    legend: {
-
-                        display: true,
-
-                        labels: {
-
-                            font: {
-
-                                size: 12,
-
-                                weight: 'bold'
-
-                            }
-
-                        }
-
-                    }
-
-                },
-
-                scales: {
-
-                    y: {
-
-                        beginAtZero: true,
-
-                        ticks: {
-
-                            callback: function (value) {
-
-                                return 'Rp ' + value.toLocaleString('id-ID');
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        });
-
-        // Quantity Chart
-        new Chart(document.getElementById('quantityChart'), {
-
-            type: 'line',
-
-            data: {
-
-                labels: hours,
-
-                datasets: [{
-
-                    label: 'Kuantitas',
-
-                    data: quantities,
-
-                    borderColor: '#10b981',
-
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-
-                    borderWidth: 3,
-
-                    fill: true,
-
-                    tension: 0.4,
-
-                    pointRadius: 6,
-
-                    pointBackgroundColor: '#10b981',
-
-                    pointBorderColor: '#fff',
-
-                    pointBorderWidth: 2,
-
-                }]
-
-            },
-
-            options: {
-
-                responsive: true,
-
-                plugins: {
-
-                    legend: {
-
-                        display: true,
-
-                        labels: {
-
-                            font: {
-
-                                size: 12,
-
-                                weight: 'bold'
-
-                            }
-
-                        }
-
-                    }
-
-                },
-
-                scales: {
-
-                    y: {
-
-                        beginAtZero: true
-
-                    }
-
-                }
-
-            }
-
-        });
-    </script>
-
-    <!-- Bootstrap -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 
