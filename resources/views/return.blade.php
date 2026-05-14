@@ -116,13 +116,14 @@
 
         #product-select {
             height: 260px;
-            overflow-y: auto;
+            overflow-y: scroll;
             -webkit-overflow-scrolling: touch;
+            font-size: 16px;
         }
 
         #product-select option {
-            padding: 10px;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 12px;
+            white-space: normal;
         }
 
         #reader {
@@ -212,6 +213,7 @@
 
             #product-select {
                 height: 220px;
+                overflow-y: scroll;
             }
         }
     </style>
@@ -388,7 +390,6 @@
 
             </div>
 
-            <!-- DESKTOP -->
             <div class="table-responsive">
 
                 <table class="table table-hover align-middle mb-0">
@@ -443,11 +444,9 @@
                                     </td>
 
                                     <td>
-
                                         <span class="badge badge-status">
                                             BELUM DIAMBIL
                                         </span>
-
                                     </td>
 
                                     <td>
@@ -505,6 +504,27 @@
 
         /*
         |--------------------------------------------------------------------------
+        | SIMPAN SEMUA DATA PRODUK
+        |--------------------------------------------------------------------------
+        */
+
+        const allProducts = [];
+
+        for (let option of productSelect.options) {
+
+            if (option.value !== "") {
+
+                allProducts.push({
+                    value: option.value,
+                    text: option.text
+                });
+
+            }
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
         | FILTER PRODUK
         |--------------------------------------------------------------------------
         */
@@ -513,39 +533,43 @@
 
             keyword = keyword.toLowerCase();
 
-            let firstFound = null;
+            productSelect.innerHTML = '';
 
-            for (let option of productSelect.options) {
+            const defaultOption = document.createElement('option');
 
-                if (option.value === "") {
+            defaultOption.value = '';
 
-                    option.hidden = false;
+            defaultOption.text = 'Pilih Produk';
 
-                    continue;
+            productSelect.appendChild(defaultOption);
 
-                }
+            let foundFirst = false;
 
-                const text = option.text.toLowerCase();
+            allProducts.forEach(product => {
 
-                if (text.includes(keyword)) {
+                if (
+                    product.text.toLowerCase().includes(keyword)
+                ) {
 
-                    option.hidden = false;
+                    const option = document.createElement('option');
 
-                    if (!firstFound) {
-                        firstFound = option;
+                    option.value = product.value;
+
+                    option.text = product.text;
+
+                    if (!foundFirst) {
+
+                        option.selected = true;
+
+                        foundFirst = true;
+
                     }
 
-                } else {
-
-                    option.hidden = true;
+                    productSelect.appendChild(option);
 
                 }
 
-            }
-
-            if (firstFound) {
-                firstFound.selected = true;
-            }
+            });
 
         }
 
