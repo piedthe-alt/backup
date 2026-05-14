@@ -159,42 +159,23 @@ Route::get('/sales-hour-analysis', function (Request $request) {
             'sales.salesidref'
         )
 
-        ->select(
+->select(
 
-            DB::raw('HOUR(sales.salestime) as hour'),
+    DB::raw('HOUR(sales.salestime) as hour'),
 
-            DB::raw('DATE_FORMAT(sales.salestime, "%H:00") as hour_label'),
+    DB::raw('DATE_FORMAT(sales.salestime, "%H:00") as hour_label'),
 
-            DB::raw('COUNT(DISTINCT sales.salesidref) as transaction_count'),
+    DB::raw('COUNT(DISTINCT sales.salesidref) as transaction_count'),
 
-            DB::raw('SUM(salesdetail.salesqty) as total_qty'),
+    DB::raw('SUM(salesdetail.salesqty) as total_qty'),
 
-            /*
-        |--------------------------------------------------------------------------
-        | OMZET KOTOR
-        |--------------------------------------------------------------------------
-        */
+    DB::raw('SUM(salesdetail.netamount) as omzet_kotor'),
 
-            DB::raw('
-            SUM(salesdetail.netamount)
-            as omzet_kotor
-        '),
+    DB::raw('SUM(salesdetail.netamount - salesdetail.cogs) as margin_kotor'),
 
-            /*
-        |--------------------------------------------------------------------------
-        | MARGIN KOTOR
-        |--------------------------------------------------------------------------
-        */
+    DB::raw('SUM(salesdetail.cogs) as total_cogs')
 
-            DB::raw('
-            SUM(
-                salesdetail.netamount
-                - salesdetail.cogs
-            )
-            as margin_kotor
-        ')
-
-        )
+)
 
         ->whereDate(
             'sales.salestime',
