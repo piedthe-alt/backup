@@ -177,7 +177,7 @@ Route::get('/sales-hour-analysis', function (Request $request) {
 
         ->whereDate('sales.salestime', '<=', $endDate)
 
-        ->groupBy(DB::raw('HOUR(sales.salestime)'))
+        ->groupByRaw('HOUR(sales.salestime), DAYNAME(sales.salestime), DATE_FORMAT(sales.salestime, "%H:00")')
 
         ->orderBy('hour', 'ASC')
 
