@@ -6,7 +6,135 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\ProductReturnController;
+use App\Http\Controllers\PesananShopeeController;
 
+Route::get('/sales-detail/{tanggal}', function ($tanggal) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL SEMUA NOTA
+    |--------------------------------------------------------------------------
+    */
+
+    $notas = DB::table('salesdetail')
+
+        ->select(
+
+            'salesid',
+
+            DB::raw('MIN(transdate) as transdate'),
+
+            DB::raw('SUM(netamount) as total_belanja'),
+
+            DB::raw('SUM(cogs) as total_hpp'),
+
+            DB::raw('SUM(netamount - cogs) as total_margin'),
+
+            DB::raw('SUM(salesqty) as total_qty'),
+
+            DB::raw('
+                (
+                    (
+                        SUM(netamount - cogs)
+                        / NULLIF(SUM(netamount),0)
+                    ) * 100
+                )
+                as margin_percent
+            ')
+
+        )
+
+        ->whereDate(
+            'updatetimestamp',
+            $tanggal
+        )
+
+        ->groupBy('salesid')
+
+        ->orderByRaw("
+            CAST(
+                SUBSTRING_INDEX(salesid, '-', -1)
+                AS UNSIGNED
+            ) ASC
+        ")
+
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL ITEM PER NOTA
+    |--------------------------------------------------------------------------
+    */
+
+    foreach ($notas as $nota) {
+
+        $nota->items = DB::table('salesdetail')
+
+            ->leftJoin(
+                'product',
+                'salesdetail.productid',
+                '=',
+                'product.id'
+            )
+
+            ->select(
+
+                'salesdetail.productid',
+
+                'product.name as product_name',
+
+                'salesdetail.salesqty',
+
+                'salesdetail.price',
+
+                'salesdetail.grossamount',
+
+                'salesdetail.netamount',
+
+                'salesdetail.cogs',
+
+                DB::raw('
+                    (
+                        salesdetail.netamount
+                        - salesdetail.cogs
+                    )
+                    as margin
+                '),
+
+                DB::raw('
+                    (
+                        (
+                            salesdetail.netamount
+                            - salesdetail.cogs
+                        )
+                        / NULLIF(salesdetail.netamount,0)
+                    ) * 100
+                    as margin_percent
+                ')
+
+            )
+
+            ->where(
+                'salesdetail.salesid',
+                $nota->salesid
+            )
+
+            ->get();
+    }
+
+    return view(
+
+        'sales-detail',
+
+        compact(
+            'tanggal',
+            'notas'
+        )
+
+    );
+});
+
+Route::get('/api/pesanan-shopee', [PesananShopeeController::class, 'apiList']);
 
 Route::get('/api/get-returns-by-group', function (Request $request) {
 
@@ -14,7 +142,7 @@ Route::get('/api/get-returns-by-group', function (Request $request) {
 
     $masterDb = config('database.connections.mysql.database');
 
-    $returns = DB::connection('mysql_app')
+    $returns = DB::connection('u990824557_db_app')
 
         ->table('product_returns')
 
@@ -53,14 +181,14 @@ Route::get('/api/get-returns-by-group', function (Request $request) {
 });
 
 Route::get('/test-db-app', function () {
-    return DB::connection('mysql_app')->select("SELECT DATABASE() as db");
+    return DB::connection('u990824557_db_app')->select("SELECT DATABASE() as db");
 });
 
 Route::post('/returns/store', [ProductReturnController::class, 'store']);
 Route::get('/return', [ProductReturnController::class, 'index']);
 Route::post('/returns/taken/{id}', function ($id) {
 
-    DB::connection('mysql_app')
+    DB::connection('u990824557_db_app')
 
         ->table('product_returns')
 
@@ -85,11 +213,30 @@ Route::get('/api/get-returns', function (Request $request) {
         return response()->json(['returns' => null]);
     }
 
-    $return = DB::connection('mysql_app')->table('product_returns')
-        ->where('product_name', 'like', "%{$productName}%")
-        ->first();
+    try {
+        // Step 1: Cari product dari master DB
+        $product = DB::connection('mysql')->table('product')
+            ->where('name', 'like', "%{$productName}%")
+            ->first();
 
-    return response()->json(['returns' => $return]);
+        if (!$product) {
+            return response()->json(['returns' => null]);
+        }
+
+        // Step 2: Cari returns dari app DB menggunakan product_id
+        $return = DB::connection('mysql_app')->table('product_returns')
+            ->where('product_id', $product->id)
+            ->first();
+
+        // Step 3: Tambah product name ke return object
+        if ($return) {
+            $return->product_name = $product->name;
+        }
+
+        return response()->json(['returns' => $return]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
 });
 
 // Route::get('/list-models', function () {
@@ -143,7 +290,7 @@ Route::get('/ai-analysis', function (Request $request) {
 
     $groupName = $request->group ?? 'ROKOK';
 
-    $days = $request->days ?? 30;
+    $days = $request->days ?? 360;
 
     /*
     |--------------------------------------------------------------------------
@@ -618,7 +765,7 @@ Route::get('/import-db', function () {
     // ⚠️ IMPORT ULANG SQL
     DB::unprepared($sql);
 
-    return "Database berhasil direset & diimport ulang";
+    return redirect('/')->with('success', 'Database berhasil direset & diimport ulang');
 });
 
 Route::get('/ai-dashboard', function () {
@@ -1016,3 +1163,10 @@ Route::get('/', function (Request $request) {
         )
     );
 });
+
+// Pesanan Shopee Routes
+Route::get('/pesanan-shopee', [PesananShopeeController::class, 'index']);
+Route::post('/pesanan-shopee/store', [PesananShopeeController::class, 'store']);
+Route::get('/pesanan-shopee/detail/{id}', [PesananShopeeController::class, 'show']);
+Route::post('/pesanan-shopee/update-status/{id}', [PesananShopeeController::class, 'updateStatus']);
+Route::get('/api/products', [PesananShopeeController::class, 'getProducts']);

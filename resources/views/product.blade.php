@@ -949,6 +949,126 @@
             background: rgba(239, 68, 68, 0.2);
             border-color: var(--danger-color);
         }
+
+        /* ============================================
+           MODERN STOCK STATUS BADGE
+           ============================================ */
+
+        .stock-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            border: 1px solid transparent;
+        }
+
+        .stock-status-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stock-status-badge i {
+            font-size: 13px;
+        }
+
+        /* DEAD STOCK - Abu-abu */
+        .stock-status-badge.status-dead-stock {
+            background: rgba(108, 117, 125, 0.12);
+            color: #495057;
+            border-color: rgba(108, 117, 125, 0.2);
+        }
+
+        .stock-status-badge.status-dead-stock:hover {
+            background: rgba(108, 117, 125, 0.18);
+            border-color: rgba(108, 117, 125, 0.3);
+        }
+
+        /* KRITIS - Merah */
+        .stock-status-badge.status-kritis {
+            background: rgba(220, 53, 69, 0.12);
+            color: #dc3545;
+            border-color: rgba(220, 53, 69, 0.2);
+        }
+
+        .stock-status-badge.status-kritis:hover {
+            background: rgba(220, 53, 69, 0.18);
+            border-color: rgba(220, 53, 69, 0.3);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
+        }
+
+        /* MENIPIS - Orange */
+        .stock-status-badge.status-menipis {
+            background: rgba(255, 152, 0, 0.12);
+            color: #ff9800;
+            border-color: rgba(255, 152, 0, 0.2);
+        }
+
+        .stock-status-badge.status-menipis:hover {
+            background: rgba(255, 152, 0, 0.18);
+            border-color: rgba(255, 152, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
+        }
+
+        /* AMAN - Hijau */
+        .stock-status-badge.status-aman {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .stock-status-badge.status-aman:hover {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
+
+        /* Stock info dengan badge modern */
+        .stock-info-modern {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stock-current {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .stock-current-value {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 16px;
+        }
+
+        .stock-estimasi {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* Animasi pulse untuk KRITIS */
+        @keyframes pulse-kritis {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .stock-status-badge.status-kritis {
+            animation: pulse-kritis 2s infinite;
+        }
+
     </style>
 
 </head>
@@ -991,6 +1111,11 @@
                             <!-- TOMBOL RETUR -->
                             <a href="/return" class="btn btn-action btn-secondary">
                                 <i class="fas fa-undo"></i> Retur
+                            </a>
+
+                            <!-- TOMBOL PESANAN SHOPEE -->
+                            <a href="/pesanan-shopee" class="btn btn-action btn-info">
+                                <i class="fas fa-shopping-bag"></i> Pesanan Shopee
                             </a>
 
                             <button class="btn btn-action btn-success" onclick="startScanner()">
@@ -1041,26 +1166,208 @@
                         </div>
 
                         <!-- FILTER GROUP -->
-                        <div class="col-md-3">
+<!-- FILTER GROUP -->
+<div class="col-md-3">
 
-                            <select name="productgroup" class="form-select search-input">
+    <div class="position-relative">
 
-                                <option value="">
-                                    📂 Semua Group
-                                </option>
+        <!-- INPUT SEARCH -->
+        <input
+            type="text"
+            id="groupSearch"
+            class="form-control search-input"
+            placeholder="📂 Cari Group..."
+            autocomplete="off"
+            value="@php
+                $selectedGroup = $productgroups->firstWhere('id', request('productgroup'));
+                echo $selectedGroup ? $selectedGroup->name : '';
+            @endphp"
+        >
 
-                                @foreach ($productgroups as $group)
-                                    <option value="{{ $group->id }}"
-                                        {{ request('productgroup') == $group->id ? 'selected' : '' }}>
+        <!-- HIDDEN -->
+        <input
+            type="hidden"
+            name="productgroup"
+            id="selectedGroup"
+            value="{{ request('productgroup') }}"
+        >
 
-                                        {{ $group->name }}
+        <!-- DROPDOWN -->
+        <div
+            id="groupDropdown"
+            class="bg-white border rounded shadow-sm"
+            style="
+                position:absolute;
+                top:100%;
+                left:0;
+                right:0;
+                max-height:300px;
+                overflow-y:auto;
+                z-index:9999;
+                display:none;
+            "
+        >
 
-                                    </option>
-                                @endforeach
+            <!-- SEMUA -->
+            <div
+                class="group-item p-2 border-bottom"
+                data-id=""
+                data-name="Semua Group"
+                style="cursor:pointer;"
+            >
+                📂 Semua Group
+            </div>
 
-                            </select>
+            <!-- GROUP -->
+            @foreach ($productgroups as $group)
 
-                        </div>
+                <div
+                    class="group-item p-2 border-bottom"
+                    data-id="{{ $group->id }}"
+                    data-name="{{ strtolower($group->name) }}"
+                    data-label="{{ $group->name }}"
+                    style="cursor:pointer;"
+                >
+
+                    {{ $group->name }}
+
+                </div>
+
+            @endforeach
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function(){
+
+        const searchInput =
+            document.getElementById('groupSearch');
+
+        const dropdown =
+            document.getElementById('groupDropdown');
+
+        const hiddenInput =
+            document.getElementById('selectedGroup');
+
+        const items =
+            document.querySelectorAll('.group-item');
+
+        /*
+        |--------------------------------------------------------------------------
+        | SHOW DROPDOWN
+        |--------------------------------------------------------------------------
+        */
+
+        searchInput.addEventListener('focus', function(){
+
+            dropdown.style.display = 'block';
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | SEARCH
+        |--------------------------------------------------------------------------
+        */
+
+        searchInput.addEventListener('keyup', function(){
+
+            const keyword =
+                this.value.toLowerCase();
+
+            dropdown.style.display = 'block';
+
+            items.forEach(item => {
+
+                const name =
+                    item.dataset.name;
+
+                if(name.includes(keyword)){
+
+                    item.style.display = 'block';
+
+                }else{
+
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | SELECT ITEM
+        |--------------------------------------------------------------------------
+        */
+
+        items.forEach(item => {
+
+            item.addEventListener('click', function(){
+
+                hiddenInput.value =
+                    this.dataset.id;
+
+                searchInput.value =
+                    this.dataset.label || 'Semua Group';
+
+                dropdown.style.display =
+                    'none';
+
+                /*
+                |--------------------------------------------------------------------------
+                | AUTO SUBMIT FORM
+                |--------------------------------------------------------------------------
+                */
+
+                const form =
+                    searchInput.closest('form');
+
+                if(form){
+
+                    form.submit();
+                }
+            });
+
+            /*
+            |--------------------------------------------------------------------------
+            | HOVER
+            |--------------------------------------------------------------------------
+            */
+
+            item.addEventListener('mouseenter', function(){
+
+                this.style.background =
+                    '#f8fafc';
+            });
+
+            item.addEventListener('mouseleave', function(){
+
+                this.style.background =
+                    'white';
+            });
+
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLOSE OUTSIDE
+        |--------------------------------------------------------------------------
+        */
+
+        document.addEventListener('click', function(e){
+
+            if(!e.target.closest('.position-relative')){
+
+                dropdown.style.display = 'none';
+            }
+        });
+
+    });
+
+</script>
 
                         <!-- BUTTON -->
                         <div class="col-md-3">
@@ -1161,22 +1468,36 @@
 
                                     <!-- HARGA -->
                                     <div class="price-badge" onclick="event.stopPropagation()" data-bs-toggle="modal"
-                                        data-bs-target="#productModal{{ $product->id }}" style="cursor: pointer;">
+                                        data-bs-target="#productModal{{ $loop->index }}" data-product-id="{{ $product->id }}" style="cursor: pointer;">
                                         Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
                                     </div>
 
                                     <!-- INFO HORIZONTAL -->
                                     <div class="product-info" onclick="event.stopPropagation()"
-                                        data-bs-toggle="modal" data-bs-target="#productModal{{ $product->id }}"
-                                        style="cursor: pointer;">
+                                        data-bs-toggle="modal" data-bs-target="#productModal{{ $loop->index }}"
+                                        data-product-id="{{ $product->id }}" style="cursor: pointer;">
 
                                         <!-- STOCK -->
                                         <div class="info-item">
                                             <span class="info-item-label">Stock</span>
-                                            <span
-                                                class="stock-status {{ $product->stock > 20 ? 'stock-high' : ($product->stock > 5 ? 'stock-medium' : 'stock-low') }}">
-                                                {{ number_format($product->stock, 0, ',', '.') }}
-                                            </span>
+                                            @php
+                                                $stockStatus = \App\Helpers\StockStatusHelper::getStockStatus(
+                                                    $product->stock,
+                                                    $product->total_keluar ?? 0,
+                                                    $product->created_at ?? null
+                                                );
+                                            @endphp
+                                            <div class="stock-info-modern">
+                                                <div class="stock-current">
+                                                    <span>Sisa: <strong class="stock-current-value">{{ number_format($product->stock, 0, ',', '.') }}</strong></span>
+                                                </div>
+                                                <span class="stock-status-badge status-{{ strtolower(str_replace('_', '-', $stockStatus['status'])) }}"
+                                                    title="Estimasi habis: {{ $stockStatus['estimasi'] }}">
+                                                    <i class="fas {{ $stockStatus['icon'] }}"></i>
+                                                    <span>{{ $stockStatus['label'] }}</span>
+                                                </span>
+                                                <span class="stock-estimasi">{{ $stockStatus['estimasi'] }}</span>
+                                            </div>
                                         </div>
 
                                         <!-- MASUK -->
@@ -1205,12 +1526,17 @@
                                             onclick="increaseQty(this, {{ $product->stock }})">+</button>
                                     </div>
 
-                                    <!-- ADD TO CART BUTTON -->
-                                    <button type="button" class="add-to-cart-btn"
-                                        onclick="addToCart(event, '{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->salesprice1 }}, '{{ addslashes($product->productgroup_name) }}')"
-                                        onclick="event.stopPropagation();">
-                                        <i class="fas fa-plus"></i> Tambah ke Cart
-                                    </button>
+                                    <!-- ADD TO CART BUTTONS -->
+                                    <div style="display: flex; gap: 8px;">
+                                        <button type="button" class="add-to-cart-btn" style="flex: 1;"
+                                            onclick="event.stopPropagation(); addToCart(event, '{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->salesprice1 }}, '{{ addslashes($product->productgroup_name) }}', 'pcs')">
+                                            <i class="fas fa-box"></i> Beli Pcs
+                                        </button>
+                                        <button type="button" class="add-to-cart-btn" style="flex: 1;"
+                                            onclick="event.stopPropagation(); addToCart(event, '{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->salesprice1 }}, '{{ addslashes($product->productgroup_name) }}', 'box')">
+                                            <i class="fas fa-cubes"></i> Beli Box
+                                        </button>
+                                    </div>
 
                                 </div>
 
@@ -1252,7 +1578,7 @@
 
     <!-- MODAL -->
     @foreach ($products as $product)
-        <div class="modal fade" id="productModal{{ $product->id }}" tabindex="-1">
+        <div class="modal fade" id="productModal{{ $loop->index }}" tabindex="-1" data-product-id="{{ $product->id }}">
 
             <div class="modal-dialog modal-lg modal-dialog-centered">
 
@@ -1270,7 +1596,7 @@
                             <small class="text-white-50">Detail Produk</small>
                         </div>
 
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal">
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
 
                         </button>
 
@@ -1282,6 +1608,20 @@
                         <table class="table">
 
                             <tbody>
+
+                                <tr>
+
+                                    <th width="250">
+                                        <i class="fas fa-barcode me-2 text-success"></i>Kode Barang
+                                    </th>
+
+                                    <td>
+
+                                        <span class="badge bg-success text-white">{{ $product->id }}</span>
+
+                                    </td>
+
+                                </tr>
 
                                 <tr>
 
@@ -1436,7 +1776,7 @@
                         </h5>
                         <small class="text-white-50">Daftar produk yang akan di-order</small>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <!-- BODY -->
                 <div class="modal-body p-4">
@@ -1479,8 +1819,9 @@
     <script>
         // ============ CART MANAGEMENT ============
         let cart = JSON.parse(localStorage.getItem('orderCart')) || {};
+        let cartReturns = {}; // Simpan returns data per group
 
-        function addToCart(event, productId, productName, price, groupName) {
+        function addToCart(event, productId, productName, price, groupName, type = 'pcs') {
             event.stopPropagation();
 
             // Get quantity from the input field
@@ -1492,16 +1833,20 @@
                 return;
             }
 
+            // Create unique key for cart item (productId + type)
+            const cartKey = `${productId}_${type}`;
+
             // Add or update cart item
-            if (cart[productId]) {
-                cart[productId].quantity += quantity;
+            if (cart[cartKey]) {
+                cart[cartKey].quantity += quantity;
             } else {
-                cart[productId] = {
+                cart[cartKey] = {
                     id: productId,
                     name: productName,
                     price: price,
                     quantity: quantity,
-                    group: groupName
+                    group: groupName,
+                    type: type
                 };
             }
 
@@ -1515,7 +1860,7 @@
             qtyInput.value = 1;
 
             // Show notification
-            showAddToCartNotification(productName, quantity);
+            showAddToCartNotification(productName, quantity, type);
         }
 
         function updateCartBadge() {
@@ -1585,7 +1930,6 @@
                             <div class="cart-item-info">
                                 <div class="cart-item-name">${item.name}</div>
                                 <div class="cart-item-code">Kode: ${item.id}</div>
-                                <div class="cart-item-price">Rp ${number_format(item.price)} x ${item.quantity}</div>
                             </div>
                             <div class="cart-item-qty">${item.quantity} pcs</div>
                             <button type="button" class="cart-item-remove" onclick="removeFromCart('${item.id}')">
@@ -1620,6 +1964,13 @@
                 let returnsHtml = '';
                 const returns = await getReturnsForGroup(groupName, items);
 
+                // Simpan returns ke variable global
+                if (returns && returns.length > 0) {
+                    cartReturns[groupName] = returns;
+                } else {
+                    cartReturns[groupName] = [];
+                }
+
                 if (returns && returns.length > 0) {
                     returnsHtml = `
                         <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px; border-radius: 8px; margin-top: 12px;">
@@ -1629,9 +1980,11 @@
                     `;
 
                     for (let ret of returns) {
+                        // Cek berbagai kemungkinan field name untuk quantity
+                        const qty = ret.quantity_retur || ret.quantity || ret.qty || ret.jumlah || 0;
                         returnsHtml += `
                             <div style="color: #1e293b; font-size: 0.85rem; margin-bottom: 4px;">
-                                - ${ret.product_name} = ${ret.quantity_retur} Pcs
+                                - ${ret.product_name} = ${qty} Pcs
                             </div>
                         `;
                     }
@@ -1670,10 +2023,24 @@
                 // Fetch returns for each product in the group
                 for (let item of items) {
                     const response = await fetch(`/api/get-returns?product_name=${encodeURIComponent(item.name)}`);
+
+                    if (!response.ok) {
+                        console.error(`API error for ${item.name}: Status ${response.status}`);
+                        continue;
+                    }
+
                     const data = await response.json();
 
-                    if (data.returns) {
+                    if (data.returns && Array.isArray(data.returns)) {
+                        // Jika returns adalah array, spread ke returns utama
+                        returns = [...returns, ...data.returns];
+                    } else if (data.returns) {
+                        // Jika returns adalah single object, push ke array
                         returns.push(data.returns);
+                    }
+
+                    if (data.error) {
+                        console.error(`API error: ${data.error}`);
                     }
                 }
 
@@ -1746,65 +2113,22 @@
 
                 for (let item of groupedItems[group]) {
 
-                    copyText += `- ${item.name} = ${item.quantity} Pcs\n`;
+                    const unitType = item.type === 'box' ? 'Box' : 'Pcs';
+                    copyText += `- ${item.name} = ${item.quantity} ${unitType}\n`;
                 }
 
                 /*
                 |--------------------------------------------------------------------------
-                | AMBIL RETUR GROUP
+                | AMBIL RETUR GROUP DARI cartReturns
                 |--------------------------------------------------------------------------
                 */
 
-                try {
-
-                    const response = await fetch(
-                        `/api/get-returns-by-group?group=${encodeURIComponent(group)}`
-                    );
-
-                    const returns = await response.json();
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | JIKA ADA RETUR
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if (returns.length > 0) {
-
-                        copyText += `\nReturan\n`;
-
-                        for (let ret of returns) {
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | NOTE
-                            |--------------------------------------------------------------------------
-                            */
-
-                            let noteText = '';
-
-                            if (
-                                ret.note &&
-                                ret.note.trim() !== ''
-                            ) {
-
-                                noteText = ` (${ret.note})`;
-                            }
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | FORMAT RETUR
-                            |--------------------------------------------------------------------------
-                            */
-
-                            copyText +=
-                                `- ${ret.product_name} = ${ret.quantity} Pcs${noteText}\n`;
-                        }
+                if (cartReturns[group] && cartReturns[group].length > 0) {
+                    copyText += `Barang Retur : \n`;
+                    for (let ret of cartReturns[group]) {
+                        const qty = ret.quantity_retur || ret.quantity || ret.qty || ret.jumlah || 0;
+                        copyText += `- ${ret.product_name} = ${qty} Pcs\n`;
                     }
-
-                } catch (error) {
-
-                    console.error(error);
                 }
 
                 /*
@@ -1863,9 +2187,10 @@
             return new Intl.NumberFormat('id-ID').format(num);
         }
 
-        function showAddToCartNotification(productName, quantity) {
+        function showAddToCartNotification(productName, quantity, type = 'pcs') {
             const notification = document.createElement('div');
             const displayText = `${productName.substring(0, 25)}${productName.length > 25 ? '...' : ''}`;
+            const unitType = type === 'box' ? 'Box' : 'Pcs';
 
             notification.style.cssText = `
                 position: fixed;
@@ -1883,7 +2208,7 @@
             `;
             notification.innerHTML = `
                 <i class="fas fa-plus-circle me-2"></i>
-                ${displayText} (${quantity} pcs) ditambahkan ke cart
+                ${displayText} (${quantity} ${unitType}) ditambahkan ke cart
             `;
 
             document.body.appendChild(notification);
@@ -2530,6 +2855,7 @@
         });
     </script>
 
+    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
