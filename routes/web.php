@@ -18,7 +18,7 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
 
     $notas = DB::table('salesdetail')
 
-        ->join('sales', 'salesdetail.salesid', '=', 'sales.salesid')
+        ->join('sales', 'salesdetail.salesid', '=', 'sales.salesidref')
 
         ->select(
 
@@ -55,7 +55,7 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
 
         ->orderByRaw("
             CAST(
-                SUBSTRING_INDEX(salesid, '-', -1)
+                SUBSTRING_INDEX(salesdetail.salesid, '-', -1)
                 AS UNSIGNED
             ) ASC
         ")
