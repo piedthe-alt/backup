@@ -51,7 +51,7 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
             $tanggal
         )
 
-        ->groupBy('salesdetail.salesid')
+        ->groupBy('salesdetail.salesid', 'sales.salestime')
 
         ->orderByRaw("
             CAST(
