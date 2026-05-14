@@ -1069,6 +1069,27 @@
             animation: pulse-kritis 2s infinite;
         }
 
+        /* TAB STYLING */
+        .nav-tabs .nav-link {
+            color: #6b7280 !important;
+            border: none !important;
+            border-bottom: 3px solid transparent !important;
+            padding-bottom: 12px !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #2563eb !important;
+            border-bottom: 3px solid #2563eb !important;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #2563eb !important;
+            border-bottom: 3px solid #2563eb !important;
+            background-color: transparent !important;
+        }
+
     </style>
 
 </head>
@@ -1608,12 +1629,12 @@
                         <!-- TABS -->
                         <ul class="nav nav-tabs mb-4" role="tablist" style="border-bottom: 2px solid #e5e7eb;">
                             <li class="nav-item">
-                                <a class="nav-link active" id="detail-tab" data-bs-toggle="tab" href="#detail-content" role="tab" style="color: #2563eb; border: none; padding-bottom: 12px; border-bottom: 3px solid #2563eb; font-weight: 500;">
+                                <a class="nav-link active" id="detail-tab-{{ $loop->index }}" data-bs-toggle="tab" href="#detail-content-{{ $loop->index }}" role="tab">
                                     <i class="fas fa-info-circle me-2"></i>Detail Produk
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="history-in-tab" data-bs-toggle="tab" href="#history-in-content" role="tab" onclick="loadInventoryHistoryTab('{{ $product->id }}')" style="color: #6b7280; border: none; padding-bottom: 12px; font-weight: 500;">
+                                <a class="nav-link" id="history-in-tab-{{ $loop->index }}" data-bs-toggle="tab" href="#history-in-content-{{ $loop->index }}" role="tab" data-product-id="{{ $product->id }}">
                                     <i class="fas fa-arrow-down me-2"></i>Riwayat Stok Masuk
                                 </a>
                             </li>
@@ -1622,7 +1643,7 @@
                         <!-- TAB CONTENT -->
                         <div class="tab-content">
                             <!-- DETAIL TAB -->
-                            <div class="tab-pane fade show active" id="detail-content" role="tabpanel">
+                            <div class="tab-pane fade show active" id="detail-content-{{ $loop->index }}" role="tabpanel">
 
                         <table class="table">
 
@@ -1777,26 +1798,26 @@
                             </div>
 
                             <!-- HISTORY MASUK TAB -->
-                            <div class="tab-pane fade" id="history-in-content" role="tabpanel">
-                                <div id="inventory-history-in-loading" class="text-center py-4">
+                            <div class="tab-pane fade" id="history-in-content-{{ $loop->index }}" role="tabpanel">
+                                <div id="inventory-history-in-loading-{{ $loop->index }}" class="text-center py-4">
                                     <div class="spinner-border spinner-border-sm text-primary" role="status">
                                         <span class="visually-hidden">Loading...</span>
                                     </div>
                                     <p class="text-muted mt-2 small">Memuat data barang masuk...</p>
                                 </div>
-                                <div id="inventory-history-in-content" style="display: none;">
+                                <div id="inventory-history-in-content-{{ $loop->index }}" style="display: none;">
                                     <!-- Summary Section -->
                                     <div class="row mb-4 g-2">
                                         <div class="col-12">
                                             <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center">
                                                 <small class="text-muted">Total Barang Masuk</small>
-                                                <p class="mb-0 h6 text-success fw-bold" id="total-masuk">0</p>
+                                                <p class="mb-0 h6 text-success fw-bold" id="total-masuk-{{ $loop->index }}">0</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Transactions List -->
-                                    <div class="inventory-transactions-in">
+                                    <div class="inventory-transactions-in-{{ $loop->index }}">
                                         <p class="text-muted small">Tidak ada data barang masuk</p>
                                     </div>
                                 </div>
@@ -2902,16 +2923,31 @@
             }
         });
 
+        // ============ INVENTORY HISTORY TAB EVENTS ============
+        document.addEventListener('shown.bs.tab', function (e) {
+            // Check if it's history-in tab
+            if (e.target && e.target.id && e.target.id.startsWith('history-in-tab-')) {
+                const productId = e.target.getAttribute('data-product-id');
+                const tabIndex = e.target.id.replace('history-in-tab-', '');
+                loadInventoryHistoryTab(productId, tabIndex);
+            }
+        });
+
         // ============ INVENTORY HISTORY ============
-        function loadInventoryHistoryTab(productId) {
-            const loadingId = 'inventory-history-in-loading';
-            const contentId = 'inventory-history-in-content';
-            const containerId = 'inventory-transactions-in';
-            const totalId = 'total-masuk';
+        function loadInventoryHistoryTab(productId, tabIndex) {
+            const loadingId = `inventory-history-in-loading-${tabIndex}`;
+            const contentId = `inventory-history-in-content-${tabIndex}`;
+            const containerId = `inventory-transactions-in-${tabIndex}`;
+            const totalId = `total-masuk-${tabIndex}`;
 
             const loadingDiv = document.getElementById(loadingId);
             const contentDiv = document.getElementById(contentId);
             const transactionsContainer = document.querySelector(`.${containerId}`);
+
+            if (!loadingDiv || !contentDiv) {
+                console.error('Elements not found', {loadingId, contentId});
+                return;
+            }
 
             // Reset state setiap kali di-click
             loadingDiv.style.display = 'block';
