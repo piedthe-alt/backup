@@ -22,7 +22,7 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
 
             'salesid',
 
-            DB::raw('MIN(transdate) as transdate'),
+            DB::raw('(SELECT transdate FROM salesdetail sd WHERE sd.salesid = salesdetail.salesid ORDER BY transdate ASC LIMIT 1) as transdate'),
 
             DB::raw('SUM(netamount) as total_belanja'),
 
