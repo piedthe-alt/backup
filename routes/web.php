@@ -143,166 +143,45 @@ Route::get('/sales-hour-analysis', function (Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | ANALISIS JAM RAMAI TOKO - PENJUALAN
-    |--------------------------------------------------------------------------
-    | omzet_kotor  = SUM(netamount)
-    | margin_kotor = SUM(netamount - cogs)
+    | ANALISIS JAM RAMAI TOKO
     |--------------------------------------------------------------------------
     */
 
-    $hourlyData = DB::table('salesdetail')
+    $hourlyAnalysis = DB::table('salesdetail')
 
-        ->join(
-            'sales',
-            'salesdetail.salesid',
-            '=',
-            'sales.salesidref'
-        )
-
-->select(
-
-    DB::raw('HOUR(sales.salestime) as hour'),
-
-    DB::raw('DATE_FORMAT(sales.salestime, "%H:00") as hour_label'),
-
-    DB::raw('COUNT(DISTINCT sales.salesidref) as transaction_count'),
-
-    DB::raw('SUM(salesdetail.salesqty) as total_qty'),
-
-    DB::raw('SUM(salesdetail.netamount) as omzet_kotor'),
-
-    DB::raw('SUM(salesdetail.netamount - salesdetail.cogs) as margin_kotor'),
-
-    DB::raw('SUM(salesdetail.cogs) as total_cogs')
-
-)
-
-        ->whereDate(
-            'sales.salestime',
-            '>=',
-            $startDate
-        )
-
-        ->whereDate(
-            'sales.salestime',
-            '<=',
-            $endDate
-        )
-
-        ->groupByRaw('
-        HOUR(sales.salestime),
-        DATE_FORMAT(sales.salestime, "%H:00")
-    ')
-
-        ->orderBy('hour', 'ASC')
-
-        ->get();/*
-    |--------------------------------------------------------------------------
-    | RETUR PER JAM
-    |--------------------------------------------------------------------------
-    | retur = harga jual sekarang * invin
-    | margin_retur = (harga jual - modal) * qty retur
-    |--------------------------------------------------------------------------
-    */
-
-    $hourlyRetur = DB::table('inventory')
-
-        ->leftJoin('product', 'inventory.productid', '=', 'product.id')
+        ->join('sales', 'salesdetail.salesid', '=', 'sales.salesidref')
 
         ->select(
 
-            DB::raw('HOUR(inventory.updatetimestamp) as hour'),
+            DB::raw('HOUR(sales.salestime) as hour'),
 
-            DB::raw('SUM(product.salesprice1 * inventory.invin) as total_return'),
+            DB::raw('DAYNAME(sales.salestime) as day_name'),
 
-            DB::raw('SUM((product.salesprice1 - inventory.invvalue) * inventory.invin) as margin_return')
+            DB::raw('DATE_FORMAT(sales.salestime, "%H:00") as hour_label'),
+
+            DB::raw('COUNT(DISTINCT sales.salesidref) as transaction_count'),
+
+            DB::raw('SUM(salesdetail.salesqty) as total_qty'),
+
+            DB::raw('SUM(salesdetail.netamount) as total_amount'),
+
+            DB::raw('SUM(salesdetail.cogs) as total_cogs'),
+
+            DB::raw('SUM(salesdetail.netamount - salesdetail.cogs) as total_margin'),
+
+            DB::raw('ROUND(SUM(salesdetail.netamount - salesdetail.cogs) / NULLIF(SUM(salesdetail.netamount), 0) * 100, 2) as margin_percent')
 
         )
 
-        ->where('inventory.transid', 'like', 'I/SR-%')
+        ->whereDate('sales.salestime', '>=', $startDate)
 
-        ->whereDate('inventory.updatetimestamp', '>=', $startDate)
+        ->whereDate('sales.salestime', '<=', $endDate)
 
-        ->whereDate('inventory.updatetimestamp', '<=', $endDate)
+        ->groupBy(DB::raw('HOUR(sales.salestime)'))
 
-        ->groupByRaw('HOUR(inventory.updatetimestamp)')
+        ->orderBy('hour', 'ASC')
 
-        ->get()
-
-        ->keyBy('hour');
-
-    /*
-    |--------------------------------------------------------------------------
-    | GABUNGKAN PENJUALAN + RETUR
-    |--------------------------------------------------------------------------
-    */
-
-    $hourlyAnalysis = $hourlyData->map(function ($item) use ($hourlyRetur) {
-
-        $retur = 0;
-        $marginRetur = 0;
-
-        if (isset($hourlyRetur[$item->hour])) {
-
-            $retur = $hourlyRetur[$item->hour]->total_return;
-
-            $marginRetur = $hourlyRetur[$item->hour]->margin_return;
-        }
-
-        // Total dengan retur
-        /*
-|--------------------------------------------------------------------------
-| RETUR
-|--------------------------------------------------------------------------
-*/
-
-        $item->retur = $retur;
-
-        /*
-|--------------------------------------------------------------------------
-| OMZET BERSIH
-|--------------------------------------------------------------------------
-*/
-
-        $item->omzet_bersih =
-            $item->omzet_kotor
-            - $retur;
-
-        /*
-|--------------------------------------------------------------------------
-| MARGIN BERSIH
-|--------------------------------------------------------------------------
-*/
-
-        $item->margin_bersih =
-            $item->margin_kotor
-            - $marginRetur;
-
-        /*
-|--------------------------------------------------------------------------
-| MARGIN %
-|--------------------------------------------------------------------------
-*/
-
-        $item->margin_percent =
-            $item->omzet_bersih > 0
-
-            ?
-
-            round(
-                (
-                    $item->margin_bersih
-                    / $item->omzet_bersih
-                ) * 100,
-                2
-            )
-
-            :
-
-            0;
-
-        return $item;
-    });
+        ->get();
 
     /*
     |--------------------------------------------------------------------------
@@ -312,13 +191,11 @@ Route::get('/sales-hour-analysis', function (Request $request) {
 
     $totalTransactions = $hourlyAnalysis->sum('transaction_count');
 
-    $totalAmount = $hourlyAnalysis->sum('omzet_bersih');
+    $totalAmount = $hourlyAnalysis->sum('total_amount');
 
-    $totalMargin = $hourlyAnalysis->sum('margin_bersih');
+    $totalMargin = $hourlyAnalysis->sum('total_margin');
 
-    $peakHour = $hourlyAnalysis
-        ->sortByDesc('omzet_bersih')
-        ->first();
+    $peakHour = $hourlyAnalysis->sortByDesc('total_amount')->first();
 
     return view('sales-hour-analysis', compact(
 
@@ -337,6 +214,7 @@ Route::get('/sales-hour-analysis', function (Request $request) {
         'peakHour'
 
     ));
+
 });
 
 Route::get('/api/pesanan-shopee', [PesananShopeeController::class, 'apiList']);
