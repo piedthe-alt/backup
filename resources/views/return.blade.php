@@ -9,11 +9,23 @@
 
     <title>Retur Barang</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+
+    <!-- html5-qrcode -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
+
         body {
             background: #f1f5f9;
         }
@@ -114,12 +126,54 @@
         }
 
         #product-select {
-            height: 260px;
+            display: none;
+            margin-top: 10px;
+            max-height: 280px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
         }
 
-        #product-select option {
-            padding: 10px;
+        .product-item {
+            padding: 12px 14px;
             border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: 0.2s;
+            background: white;
+        }
+
+        .product-item:hover {
+            background: #f8fafc;
+        }
+
+        .product-id {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        #reader {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            display: none;
+            margin-top: 15px;
+        }
+
+        .scanner-box {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .selected-product {
+            background: #ecfdf5;
+            border: 1px solid #10b981;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 10px;
+            display: none;
         }
 
         @media (max-width: 768px) {
@@ -160,43 +214,6 @@
                 border: 1px solid #e2e8f0;
             }
 
-            .return-item:last-child {
-                margin-bottom: 0;
-            }
-
-            .return-title {
-                font-weight: 700;
-                font-size: 15px;
-                margin-bottom: 10px;
-                color: #111827;
-            }
-
-            .return-group {
-                display: inline-block;
-                background: #64748b;
-                color: white;
-                font-size: 11px;
-                padding: 5px 10px;
-                border-radius: 999px;
-                margin-bottom: 12px;
-            }
-
-            .return-detail {
-                margin-bottom: 8px;
-                font-size: 14px;
-            }
-
-            .return-detail strong {
-                color: #111827;
-            }
-
-            .btn-mobile {
-                width: 100%;
-                margin-top: 10px;
-                border-radius: 12px;
-                font-weight: 600;
-            }
-
             .btn-back {
                 width: 100%;
                 text-align: center;
@@ -207,472 +224,385 @@
                 align-items: stretch !important;
             }
 
-            #product-select {
-                height: 220px;
-            }
         }
+
     </style>
 
 </head>
 
 <body>
 
-    <div class="container py-4">
+<div class="container py-4">
 
-        <!-- HEADER -->
-        <div class="page-header">
+    <!-- HEADER -->
+    <div class="page-header">
 
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 header-mobile">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 header-mobile">
 
-                <div>
+            <div>
 
-                    <h2 class="fw-bold mb-2">
+                <h2 class="fw-bold mb-2">
 
-                        <i class="fas fa-rotate-left me-2"></i>
+                    <i class="fas fa-rotate-left me-2"></i>
 
-                        Retur Barang
+                    Retur Barang
 
-                    </h2>
+                </h2>
 
-                    <div class="opacity-75">
+                <div class="opacity-75">
 
-                        Kelola barang retur dan status pengambilannya
-
-                    </div>
+                    Kelola barang retur dan status pengambilannya
 
                 </div>
 
-                <a href="/" class="btn btn-back px-4 py-2">
-
-                    <i class="fas fa-arrow-left me-2"></i>
-
-                    Back
-
-                </a>
-
             </div>
 
-        </div>
+            <a href="/" class="btn btn-back px-4 py-2">
 
-        <!-- FORM -->
-        <div class="form-card mb-4">
+                <i class="fas fa-arrow-left me-2"></i>
 
-            <h5 class="fw-bold mb-4">
+                Back
 
-                <i class="fas fa-plus-circle me-2 text-danger"></i>
-
-                Tambah Retur Baru
-
-            </h5>
-
-            <form method="POST" action="/returns/store">
-
-                @csrf
-
-                <div class="row g-3">
-
-                    <!-- PRODUK -->
-                    <div class="col-md-5">
-
-                        <label class="form-label fw-semibold">
-                            Cari Produk
-                        </label>
-
-                        <input type="text" id="search-product" class="form-control mb-2"
-                            placeholder="Cari nama / ID produk..." autocomplete="off">
-
-                        <input type="hidden" name="product_id" id="selected-product-id" required>
-
-                        <div id="product-results" class="border rounded-3 bg-white"
-                            style="
-            max-height:260px;
-            overflow-y:auto;
-        ">
-
-                            @foreach (DB::table('product')->orderBy('name')->get() as $p)
-                                <div class="product-item p-2 border-bottom" data-id="{{ $p->id }}"
-                                    data-text="{{ strtolower($p->id . ' ' . $p->name) }}" style="cursor:pointer;">
-
-                                    <strong>{{ $p->id }}</strong>
-                                    <br>
-
-                                    <small class="text-muted">
-                                        {{ $p->name }}
-                                    </small>
-
-                                </div>
-                            @endforeach
-
-                        </div>
-
-                    </div>
-
-                    <!-- QTY -->
-                    <div class="col-md-2">
-
-                        <label class="form-label fw-semibold">
-                            Qty
-                        </label>
-
-                        <input type="number" name="quantity" class="form-control" placeholder="Jumlah" required>
-
-                    </div>
-
-                    <!-- NOTE -->
-                    <div class="col-md-3">
-
-                        <label class="form-label fw-semibold">
-                            Keterangan
-                        </label>
-
-                        <input type="text" name="note" class="form-control" placeholder="Contoh: Kemasan rusak">
-
-                    </div>
-
-                    <!-- BUTTON -->
-                    <div class="col-md-2 d-flex align-items-end">
-
-                        <button class="btn btn-save w-100 py-3">
-
-                            <i class="fas fa-save me-2"></i>
-
-                            Simpan
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </form>
-
-        </div>
-
-        <!-- TABLE -->
-        <div class="table-card">
-
-            <div class="p-4 border-bottom">
-
-                <h5 class="fw-bold mb-0">
-
-                    <i class="fas fa-table me-2 text-danger"></i>
-
-                    Data Barang Retur
-
-                </h5>
-
-            </div>
-
-            <!-- DESKTOP -->
-            <div class="table-responsive">
-
-                <table class="table table-hover align-middle mb-0">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>ID Produk</th>
-                            <th>Nama Produk</th>
-                            <th>Group</th>
-                            <th>Qty Retur</th>
-                            <th>Keterangan</th>
-                            <th>Tanggal</th>
-                            <th>Status</th>
-                            <th width="160">Aksi</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        @php
-                            $hasData = false;
-                        @endphp
-
-                        @foreach ($returns as $r)
-                            @if (strtoupper(trim($r->status)) != 'SUDAH_DIAMBIL')
-                                @php
-                                    $hasData = true;
-                                @endphp
-
-                                <tr>
-
-                                    <td>
-                                        <strong>
-                                            {{ $r->product_id_view }}
-                                        </strong>
-                                    </td>
-
-                                    <td>
-                                        {{ $r->product_name }}
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge bg-secondary">
-                                            {{ $r->group_name }}
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge badge-retur">
-                                            -{{ $r->quantity }}
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-                                        {{ $r->note ?: '-' }}
-                                    </td>
-
-                                    <td>
-
-                                        {{ \Carbon\Carbon::parse($r->created_at)->format('d M Y H:i') }}
-
-                                    </td>
-
-                                    <td>
-
-                                        <span class="badge badge-status">
-                                            BELUM DIAMBIL
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <form method="POST" action="/returns/taken/{{ $r->id }}"
-                                            onsubmit="return confirm('Tandai barang sudah diambil?')">
-
-                                            @csrf
-
-                                            <button class="btn btn-success btn-sm w-100">
-
-                                                <i class="fas fa-check-circle me-1"></i>
-
-                                                SUDAH DIAMBIL
-
-                                            </button>
-
-                                        </form>
-
-                                    </td>
-
-                                </tr>
-                            @endif
-                        @endforeach
-
-                        @if (!$hasData)
-                            <tr>
-
-                                <td colspan="8">
-
-                                    <div class="empty-state">
-
-                                        <i class="fas fa-box-open fa-3x mb-3"></i>
-
-                                        <h5 class="fw-bold">
-                                            Tidak ada barang retur
-                                        </h5>
-
-                                        <div>
-                                            Semua barang retur sudah diambil
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-                        @endif
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-            <!-- MOBILE -->
-            <div class="mobile-card">
-
-                @php
-                    $hasDataMobile = false;
-                @endphp
-
-                @foreach ($returns as $r)
-                    @if (strtoupper(trim($r->status)) != 'SUDAH_DIAMBIL')
-                        @php
-                            $hasDataMobile = true;
-                        @endphp
-
-                        <div class="return-item">
-
-                            <div class="return-title">
-
-                                {{ $r->product_name }}
-
-                            </div>
-
-                            <div class="return-group">
-
-                                {{ $r->group_name }}
-
-                            </div>
-
-                            <div class="return-detail">
-
-                                <strong>ID Produk:</strong>
-
-                                {{ $r->product_id_view }}
-
-                            </div>
-
-                            <div class="return-detail">
-
-                                <strong>Qty Retur:</strong>
-
-                                <span class="badge badge-retur">
-                                    -{{ $r->quantity }}
-                                </span>
-
-                            </div>
-
-                            <div class="return-detail">
-
-                                <strong>Keterangan:</strong>
-
-                                {{ $r->note ?: '-' }}
-
-                            </div>
-
-                            <div class="return-detail">
-
-                                <strong>Tanggal:</strong>
-
-                                {{ \Carbon\Carbon::parse($r->created_at)->format('d M Y H:i') }}
-
-                            </div>
-
-                            <div class="return-detail">
-
-                                <strong>Status:</strong>
-
-                                <span class="badge badge-status">
-                                    BELUM DIAMBIL
-                                </span>
-
-                            </div>
-
-                            <form method="POST" action="/returns/taken/{{ $r->id }}"
-                                onsubmit="return confirm('Tandai barang sudah diambil?')">
-
-                                @csrf
-
-                                <button class="btn btn-success btn-mobile">
-
-                                    <i class="fas fa-check-circle me-1"></i>
-
-                                    SUDAH DIAMBIL
-
-                                </button>
-
-                            </form>
-
-                        </div>
-                    @endif
-                @endforeach
-
-                @if (!$hasDataMobile)
-                    <div class="empty-state">
-
-                        <i class="fas fa-box-open fa-3x mb-3"></i>
-
-                        <h5 class="fw-bold">
-                            Tidak ada barang retur
-                        </h5>
-
-                        <div>
-                            Semua barang retur sudah diambil
-                        </div>
-
-                    </div>
-                @endif
-
-            </div>
+            </a>
 
         </div>
 
     </div>
 
-    <script>
-        const searchInput =
-            document.getElementById('search-product');
+    <!-- FORM -->
+    <div class="form-card mb-4">
 
-        const results =
-            document.getElementById('product-results');
+        <h5 class="fw-bold mb-4">
 
-        const hiddenInput =
-            document.getElementById('selected-product-id');
+            <i class="fas fa-plus-circle me-2 text-danger"></i>
 
-        const items =
-            document.querySelectorAll('.product-item');
+            Tambah Retur Baru
 
-        searchInput.addEventListener('input', function() {
+        </h5>
 
-            const keyword =
-                this.value.toLowerCase();
+        <form method="POST" action="/returns/store">
 
-            items.forEach(item => {
+            @csrf
 
-                const text =
-                    item.dataset.text;
+            <div class="row g-3">
 
-                if (text.includes(keyword)) {
+                <!-- PRODUK -->
+                <div class="col-md-5">
 
-                    item.style.display = '';
+                    <label class="form-label fw-semibold">
 
-                } else {
+                        Cari / Scan Produk
 
-                    item.style.display = 'none';
+                    </label>
 
-                }
+                    <!-- SEARCH -->
+                    <input
+                        type="text"
+                        id="search-product"
+                        class="form-control"
+                        placeholder="Cari nama / barcode / ID produk..."
+                        autocomplete="off"
+                    >
 
-            });
+                    <!-- HIDDEN INPUT -->
+                    <input
+                        type="hidden"
+                        name="product_id"
+                        id="selected-product-id"
+                        required
+                    >
+
+                    <!-- BUTTON SCAN -->
+                    <button
+                        type="button"
+                        class="btn btn-dark w-100 mt-2"
+                        id="start-scan"
+                    >
+
+                        <i class="fas fa-barcode me-2"></i>
+
+                        Scan Barcode
+
+                    </button>
+
+                    <!-- CAMERA -->
+                    <div class="scanner-box">
+
+                        <div id="reader"></div>
+
+                    </div>
+
+                    <!-- SELECTED -->
+                    <div class="selected-product" id="selected-product">
+
+                        <strong>Produk Dipilih:</strong>
+
+                        <div id="selected-product-text"></div>
+
+                    </div>
+
+                    <!-- RESULT -->
+                    <div id="product-select">
+
+                        @foreach (DB::table('product')->orderBy('name')->get() as $p)
+
+                            <div
+                                class="product-item"
+                                data-id="{{ $p->id }}"
+                                data-name="{{ strtolower($p->name) }}"
+                            >
+
+                                <div class="fw-semibold">
+
+                                    {{ $p->name }}
+
+                                </div>
+
+                                <div class="product-id">
+
+                                    {{ $p->id }}
+
+                                </div>
+
+                            </div>
+
+                        @endforeach
+
+                    </div>
+
+                </div>
+
+                <!-- QTY -->
+                <div class="col-md-2">
+
+                    <label class="form-label fw-semibold">
+                        Qty
+                    </label>
+
+                    <input
+                        type="number"
+                        name="quantity"
+                        class="form-control"
+                        placeholder="Jumlah"
+                        required
+                    >
+
+                </div>
+
+                <!-- NOTE -->
+                <div class="col-md-3">
+
+                    <label class="form-label fw-semibold">
+                        Keterangan
+                    </label>
+
+                    <input
+                        type="text"
+                        name="note"
+                        class="form-control"
+                        placeholder="Contoh: Kemasan rusak"
+                    >
+
+                </div>
+
+                <!-- BUTTON -->
+                <div class="col-md-2 d-flex align-items-end">
+
+                    <button class="btn btn-save w-100 py-3">
+
+                        <i class="fas fa-save me-2"></i>
+
+                        Simpan
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+    const searchInput = document.getElementById('search-product');
+
+    const productSelect = document.getElementById('product-select');
+
+    const productItems = document.querySelectorAll('.product-item');
+
+    const selectedProductId = document.getElementById('selected-product-id');
+
+    const selectedProduct = document.getElementById('selected-product');
+
+    const selectedProductText = document.getElementById('selected-product-text');
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEARCH
+    |--------------------------------------------------------------------------
+    */
+
+    searchInput.addEventListener('input', function () {
+
+        const keyword = this.value.toLowerCase().trim();
+
+        let found = false;
+
+        if (keyword.length > 0) {
+
+            productSelect.style.display = 'block';
+
+        } else {
+
+            productSelect.style.display = 'none';
+
+        }
+
+        productItems.forEach(item => {
+
+            const text = item.innerText.toLowerCase();
+
+            if (text.includes(keyword)) {
+
+                item.style.display = 'block';
+                found = true;
+
+            } else {
+
+                item.style.display = 'none';
+
+            }
 
         });
 
-        items.forEach(item => {
+        if (!found) {
 
-            item.addEventListener('click', function() {
+            productSelect.style.display = 'none';
 
-                hiddenInput.value =
-                    this.dataset.id;
+        }
 
-                searchInput.value =
-                    this.innerText.trim();
+    });
 
-                items.forEach(i => {
+    /*
+    |--------------------------------------------------------------------------
+    | SELECT PRODUCT
+    |--------------------------------------------------------------------------
+    */
 
-                    i.classList.remove(
-                        'bg-success',
-                        'text-white'
-                    );
+    productItems.forEach(item => {
 
-                });
+        item.addEventListener('click', function () {
 
-                this.classList.add(
-                    'bg-success',
-                    'text-white'
+            const productId = this.dataset.id;
+
+            const productName = this.querySelector('.fw-semibold').innerText;
+
+            selectedProductId.value = productId;
+
+            searchInput.value = productName;
+
+            selectedProduct.style.display = 'block';
+
+            selectedProductText.innerHTML =
+                '<strong>' + productName + '</strong><br>ID: ' + productId;
+
+            productSelect.style.display = 'none';
+
+        });
+
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | BARCODE SCANNER
+    |--------------------------------------------------------------------------
+    */
+
+    let scannerStarted = false;
+    let html5QrCode;
+
+    document.getElementById('start-scan').addEventListener('click', async function () {
+
+        const reader = document.getElementById('reader');
+
+        if (!scannerStarted) {
+
+            reader.style.display = 'block';
+
+            html5QrCode = new Html5Qrcode("reader");
+
+            try {
+
+                await html5QrCode.start(
+
+                    {
+                        facingMode: "environment"
+                    },
+
+                    {
+                        fps: 10,
+                        qrbox: 250
+                    },
+
+                    function(decodedText) {
+
+                        searchInput.value = decodedText;
+
+                        searchInput.dispatchEvent(new Event('input'));
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | AUTO PILIH PRODUK
+                        |--------------------------------------------------------------------------
+                        */
+
+                        productItems.forEach(item => {
+
+                            const text = item.innerText.toLowerCase();
+
+                            if (text.includes(decodedText.toLowerCase())) {
+
+                                item.click();
+
+                            }
+
+                        });
+
+                        html5QrCode.stop();
+
+                        scannerStarted = false;
+
+                        reader.style.display = 'none';
+
+                    }
+
                 );
 
-            });
+                scannerStarted = true;
 
-        });
-    </script>
+            } catch (err) {
+
+                alert('Camera gagal dibuka');
+
+            }
+
+        } else {
+
+            await html5QrCode.stop();
+
+            scannerStarted = false;
+
+            reader.style.display = 'none';
+
+        }
+
+    });
+
+</script>
 
 </body>
 
