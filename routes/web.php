@@ -239,6 +239,123 @@ Route::get('/api/get-returns', function (Request $request) {
     }
 });
 
+// API untuk mendapatkan inventory transaction history
+Route::get('/api/product-inventory-history', function (Request $request) {
+    $productId = $request->product_id;
+
+    if (!$productId) {
+        return response()->json(['error' => 'Product ID required'], 400);
+    }
+
+    try {
+        $transactions = DB::connection('mysql')->table('inventory')
+            ->where('productid', $productId)
+            ->orderBy('transdate', 'DESC')
+            ->orderBy('id', 'DESC')
+            ->get();
+
+        // Kategorisasi transaksi dan hitung ringkasan
+        $summary = [
+            'pembelian' => 0,      // I/PC
+            'penjualan' => 0,      // I/SL
+            'retur_penjualan' => 0, // I/SR
+            'retur_pembelian' => 0, // I/PR
+            'adjustment_masuk' => 0, // I/IM dengan invin
+            'adjustment_keluar' => 0  // I/IM dengan invout
+        ];
+
+        $categorized = [];
+        foreach ($transactions as $trans) {
+            $type = null;
+            $category = null;
+            $direction = null;
+            $quantity = 0;
+            $icon = null;
+            $color = null;
+
+            if (strpos($trans->transid, 'I/PC') === 0) {
+                // Pembelian
+                $type = 'Pembelian';
+                $category = 'pembelian';
+                $direction = 'in';
+                $quantity = $trans->invin;
+                $icon = 'fa-arrow-down';
+                $color = 'success';
+                $summary['pembelian'] += $quantity;
+            } elseif (strpos($trans->transid, 'I/SL') === 0) {
+                // Penjualan
+                $type = 'Penjualan';
+                $category = 'penjualan';
+                $direction = 'out';
+                $quantity = $trans->invout;
+                $icon = 'fa-arrow-up';
+                $color = 'warning';
+                $summary['penjualan'] += $quantity;
+            } elseif (strpos($trans->transid, 'I/SR') === 0) {
+                // Retur Penjualan (barang masuk)
+                $type = 'Retur Penjualan';
+                $category = 'retur_penjualan';
+                $direction = 'in';
+                $quantity = $trans->invin;
+                $icon = 'fa-undo';
+                $color = 'info';
+                $summary['retur_penjualan'] += $quantity;
+            } elseif (strpos($trans->transid, 'I/PR') === 0) {
+                // Retur Pembelian (barang keluar)
+                $type = 'Retur Pembelian';
+                $category = 'retur_pembelian';
+                $direction = 'out';
+                $quantity = $trans->invout;
+                $icon = 'fa-share';
+                $color = 'danger';
+                $summary['retur_pembelian'] += $quantity;
+            } elseif (strpos($trans->transid, 'I/IM') === 0) {
+                // Adjustment
+                $type = 'Adjustment';
+                if ($trans->invin > 0) {
+                    $direction = 'in';
+                    $quantity = $trans->invin;
+                    $category = 'adjustment_masuk';
+                    $summary['adjustment_masuk'] += $quantity;
+                } else {
+                    $direction = 'out';
+                    $quantity = $trans->invout;
+                    $category = 'adjustment_keluar';
+                    $summary['adjustment_keluar'] += $quantity;
+                }
+                $icon = 'fa-sliders-h';
+                $color = 'secondary';
+            }
+
+            if ($type) {
+                $categorized[] = [
+                    'id' => $trans->id,
+                    'transid' => $trans->transid,
+                    'type' => $type,
+                    'category' => $category,
+                    'direction' => $direction,
+                    'quantity' => $quantity,
+                    'date' => $trans->transdate,
+                    'memo' => $trans->memo,
+                    'icon' => $icon,
+                    'color' => $color,
+                    'reference' => $trans->reference,
+                    'invin' => $trans->invin,
+                    'invout' => $trans->invout
+                ];
+            }
+        }
+
+        return response()->json([
+            'transactions' => $categorized,
+            'summary' => $summary,
+            'total_transactions' => count($categorized)
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
 // Route::get('/list-models', function () {
 
 //     $response = Http::get(

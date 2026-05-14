@@ -1605,6 +1605,25 @@
                     <!-- BODY -->
                     <div class="modal-body p-4">
 
+                        <!-- TABS -->
+                        <ul class="nav nav-tabs mb-4" role="tablist" style="border-bottom: 2px solid #e5e7eb;">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="detail-tab" data-bs-toggle="tab" href="#detail-content" role="tab" style="color: #2563eb; border: none; padding-bottom: 12px; border-bottom: 3px solid #2563eb; font-weight: 500;">
+                                    <i class="fas fa-info-circle me-2"></i>Detail Produk
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="history-tab" data-bs-toggle="tab" href="#history-content" role="tab" onclick="loadInventoryHistory('{{ $product->id }}')" style="color: #6b7280; border: none; padding-bottom: 12px; font-weight: 500;">
+                                    <i class="fas fa-history me-2"></i>Riwayat Stok
+                                </a>
+                            </li>
+                        </ul>
+
+                        <!-- TAB CONTENT -->
+                        <div class="tab-content">
+                            <!-- DETAIL TAB -->
+                            <div class="tab-pane fade show active" id="detail-content" role="tabpanel">
+
                         <table class="table">
 
                             <tbody>
@@ -1754,6 +1773,41 @@
                             </tbody>
 
                         </table>
+
+                            </div>
+
+                            <!-- HISTORY TAB -->
+                            <div class="tab-pane fade" id="history-content" role="tabpanel">
+                                <div id="inventory-history-loading" class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="text-muted mt-2 small">Memuat riwayat stok...</p>
+                                </div>
+                                <div id="inventory-history-content" style="display: none;">
+                                    <!-- Summary Section -->
+                                    <div class="row mb-4 g-2">
+                                        <div class="col-6 col-sm-6">
+                                            <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center">
+                                                <small class="text-muted">Total Masuk</small>
+                                                <p class="mb-0 h6 text-success fw-bold" id="total-masuk">0</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-sm-6">
+                                            <div class="p-3 bg-warning bg-opacity-10 rounded-3 text-center">
+                                                <small class="text-muted">Total Keluar</small>
+                                                <p class="mb-0 h6 text-warning fw-bold" id="total-keluar">0</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Transactions List -->
+                                    <div class="inventory-transactions">
+                                        <p class="text-muted small">Tidak ada data riwayat stok</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                     </div>
 
@@ -2853,6 +2907,94 @@
                 stopScanner();
             }
         });
+
+        // ============ INVENTORY HISTORY ============
+        function loadInventoryHistory(productId) {
+            const loadingDiv = document.getElementById('inventory-history-loading');
+            const contentDiv = document.getElementById('inventory-history-content');
+            const transactionsContainer = document.querySelector('.inventory-transactions');
+
+            // Show loading state
+            loadingDiv.style.display = 'block';
+            contentDiv.style.display = 'none';
+
+            fetch(`/api/product-inventory-history?product_id=${productId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to load inventory history');
+                    return response.json();
+                })
+                .then(data => {
+                    loadingDiv.style.display = 'none';
+                    contentDiv.style.display = 'block';
+
+                    // Calculate total masuk dan keluar
+                    let totalMasuk = 0;
+                    let totalKeluar = 0;
+
+                    data.transactions.forEach(trans => {
+                        if (trans.direction === 'in') {
+                            totalMasuk += trans.quantity;
+                        } else {
+                            totalKeluar += trans.quantity;
+                        }
+                    });
+
+                    // Update summary
+                    document.getElementById('total-masuk').textContent = number_format(totalMasuk);
+                    document.getElementById('total-keluar').textContent = number_format(totalKeluar);
+
+                    // Render transactions
+                    if (data.transactions.length === 0) {
+                        transactionsContainer.innerHTML = '<p class="text-muted small">Tidak ada data riwayat stok</p>';
+                        return;
+                    }
+
+                    let html = '';
+                    data.transactions.forEach((trans, index) => {
+                        const directionClass = trans.direction === 'in' ? 'text-success' : 'text-warning';
+                        const directionText = trans.direction === 'in' ? 'MASUK' : 'KELUAR';
+                        const badgeClass = trans.direction === 'in' ? 'bg-success' : 'bg-warning';
+
+                        html += `
+                            <div class="transaction-item mb-3 p-3 border rounded-3" style="border-color: #e5e7eb !important; background: #fafbfc;">
+                                <div class="d-flex align-items-start justify-content-between">
+                                    <div class="d-flex align-items-start gap-3" style="flex: 1;">
+                                        <div class="transaction-icon" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #f3f4f6; color: #${trans.color === 'success' ? '10b981' : trans.color === 'warning' ? 'f59e0b' : trans.color === 'danger' ? 'ef4444' : trans.color === 'info' ? '06b6d4' : '6b7280'};">
+                                            <i class="fas ${trans.icon}"></i>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <strong class="small">${trans.type}</strong>
+                                                <span class="badge ${badgeClass} text-white" style="font-size: 10px; padding: 3px 8px;">${directionText}</span>
+                                            </div>
+                                            <p class="mb-1 small text-muted"><strong>${trans.transid}</strong></p>
+                                            <p class="mb-0 small text-muted">
+                                                <i class="far fa-calendar me-1"></i>
+                                                ${new Date(trans.date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                            </p>
+                                            ${trans.memo ? `<p class="mb-0 small text-muted mt-1"><i class="fas fa-comment me-1"></i>${trans.memo}</p>` : ''}
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <p class="mb-0 h6 ${directionClass}" style="font-weight: bold;">
+                                            ${trans.direction === 'in' ? '+' : '-'}${number_format(trans.quantity)}
+                                        </p>
+                                        <small class="text-muted">pcs</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    transactionsContainer.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading inventory history:', error);
+                    loadingDiv.style.display = 'none';
+                    contentDiv.style.display = 'block';
+                    transactionsContainer.innerHTML = '<p class="text-danger small">Gagal memuat riwayat stok</p>';
+                });
+        }
     </script>
 
     <!-- Bootstrap JS Bundle -->
