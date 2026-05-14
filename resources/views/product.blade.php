@@ -1613,8 +1613,13 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="history-tab" data-bs-toggle="tab" href="#history-content" role="tab" onclick="loadInventoryHistory('{{ $product->id }}')" style="color: #6b7280; border: none; padding-bottom: 12px; font-weight: 500;">
-                                    <i class="fas fa-history me-2"></i>Riwayat Stok
+                                <a class="nav-link" id="history-in-tab" data-bs-toggle="tab" href="#history-in-content" role="tab" onclick="loadInventoryHistoryTab('{{ $product->id }}', 'in')" style="color: #6b7280; border: none; padding-bottom: 12px; font-weight: 500;">
+                                    <i class="fas fa-arrow-down me-2"></i>Riwayat Masuk
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="history-out-tab" data-bs-toggle="tab" href="#history-out-content" role="tab" onclick="loadInventoryHistoryTab('{{ $product->id }}', 'out')" style="color: #6b7280; border: none; padding-bottom: 12px; font-weight: 500;">
+                                    <i class="fas fa-arrow-up me-2"></i>Riwayat Keluar
                                 </a>
                             </li>
                         </ul>
@@ -1776,34 +1781,54 @@
 
                             </div>
 
-                            <!-- HISTORY TAB -->
-                            <div class="tab-pane fade" id="history-content" role="tabpanel">
-                                <div id="inventory-history-loading" class="text-center py-4">
+                            <!-- HISTORY MASUK TAB -->
+                            <div class="tab-pane fade" id="history-in-content" role="tabpanel">
+                                <div id="inventory-history-in-loading" class="text-center py-4">
                                     <div class="spinner-border spinner-border-sm text-primary" role="status">
                                         <span class="visually-hidden">Loading...</span>
                                     </div>
-                                    <p class="text-muted mt-2 small">Memuat riwayat stok...</p>
+                                    <p class="text-muted mt-2 small">Memuat data barang masuk...</p>
                                 </div>
-                                <div id="inventory-history-content" style="display: none;">
+                                <div id="inventory-history-in-content" style="display: none;">
                                     <!-- Summary Section -->
                                     <div class="row mb-4 g-2">
-                                        <div class="col-6 col-sm-6">
+                                        <div class="col-12">
                                             <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center">
-                                                <small class="text-muted">Total Masuk</small>
+                                                <small class="text-muted">Total Barang Masuk</small>
                                                 <p class="mb-0 h6 text-success fw-bold" id="total-masuk">0</p>
                                             </div>
                                         </div>
-                                        <div class="col-6 col-sm-6">
+                                    </div>
+
+                                    <!-- Transactions List -->
+                                    <div class="inventory-transactions-in">
+                                        <p class="text-muted small">Tidak ada data barang masuk</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- HISTORY KELUAR TAB -->
+                            <div class="tab-pane fade" id="history-out-content" role="tabpanel">
+                                <div id="inventory-history-out-loading" class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="text-muted mt-2 small">Memuat data barang keluar...</p>
+                                </div>
+                                <div id="inventory-history-out-content" style="display: none;">
+                                    <!-- Summary Section -->
+                                    <div class="row mb-4 g-2">
+                                        <div class="col-12">
                                             <div class="p-3 bg-warning bg-opacity-10 rounded-3 text-center">
-                                                <small class="text-muted">Total Keluar</small>
+                                                <small class="text-muted">Total Barang Keluar</small>
                                                 <p class="mb-0 h6 text-warning fw-bold" id="total-keluar">0</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Transactions List -->
-                                    <div class="inventory-transactions">
-                                        <p class="text-muted small">Tidak ada data riwayat stok</p>
+                                    <div class="inventory-transactions-out">
+                                        <p class="text-muted small">Tidak ada data barang keluar</p>
                                     </div>
                                 </div>
                             </div>
@@ -2909,14 +2934,21 @@
         });
 
         // ============ INVENTORY HISTORY ============
-        function loadInventoryHistory(productId) {
-            const loadingDiv = document.getElementById('inventory-history-loading');
-            const contentDiv = document.getElementById('inventory-history-content');
-            const transactionsContainer = document.querySelector('.inventory-transactions');
+        function loadInventoryHistoryTab(productId, direction) {
+            const isIncoming = direction === 'in';
+            const loadingId = isIncoming ? 'inventory-history-in-loading' : 'inventory-history-out-loading';
+            const contentId = isIncoming ? 'inventory-history-in-content' : 'inventory-history-out-content';
+            const containerId = isIncoming ? 'inventory-transactions-in' : 'inventory-transactions-out';
+            const totalId = isIncoming ? 'total-masuk' : 'total-keluar';
 
-            // Show loading state
+            const loadingDiv = document.getElementById(loadingId);
+            const contentDiv = document.getElementById(contentId);
+            const transactionsContainer = document.querySelector(`.${containerId}`);
+
+            // Reset state setiap kali di-click
             loadingDiv.style.display = 'block';
             contentDiv.style.display = 'none';
+            transactionsContainer.innerHTML = '';
 
             fetch(`/api/product-inventory-history?product_id=${productId}`)
                 .then(response => {
@@ -2924,36 +2956,31 @@
                     return response.json();
                 })
                 .then(data => {
-                    loadingDiv.style.display = 'none';
-                    contentDiv.style.display = 'block';
+                    // Filter transactions berdasarkan direction
+                    const filteredTransactions = data.transactions.filter(trans => trans.direction === direction);
 
-                    // Calculate total masuk dan keluar
-                    let totalMasuk = 0;
-                    let totalKeluar = 0;
-
-                    data.transactions.forEach(trans => {
-                        if (trans.direction === 'in') {
-                            totalMasuk += trans.quantity;
-                        } else {
-                            totalKeluar += trans.quantity;
-                        }
+                    // Calculate total
+                    let total = 0;
+                    filteredTransactions.forEach(trans => {
+                        total += trans.quantity;
                     });
 
                     // Update summary
-                    document.getElementById('total-masuk').textContent = number_format(totalMasuk);
-                    document.getElementById('total-keluar').textContent = number_format(totalKeluar);
+                    document.getElementById(totalId).textContent = number_format(total);
 
                     // Render transactions
-                    if (data.transactions.length === 0) {
-                        transactionsContainer.innerHTML = '<p class="text-muted small">Tidak ada data riwayat stok</p>';
+                    if (filteredTransactions.length === 0) {
+                        transactionsContainer.innerHTML = `<p class="text-muted small">Tidak ada data barang ${isIncoming ? 'masuk' : 'keluar'}</p>`;
+                        loadingDiv.style.display = 'none';
+                        contentDiv.style.display = 'block';
                         return;
                     }
 
                     let html = '';
-                    data.transactions.forEach((trans, index) => {
-                        const directionClass = trans.direction === 'in' ? 'text-success' : 'text-warning';
-                        const directionText = trans.direction === 'in' ? 'MASUK' : 'KELUAR';
-                        const badgeClass = trans.direction === 'in' ? 'bg-success' : 'bg-warning';
+                    filteredTransactions.forEach((trans, index) => {
+                        const badgeClass = isIncoming ? 'bg-success' : 'bg-warning';
+                        const directionText = isIncoming ? 'MASUK' : 'KELUAR';
+                        const colorClass = isIncoming ? 'text-success' : 'text-warning';
 
                         html += `
                             <div class="transaction-item mb-3 p-3 border rounded-3" style="border-color: #e5e7eb !important; background: #fafbfc;">
@@ -2976,8 +3003,8 @@
                                         </div>
                                     </div>
                                     <div class="text-end">
-                                        <p class="mb-0 h6 ${directionClass}" style="font-weight: bold;">
-                                            ${trans.direction === 'in' ? '+' : '-'}${number_format(trans.quantity)}
+                                        <p class="mb-0 h6 ${colorClass}" style="font-weight: bold;">
+                                            +${number_format(trans.quantity)}
                                         </p>
                                         <small class="text-muted">pcs</small>
                                     </div>
@@ -2987,12 +3014,14 @@
                     });
 
                     transactionsContainer.innerHTML = html;
+                    loadingDiv.style.display = 'none';
+                    contentDiv.style.display = 'block';
                 })
                 .catch(error => {
                     console.error('Error loading inventory history:', error);
                     loadingDiv.style.display = 'none';
                     contentDiv.style.display = 'block';
-                    transactionsContainer.innerHTML = '<p class="text-danger small">Gagal memuat riwayat stok</p>';
+                    transactionsContainer.innerHTML = `<p class="text-danger small">Gagal memuat data barang ${isIncoming ? 'masuk' : 'keluar'}</p>`;
                 });
         }
     </script>
