@@ -136,6 +136,87 @@ Route::get('/sales-detail/{tanggal}', function ($tanggal) {
     );
 });
 
+Route::get('/sales-hour-analysis', function (Request $request) {
+
+    $startDate = $request->start_date ?? now()->subDays(30)->format('Y-m-d');
+    $endDate = $request->end_date ?? now()->format('Y-m-d');
+
+    /*
+    |--------------------------------------------------------------------------
+    | ANALISIS JAM RAMAI TOKO
+    |--------------------------------------------------------------------------
+    */
+
+    $hourlyAnalysis = DB::table('salesdetail')
+
+        ->join('sales', 'salesdetail.salesid', '=', 'sales.salesidref')
+
+        ->select(
+
+            DB::raw('HOUR(sales.salestime) as hour'),
+
+            DB::raw('DAYNAME(sales.salestime) as day_name'),
+
+            DB::raw('DATE_FORMAT(sales.salestime, "%H:00") as hour_label'),
+
+            DB::raw('COUNT(DISTINCT sales.salesidref) as transaction_count'),
+
+            DB::raw('SUM(salesdetail.salesqty) as total_qty'),
+
+            DB::raw('SUM(salesdetail.netamount) as total_amount'),
+
+            DB::raw('SUM(salesdetail.cogs) as total_cogs'),
+
+            DB::raw('SUM(salesdetail.netamount - salesdetail.cogs) as total_margin'),
+
+            DB::raw('ROUND(SUM(salesdetail.netamount - salesdetail.cogs) / NULLIF(SUM(salesdetail.netamount), 0) * 100, 2) as margin_percent')
+
+        )
+
+        ->whereDate('sales.salestime', '>=', $startDate)
+
+        ->whereDate('sales.salestime', '<=', $endDate)
+
+        ->groupBy(DB::raw('HOUR(sales.salestime)'))
+
+        ->orderBy('hour', 'ASC')
+
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUMMARY STATISTIK
+    |--------------------------------------------------------------------------
+    */
+
+    $totalTransactions = $hourlyAnalysis->sum('transaction_count');
+
+    $totalAmount = $hourlyAnalysis->sum('total_amount');
+
+    $totalMargin = $hourlyAnalysis->sum('total_margin');
+
+    $peakHour = $hourlyAnalysis->sortByDesc('total_amount')->first();
+
+    return view('sales-hour-analysis', compact(
+
+        'hourlyAnalysis',
+
+        'startDate',
+
+        'endDate',
+
+        'totalTransactions',
+
+        'totalAmount',
+
+        'totalMargin',
+
+        'peakHour'
+
+    ));
+
+});
+
 Route::get('/api/pesanan-shopee', [PesananShopeeController::class, 'apiList']);
 
 Route::get('/api/get-returns-by-group', function (Request $request) {
