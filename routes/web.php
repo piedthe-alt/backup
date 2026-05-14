@@ -188,7 +188,7 @@ Route::post('/returns/store', [ProductReturnController::class, 'store']);
 Route::get('/return', [ProductReturnController::class, 'index']);
 Route::post('/returns/taken/{id}', function ($id) {
 
-    DB::connection('u990824557_db_app')
+    DB::connection('mysql_app')
 
         ->table('product_returns')
 
