@@ -525,8 +525,8 @@
             .cart-toggle {
                 width: 54px;
                 height: 54px;
-                bottom: 16px;
-                right: 16px;
+                bottom: 50px;
+                right: 30px;
                 font-size: 1.1rem;
             }
 
