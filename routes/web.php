@@ -1819,11 +1819,7 @@ Route::get('/api/all-sales', function (Illuminate\Http\Request $request) {
         |--------------------------------------------------------------------------
         */
 
-        ->where(
-            'salesdetail.salesid',
-            'like',
-            'I-SL%'
-        )
+        ->where('salesdetail.salesid', 'LIKE', 'I/SL%')
 
         /*
         |--------------------------------------------------------------------------
