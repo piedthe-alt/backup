@@ -518,21 +518,17 @@
 
             <i class="fas fa-search search-icon"></i>
 
-            <input type="text"
-                id="searchInput"
-                class="search-input"
-                placeholder="Cari produk...">
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari produk...">
 
         </div>
+
 
         <!-- GRID -->
 
         <div class="product-grid" id="productGrid">
 
             @foreach ($products as $product)
-                <div class="product-card"
-                    data-product-id="{{ $product->id }}"
-                    data-product-name="{{ $product->name }}"
+                <div class="product-card" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}"
                     data-product-price="{{ $product->salesprice1 }}">
 
                     <div class="product-image">
@@ -555,13 +551,9 @@
 
                         <div class="product-actions">
 
-                            <input type="number"
-                                class="qty-input"
-                                value="1"
-                                min="1">
+                            <input type="number" class="qty-input" value="1" min="1">
 
-                            <button class="btn-add"
-                                onclick="addToCart(event)">
+                            <button class="btn-add" onclick="addToCart(event)">
 
                                 <i class="fas fa-cart-plus me-1"></i>
                                 Beli
@@ -578,7 +570,9 @@
         </div>
 
     </div>
-
+    <div class="mt-4">
+        {{ $products->links() }}
+    </div>
     <!-- CART BUTTON -->
 
     <button class="cart-toggle" onclick="toggleCart()">
@@ -602,8 +596,7 @@
                 Keranjang
             </div>
 
-            <button class="btn btn-sm btn-light"
-                onclick="toggleCart()">
+            <button class="btn btn-sm btn-light" onclick="toggleCart()">
 
                 <i class="fas fa-times"></i>
 
@@ -630,8 +623,7 @@
                 <span id="totalPrice">Rp 0</span>
             </div>
 
-            <button class="btn-checkout"
-                onclick="openCheckout()">
+            <button class="btn-checkout" onclick="openCheckout()">
 
                 <i class="fas fa-credit-card me-2"></i>
                 Checkout
@@ -654,8 +646,7 @@
                     Checkout
                 </h5>
 
-                <button class="btn btn-light"
-                    onclick="closeCheckout()">
+                <button class="btn btn-light" onclick="closeCheckout()">
 
                     <i class="fas fa-times"></i>
 
@@ -671,10 +662,7 @@
                         Nama Pembeli
                     </label>
 
-                    <input type="text"
-                        name="customer_name"
-                        class="form-control-custom"
-                        required>
+                    <input type="text" name="customer_name" class="form-control-custom" required>
 
                 </div>
 
@@ -684,9 +672,7 @@
                         Nomor HP
                     </label>
 
-                    <input type="text"
-                        name="customer_phone"
-                        class="form-control-custom">
+                    <input type="text" name="customer_phone" class="form-control-custom">
 
                 </div>
 
@@ -696,9 +682,7 @@
                         Alamat
                     </label>
 
-                    <textarea name="customer_address"
-                        class="form-control-custom"
-                        rows="3"></textarea>
+                    <textarea name="customer_address" class="form-control-custom" rows="3"></textarea>
 
                 </div>
 
@@ -708,9 +692,7 @@
                         Catatan
                     </label>
 
-                    <textarea name="notes"
-                        class="form-control-custom"
-                        rows="2"></textarea>
+                    <textarea name="notes" class="form-control-custom" rows="2"></textarea>
 
                 </div>
 
@@ -949,10 +931,8 @@
                             card.dataset.productName.toLowerCase();
 
                         card.style.display =
-                            name.includes(keyword)
-                            ?
-                            ''
-                            :
+                            name.includes(keyword) ?
+                            '' :
                             'none';
                     });
             });

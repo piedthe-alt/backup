@@ -1468,6 +1468,8 @@ Route::get('/shop', function () {
 
         )
 
+        ->where('product.isactive', 1)
+
         ->groupBy(
             'product.id',
             'product.name',
@@ -1476,7 +1478,7 @@ Route::get('/shop', function () {
 
         ->orderBy('product.name')
 
-        ->get();
+        ->paginate(50); // ← penting
 
     return view(
         'shop',
