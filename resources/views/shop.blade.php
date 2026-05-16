@@ -782,6 +782,7 @@
 
             @foreach ($products as $product)
                 <div class="product-card" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}"
+                    data-product-price="{{ $product->salesprice1 }}" data-product-stock="{{ $product->stock }}">
                     data-product-price="{{ $product->salesprice1 }}">
 
                     <div class="product-image">
@@ -1059,15 +1060,28 @@
 
         function addToCart(event) {
 
-            const card = event.target.closest('.product-card');
+            const button = event.target.closest('.btn-add');
+
+            const card = button.closest('.product-card');
 
             const id = card.dataset.productId;
             const name = card.dataset.productName;
             const price = parseFloat(card.dataset.productPrice);
+            const stock = parseInt(card.dataset.productStock);
 
             const qty = parseInt(
                 card.querySelector('.qty-input').value
             );
+
+            const currentQty = cart[id] ? cart[id].quantity : 0;
+
+            // VALIDASI STOCK
+            if ((currentQty + qty) > stock) {
+
+                alert(`Stock ${name} hanya tersedia ${stock}`);
+
+                return;
+            }
 
             if (!cart[id]) {
 
@@ -1075,7 +1089,8 @@
                     id,
                     name,
                     price,
-                    quantity: 0
+                    quantity: 0,
+                    stock
                 };
             }
 
@@ -1085,6 +1100,27 @@
                 'shopCart',
                 JSON.stringify(cart)
             );
+
+            // ANIMASI
+            animateToCart(button);
+
+            button.classList.add('added');
+
+            button.innerHTML = `
+        <i class="fas fa-check me-1"></i>
+        Masuk
+    `;
+
+            setTimeout(() => {
+
+                button.classList.remove('added');
+
+                button.innerHTML = `
+            <i class="fas fa-cart-plus me-1"></i>
+            Beli
+        `;
+
+            }, 1000);
 
             updateCart();
         }
@@ -1241,6 +1277,16 @@
                 customer_address: formData.get('customer_address'),
                 notes: formData.get('notes'),
             };
+            // VALIDASI STOCK FINAL
+            for (const item of Object.values(cart)) {
+
+                if (item.quantity > item.stock) {
+
+                    alert(`Jumlah ${item.name} melebihi stock tersedia`);
+
+                    return;
+                }
+            }
 
             const response = await fetch('/shop/order', {
 
