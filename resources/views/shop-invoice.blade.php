@@ -223,8 +223,8 @@
 
         <!-- HEADER -->
         <div class="header">
-            <div class="store-name">🏪 TOKO ONLINE</div>
-            <p style="font-size: 11px; color: #666;">Terima kasih telah berbelanja bersama kami</p>
+            <div class="store-name">🏪 SJ MART</div>
+            <p style="font-size: 11px; color: #666;">Terima kasih telah berbelanja di SJ MART</p>
         </div>
 
         <!-- INVOICE INFO -->
