@@ -1715,11 +1715,11 @@ Route::get('/api/all-sales', function (Illuminate\Http\Request $request) {
 
     /*
     |--------------------------------------------------------------------------
-    | QUERY
+    | AMBIL SEMUA TRANSAKSI
     |--------------------------------------------------------------------------
     */
 
-    $query = DB::table('salesdetail')
+    $rows = DB::table('salesdetail')
 
         ->join(
             'sales',
@@ -1750,57 +1750,21 @@ Route::get('/api/all-sales', function (Illuminate\Http\Request $request) {
 
             'salesdetail.productid',
 
-            /*
-            |--------------------------------------------------------------------------
-            | QTY
-            |--------------------------------------------------------------------------
-            */
-
             'salesdetail.salesqty',
-
-            /*
-            |--------------------------------------------------------------------------
-            | PRICE
-            |--------------------------------------------------------------------------
-            */
 
             'salesdetail.price',
 
-            /*
-            |--------------------------------------------------------------------------
-            | GROSS
-            |--------------------------------------------------------------------------
-            */
-
             'salesdetail.grossamount',
-
-            /*
-            |--------------------------------------------------------------------------
-            | DISCOUNT
-            |--------------------------------------------------------------------------
-            */
 
             'salesdetail.valuedisc',
 
-            /*
-            |--------------------------------------------------------------------------
-            | NET
-            |--------------------------------------------------------------------------
-            */
-
             'salesdetail.netamount',
-
-            /*
-            |--------------------------------------------------------------------------
-            | TOTAL COGS
-            |--------------------------------------------------------------------------
-            */
 
             'salesdetail.cogs',
 
             /*
             |--------------------------------------------------------------------------
-            | HPP PER PCS
+            | HPP PCS
             |--------------------------------------------------------------------------
             */
 
@@ -1815,44 +1779,149 @@ Route::get('/api/all-sales', function (Illuminate\Http\Request $request) {
 
         /*
         |--------------------------------------------------------------------------
-        | HANYA TRANSAKSI PENJUALAN
+        | HANYA SALES
         |--------------------------------------------------------------------------
         */
 
-        ->where('salesdetail.salesid', 'LIKE', 'I/SL%')
+        ->where(
+            'salesdetail.salesid',
+            'like',
+            'I/SL-%'
+        )
 
         /*
         |--------------------------------------------------------------------------
-        | SORT
+        | FILTER TANGGAL
         |--------------------------------------------------------------------------
         */
 
-        ->orderBy(
-            'sales.salestime',
-            'DESC'
-        );
+        ->when(
+            $startDate && $endDate,
+            function ($query) use ($startDate, $endDate) {
+
+                $query->whereBetween(
+                    DB::raw('DATE(sales.salesdate)'),
+                    [$startDate, $endDate]
+                );
+            }
+        )
+
+        /*
+        |--------------------------------------------------------------------------
+        | SORT ASCENDING
+        |--------------------------------------------------------------------------
+        */
+
+        ->orderByRaw('
+            CAST(
+                SUBSTRING_INDEX(salesdetail.salesid, "-", -1)
+                AS UNSIGNED
+            ) ASC
+        ')
+
+        ->get();
 
     /*
     |--------------------------------------------------------------------------
-    | FILTER TANGGAL OPTIONAL
+    | GROUP BY SALESID
     |--------------------------------------------------------------------------
     */
 
-    if ($startDate && $endDate) {
+    $grouped = [];
 
-        $query->whereBetween(
-            DB::raw('DATE(sales.salesdate)'),
-            [$startDate, $endDate]
-        );
+    foreach ($rows as $row) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | JIKA BELUM ADA TRANSAKSI
+        |--------------------------------------------------------------------------
+        */
+
+        if (!isset($grouped[$row->salesid])) {
+
+            $grouped[$row->salesid] = [
+
+                'salesid' => $row->salesid,
+
+                'salesdate' => $row->salesdate,
+
+                'salestime' => $row->salestime,
+
+                /*
+                |--------------------------------------------------------------------------
+                | TOTAL TRANSAKSI
+                |--------------------------------------------------------------------------
+                */
+
+                'total_grossamount' => 0,
+
+                'total_discount' => 0,
+
+                'total_netamount' => 0,
+
+                'total_cogs' => 0,
+
+                /*
+                |--------------------------------------------------------------------------
+                | ITEMS
+                |--------------------------------------------------------------------------
+                */
+
+                'items' => []
+            ];
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | TAMBAH TOTAL
+        |--------------------------------------------------------------------------
+        */
+
+        $grouped[$row->salesid]['total_grossamount']
+            += $row->grossamount;
+
+        $grouped[$row->salesid]['total_discount']
+            += $row->valuedisc;
+
+        $grouped[$row->salesid]['total_netamount']
+            += $row->netamount;
+
+        $grouped[$row->salesid]['total_cogs']
+            += $row->cogs;
+
+        /*
+        |--------------------------------------------------------------------------
+        | MASUKKAN ITEM
+        |--------------------------------------------------------------------------
+        */
+
+        $grouped[$row->salesid]['items'][] = [
+
+            'productid' => $row->productid,
+
+            'salesqty' => $row->salesqty,
+
+            'price' => $row->price,
+
+            'grossamount' => $row->grossamount,
+
+            'valuedisc' => $row->valuedisc,
+
+            'netamount' => $row->netamount,
+
+            'cogs' => $row->cogs,
+
+            'hpp' => round($row->hpp, 2)
+        ];
     }
 
     /*
     |--------------------------------------------------------------------------
-    | GET DATA
+    | RESET INDEX ARRAY
     |--------------------------------------------------------------------------
     */
 
-    $data = $query->get();
+    $final = array_values($grouped);
 
     /*
     |--------------------------------------------------------------------------
@@ -1864,9 +1933,9 @@ Route::get('/api/all-sales', function (Illuminate\Http\Request $request) {
 
         'success' => true,
 
-        'total_rows' => $data->count(),
+        'total_transactions' => count($final),
 
-        'data' => $data
+        'data' => $final
 
     ]);
 });
