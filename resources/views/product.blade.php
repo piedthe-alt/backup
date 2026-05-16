@@ -1125,9 +1125,9 @@
                                 <i class="fas fa-robot"></i> AI Analysis
                             </a>
 
-                            <a href="/sales-chart" class="btn btn-action btn-info">
+                            {{-- <a href="/sales-chart" class="btn btn-action btn-info">
                                 <i class="fas fa-chart-line"></i> Grafik
-                            </a>
+                            </a> --}}
 
                             <!-- TOMBOL RETUR -->
                             <a href="/return" class="btn btn-action btn-secondary">
