@@ -522,6 +522,51 @@
                 right: -100%;
             }
 
+            /* ANIMASI ADD TO CART */
+
+            .fly-item {
+                position: fixed;
+                z-index: 9999;
+                pointer-events: none;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 1.2rem;
+                box-shadow: 0 10px 25px rgba(37, 99, 235, .35);
+                transition:
+                    transform .8s cubic-bezier(.2, .8, .2, 1),
+                    opacity .8s ease,
+                    left .8s cubic-bezier(.2, .8, .2, 1),
+                    top .8s cubic-bezier(.2, .8, .2, 1);
+            }
+
+            .cart-toggle.bump {
+                animation: cartBump .35s ease;
+            }
+
+            @keyframes cartBump {
+                0% {
+                    transform: scale(1);
+                }
+
+                50% {
+                    transform: scale(1.18);
+                }
+
+                100% {
+                    transform: scale(1);
+                }
+            }
+
+            .btn-add.added {
+                background: linear-gradient(135deg, #10b981, #059669);
+            }
+
             .cart-toggle {
                 width: 54px;
                 height: 54px;
@@ -907,6 +952,48 @@
     </div>
 
     <script>
+        function animateToCart(button) {
+
+            const cartBtn = document.querySelector('.cart-toggle');
+
+            const startRect = button.getBoundingClientRect();
+            const endRect = cartBtn.getBoundingClientRect();
+
+            const fly = document.createElement('div');
+
+            fly.className = 'fly-item';
+
+            fly.innerHTML = '<i class="fas fa-shopping-bag"></i>';
+
+            fly.style.left = startRect.left + 'px';
+            fly.style.top = startRect.top + 'px';
+
+            document.body.appendChild(fly);
+
+            requestAnimationFrame(() => {
+
+                fly.style.left = endRect.left + 10 + 'px';
+                fly.style.top = endRect.top + 10 + 'px';
+
+                fly.style.transform = 'scale(.3)';
+                fly.style.opacity = '0.3';
+            });
+
+            setTimeout(() => {
+
+                fly.remove();
+
+                cartBtn.classList.add('bump');
+
+                setTimeout(() => {
+                    cartBtn.classList.remove('bump');
+                }, 350);
+
+            }, 800);
+        }
+    </script>
+
+    <script>
         let cart = JSON.parse(localStorage.getItem('shopCart')) || {};
 
         function addToCart(event) {
@@ -942,6 +1029,25 @@
         }
 
         function updateCart() {
+            animateToCart(event.target);
+
+            event.target.classList.add('added');
+
+            event.target.innerHTML = `
+    <i class="fas fa-check me-1"></i>
+    Masuk
+`;
+
+            setTimeout(() => {
+
+                event.target.classList.remove('added');
+
+                event.target.innerHTML = `
+        <i class="fas fa-cart-plus me-1"></i>
+        Beli
+    `;
+
+            }, 1000);
 
             const items = Object.values(cart);
 
