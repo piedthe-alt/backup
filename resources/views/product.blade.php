@@ -14,6 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
         * {
@@ -1180,9 +1181,20 @@
                         <!-- SEARCH -->
                         <div class="col-md-6">
 
-                            <input type="text" name="keyword" id="searchInput" class="form-control search-input"
-                                placeholder="🔍 Cari nama produk atau scan barcode..." value="{{ request('keyword') }}"
-                                autofocus>
+                            <div class="d-flex gap-2">
+
+                                <input type="text" name="keyword" id="searchInput" class="form-control search-input"
+                                    placeholder="🔍 Cari nama produk atau scan barcode..." value="{{ request('keyword') }}"
+                                    autofocus>
+
+                                <button type="button" id="start-scanner" class="btn btn-dark" style="white-space: nowrap;">
+                                    <i class="fas fa-barcode"></i>
+                                </button>
+
+                            </div>
+
+                            <!-- SCANNER -->
+                            <div id="reader" style="width: 100%; margin-top: 10px; display: none;"></div>
 
                         </div>
 
@@ -3095,6 +3107,117 @@
                     transactionsContainer.innerHTML = `<p class="text-danger small">Gagal memuat data barang masuk</p>`;
                 });
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | BARCODE SCANNER
+        |--------------------------------------------------------------------------
+        */
+
+        const searchInput = document.getElementById('searchInput');
+        const scannerBtn = document.getElementById('start-scanner');
+        const readerDiv = document.getElementById('reader');
+
+        let scannerRunning = false;
+        let html5QrCode = null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | START SCANNER
+        |--------------------------------------------------------------------------
+        */
+
+        scannerBtn.addEventListener('click', async function() {
+
+            if (scannerRunning) {
+
+                await html5QrCode.stop();
+
+                readerDiv.style.display = 'none';
+
+                scannerRunning = false;
+
+                scannerBtn.innerHTML = '<i class="fas fa-barcode"></i>';
+
+                return;
+            }
+
+            readerDiv.style.display = 'block';
+
+            html5QrCode = new Html5Qrcode("reader");
+
+            scannerRunning = true;
+
+            scannerBtn.innerHTML = '<i class="fas fa-times"></i>';
+
+            Html5Qrcode.getCameras()
+
+                .then(devices => {
+
+                    if (devices && devices.length) {
+
+                        let cameraId = devices[0].id;
+
+                        const backCamera = devices.find(device =>
+
+                            device.label.toLowerCase().includes('back') ||
+                            device.label.toLowerCase().includes('rear')
+
+                        );
+
+                        if (backCamera) {
+
+                            cameraId = backCamera.id;
+
+                        }
+
+                        html5QrCode.start(
+
+                            cameraId,
+
+                            {
+
+                                fps: 15,
+
+                                qrbox: {
+                                    width: 250,
+                                    height: 120
+                                }
+
+                            },
+
+                            async (decodedText) => {
+
+                                searchInput.value = decodedText;
+
+                                if (navigator.vibrate) {
+                                    navigator.vibrate(200);
+                                }
+
+                                await html5QrCode.stop();
+
+                                scannerRunning = false;
+
+                                readerDiv.style.display = 'none';
+
+                                scannerBtn.innerHTML = '<i class="fas fa-barcode"></i>';
+                            }
+
+                        );
+
+                    }
+
+                })
+
+                .catch(err => {
+
+                    alert('Kamera gagal dibuka');
+
+                    console.log(err);
+
+                });
+
+        });
     </script>
 
     <!-- Bootstrap JS Bundle -->
