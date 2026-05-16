@@ -225,7 +225,7 @@
 
         .cart-toggle {
             position: fixed;
-            bottom: 20px;
+            bottom: 50px;
             right: 20px;
             width: 65px;
             height: 65px;
