@@ -2679,3 +2679,103 @@ Route::get('/retail-intelligence', function () {
         )
     );
 });
+
+/*
+|--------------------------------------------------------------------------
+| API - SEARCH PRODUCT BY BARCODE/NAME
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/api/search-product-by-barcode', function (Request $request) {
+
+    $keyword = $request->query('keyword');
+
+    if (!$keyword) {
+        return response()->json(['error' => 'Keyword required'], 400);
+    }
+
+    $product = DB::table('product')
+
+        ->leftJoin('productgroup', 'product.productgroup', '=', 'productgroup.id')
+
+        ->leftJoin('supplier', 'product.supplier', '=', 'supplier.id')
+
+        ->leftJoin(
+            'inventory',
+            'product.id',
+            '=',
+            'inventory.productid'
+        )
+
+        ->select(
+
+            'product.id',
+            'product.name',
+            'product.productgroup',
+            DB::raw('COALESCE(productgroup.name, "-") as productgroup_name'),
+            DB::raw('COALESCE(supplier.name, "-") as supplier_name'),
+
+            DB::raw('
+                COALESCE(
+                    SUM(inventory.invin - inventory.invout),
+                    0
+                ) as stock
+            '),
+
+            DB::raw('
+                COALESCE(
+                    SUM(CASE WHEN inventory.transtype = "IN" THEN inventory.invin ELSE 0 END),
+                    0
+                ) as total_masuk
+            '),
+
+            DB::raw('
+                COALESCE(
+                    SUM(CASE WHEN inventory.transtype = "OUT" THEN inventory.invout ELSE 0 END),
+                    0
+                ) as total_keluar
+            ')
+
+        )
+
+        ->where('product.isactive', 1)
+
+        ->where(function ($q) use ($keyword) {
+
+            $q->where('product.id', 'like', "%{$keyword}%")
+
+              ->orWhere('product.name', 'like', "%{$keyword}%");
+
+        })
+
+        ->groupBy(
+
+            'product.id',
+            'product.name',
+            'product.productgroup',
+            'productgroup.name',
+            'supplier.name'
+
+        )
+
+        ->first();
+
+    if ($product) {
+
+        return response()->json([
+
+            'success' => true,
+            'data' => $product
+
+        ]);
+
+    } else {
+
+        return response()->json([
+
+            'success' => false,
+            'message' => 'Produk tidak ditemukan'
+
+        ], 404);
+    }
+});

@@ -2890,7 +2890,7 @@
 
                 /*
                 |--------------------------------------------------------------------------
-                | AUTO SUBMIT
+                | CLOSE SCANNER & FETCH PRODUCT
                 |--------------------------------------------------------------------------
                 */
 
@@ -2898,12 +2898,146 @@
 
                     stopScanner();
 
-                    document
-                        .querySelector('form[method="GET"]')
-                        .submit();
+                    // Fetch product data via API
+                    searchProductByBarcode(scannedValue);
 
                 }, 700);
             }
+        }
+
+        // ==========================================================================
+        // SEARCH PRODUCT BY BARCODE VIA API
+        // ==========================================================================
+
+        async function searchProductByBarcode(barcode) {
+
+            try {
+
+                const response = await fetch(
+                    `/api/search-product-by-barcode?keyword=${encodeURIComponent(barcode)}`
+                );
+
+                const result = await response.json();
+
+                if (result.success && result.data) {
+
+                    // Show dynamic modal with product info
+                    showProductModal(result.data);
+
+                } else {
+
+                    alert(`Produk "${barcode}" tidak ditemukan`);
+                }
+
+            } catch (error) {
+
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mencari produk');
+            }
+        }
+
+        // ==========================================================================
+        // SHOW DYNAMIC PRODUCT MODAL
+        // ==========================================================================
+
+        function showProductModal(product) {
+
+            const modalHtml = `
+                <div class="modal fade" id="scanResultModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg rounded-4">
+                            <div class="modal-header bg-primary text-white">
+                                <div>
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-box me-2"></i>${product.name}
+                                    </h5>
+                                    <small class="text-white-50">Hasil Scan Produk</small>
+                                </div>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th width="250">
+                                                <i class="fas fa-barcode me-2 text-success"></i>Kode Barang
+                                            </th>
+                                            <td>
+                                                <span class="badge bg-success text-white">${product.id}</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                <i class="fas fa-tag me-2 text-primary"></i>Group Produk
+                                            </th>
+                                            <td>
+                                                <span class="badge bg-light text-dark">${product.productgroup_name}</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                <i class="fas fa-truck me-2 text-primary"></i>Supplier
+                                            </th>
+                                            <td>
+                                                ${product.supplier_name}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                <i class="fas fa-warehouse me-2 text-info"></i>Stock Saat Ini
+                                            </th>
+                                            <td>
+                                                <strong class="text-info">${parseInt(product.stock).toLocaleString('id-ID')} pcs</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                <i class="fas fa-arrow-down me-2 text-success"></i>Total Barang Masuk
+                                            </th>
+                                            <td>
+                                                <strong class="text-success">${parseInt(product.total_masuk).toLocaleString('id-ID')}</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                <i class="fas fa-arrow-up me-2 text-warning"></i>Total Barang Keluar
+                                            </th>
+                                            <td>
+                                                <strong class="text-warning">${parseInt(product.total_keluar).toLocaleString('id-ID')}</strong>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Remove old modal if exists
+            const oldModal = document.getElementById('scanResultModal');
+            if (oldModal) {
+                oldModal.remove();
+            }
+
+            // Add new modal to page
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            // Show modal
+            const modal = new bootstrap.Modal(
+                document.getElementById('scanResultModal')
+            );
+
+            modal.show();
+
+            // Remove modal from DOM when hidden
+            document.getElementById('scanResultModal')
+                .addEventListener('hidden.bs.modal', function() {
+                    this.remove();
+                });
         }
 
         // ==========================================================================
