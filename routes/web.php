@@ -1437,3 +1437,141 @@ Route::post('/pesanan-shopee/store', [PesananShopeeController::class, 'store']);
 Route::get('/pesanan-shopee/detail/{id}', [PesananShopeeController::class, 'show']);
 Route::post('/pesanan-shopee/update-status/{id}', [PesananShopeeController::class, 'updateStatus']);
 Route::get('/api/products', [PesananShopeeController::class, 'getProducts']);
+
+/*
+|--------------------------------------------------------------------------
+| SHOPPING PAGE
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/shop', function () {
+
+    $products = DB::table('product')
+        ->orderBy('name')
+        ->get();
+
+    return view('shop', compact('products'));
+});
+
+/*
+|--------------------------------------------------------------------------
+| CREATE ORDER FROM SHOP
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/shop/order', function (Request $request) {
+
+    try {
+
+        $data = $request->validate([
+            'items' => 'required|json',
+            'customer_name' => 'required|string',
+            'customer_phone' => 'nullable|string',
+            'customer_address' => 'nullable|string',
+            'notes' => 'nullable|string',
+        ]);
+
+        $items = json_decode($data['items'], true);
+
+        if (empty($items)) {
+            return response()->json(['error' => 'Keranjang kosong'], 400);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | SAVE TO mysql_app (u990824557_db_app)
+        |--------------------------------------------------------------------------
+        */
+
+        $productIds = [];
+        $productQtys = [];
+        $totalAmount = 0;
+        $orderDetails = [];
+
+        foreach ($items as $item) {
+
+            $productIds[] = $item['id'];
+            $productQtys[] = $item['quantity'];
+            $totalAmount += $item['price'] * $item['quantity'];
+
+            $orderDetails[] = [
+                'productid' => $item['id'],
+                'product_name' => $item['name'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+                'subtotal' => $item['price'] * $item['quantity'],
+                'created_at' => now(),
+            ];
+        }
+
+        // Save ke mysql_app
+        $orderId = DB::connection('u990824557_db_app')->table('shop_orders')->insertGetId([
+            'customer_name' => $data['customer_name'],
+            'customer_phone' => $data['customer_phone'],
+            'customer_address' => $data['customer_address'],
+            'notes' => $data['notes'],
+            'product_ids' => json_encode($productIds),
+            'quantities' => json_encode($productQtys),
+            'total_amount' => $totalAmount,
+            'status' => 'pending',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'order_id' => $orderId,
+            'total' => $totalAmount,
+            'items' => $orderDetails,
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+/*
+|--------------------------------------------------------------------------
+| GENERATE PDF
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/shop/order/{orderId}/pdf', function ($orderId) {
+
+    try {
+
+        $order = DB::connection('u990824557_db_app')
+            ->table('shop_orders')
+            ->find($orderId);
+
+        if (!$order) {
+            return response()->json(['error' => 'Order tidak ditemukan'], 404);
+        }
+
+        $productIds = json_decode($order->product_ids, true);
+        $quantities = json_decode($order->quantities, true);
+
+        $items = [];
+        foreach ($productIds as $key => $productId) {
+            $product = DB::table('product')->find($productId);
+            if ($product) {
+                $items[] = [
+                    'name' => $product->name,
+                    'quantity' => $quantities[$key],
+                    'price' => $product->salesprice1,
+                    'subtotal' => $product->salesprice1 * $quantities[$key],
+                ];
+            }
+        }
+
+        return view('shop-invoice', [
+            'order' => $order,
+            'items' => $items,
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
