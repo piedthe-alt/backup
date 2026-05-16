@@ -225,8 +225,8 @@
 
         .cart-toggle {
             position: fixed;
-            bottom: 100px;
-            right: 50px;
+            bottom: 20px;
+            right: 20px;
             width: 65px;
             height: 65px;
             border-radius: 50%;
@@ -526,7 +526,7 @@
                 width: 54px;
                 height: 54px;
                 bottom: 50px;
-                right: 30px;
+                right: 25px;
                 font-size: 1.1rem;
             }
 
