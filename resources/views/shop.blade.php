@@ -440,6 +440,9 @@
                 <div class="text-white fw-bold" style="font-size: 1.3rem;">
                     <i class="fas fa-store me-2"></i>Toko Online
                 </div>
+                <a href="/shop/history" class="btn btn-light btn-sm">
+                    <i class="fas fa-history me-1"></i>Riwayat
+                </a>
                 <a href="/" class="btn btn-light btn-sm">
                     <i class="fas fa-arrow-left me-1"></i>Kembali
                 </a>
@@ -474,7 +477,8 @@
                         </div>
 
                         <div class="product-actions">
-                            <input type="number" class="qty-input" value="1" min="1" max="{{ $product->stock ?? 999 }}">
+                            <input type="number" class="qty-input" value="1" min="1"
+                                max="{{ $product->stock ?? 999 }}">
                             <button class="btn-add" onclick="addToCart(event)">
                                 <i class="fas fa-shopping-cart me-1"></i>Beli
                             </button>

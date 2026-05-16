@@ -1562,6 +1562,81 @@ Route::post('/shop/order', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
+| SHOP ORDER HISTORY
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/shop/history', function (Request $request) {
+
+    $phone = $request->phone;
+    $sort = $request->sort ?? 'latest';
+    $startDate = $request->start_date;
+    $endDate = $request->end_date;
+
+    $query = DB::connection('mysql_app')
+        ->table('shop_orders');
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER PHONE
+    |--------------------------------------------------------------------------
+    */
+
+    if ($phone) {
+        $query->where('customer_phone', 'like', "%{$phone}%");
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER DATE
+    |--------------------------------------------------------------------------
+    */
+
+    if ($startDate && $endDate) {
+
+        $query->whereBetween(
+            DB::raw('DATE(created_at)'),
+            [$startDate, $endDate]
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SORTING
+    |--------------------------------------------------------------------------
+    */
+
+    switch ($sort) {
+
+        case 'oldest':
+            $query->orderBy('created_at', 'ASC');
+            break;
+
+        case 'highest':
+            $query->orderBy('total_amount', 'DESC');
+            break;
+
+        case 'lowest':
+            $query->orderBy('total_amount', 'ASC');
+            break;
+
+        default:
+            $query->orderBy('created_at', 'DESC');
+    }
+
+    $orders = $query->paginate(20)->withQueryString();
+
+    return view('shop-history', compact(
+        'orders',
+        'phone',
+        'sort',
+        'startDate',
+        'endDate'
+    ));
+});
+
+/*
+|--------------------------------------------------------------------------
 | GENERATE PDF
 |--------------------------------------------------------------------------
 */
