@@ -1702,3 +1702,344 @@ Route::get('/shop/order/{orderId}/pdf', function ($orderId) {
         return response()->json(['error' => $e->getMessage()], 500);
     }
 });
+
+/*
+|--------------------------------------------------------------------------
+| API: GET ALL SALES WITH PRODUCT DETAILS
+|--------------------------------------------------------------------------
+| Endpoint: GET /api/sales
+| Parameters:
+|   - start_date (optional): YYYY-MM-DD
+|   - end_date (optional): YYYY-MM-DD
+|   - limit (optional): default 100
+|   - page (optional): pagination
+|
+| Response: Complete sales data dengan detail produk lengkap
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/api/sales', function (Request $request) {
+
+    try {
+
+        $startDate = $request->start_date;
+        $endDate = $request->end_date;
+        $limit = $request->limit ?? 100;
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL SEMUA SALES DENGAN PRODUCT DETAILS
+        |--------------------------------------------------------------------------
+        */
+
+        $salesQuery = DB::table('salesdetail')
+
+            ->join('sales', 'salesdetail.salesid', '=', 'sales.salesidref')
+
+            ->leftJoin('product', 'salesdetail.productid', '=', 'product.id')
+
+            ->select(
+
+                'salesdetail.id',
+                'salesdetail.salesid',
+                'salesdetail.productid',
+                'product.name as product_name',
+                'salesdetail.salesqty as quantity',
+                'salesdetail.unitprice as unit_price',
+                'salesdetail.netamount',
+                'salesdetail.cogs as cost_of_goods',
+                DB::raw('(salesdetail.netamount - salesdetail.cogs) as margin'),
+                DB::raw('
+                    CASE
+                        WHEN salesdetail.netamount > 0
+                        THEN ROUND(((salesdetail.netamount - salesdetail.cogs) / salesdetail.netamount) * 100, 2)
+                        ELSE 0
+                    END as margin_percent
+                '),
+                'sales.salestime as transaction_date',
+                DB::raw('DATE(sales.salestime) as transaction_date_only'),
+                DB::raw('DATE_FORMAT(sales.salestime, "%H:00") as transaction_hour'),
+
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER BERDASARKAN TANGGAL
+        |--------------------------------------------------------------------------
+        */
+
+        if ($startDate && $endDate) {
+
+            $salesQuery->whereBetween(
+
+                DB::raw('DATE(sales.salestime)'),
+
+                [$startDate, $endDate]
+
+            );
+
+        } elseif ($startDate) {
+
+            $salesQuery->whereDate('sales.salestime', '>=', $startDate);
+
+        } elseif ($endDate) {
+
+            $salesQuery->whereDate('sales.salestime', '<=', $endDate);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | SORTING
+        |--------------------------------------------------------------------------
+        */
+
+        $salesDetail = $salesQuery
+
+            ->orderBy('sales.salestime', 'DESC')
+
+            ->paginate($limit)
+
+            ->withQueryString();
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL SUMMARY STATISTIK
+        |--------------------------------------------------------------------------
+        */
+
+        $summaryQuery = DB::table('salesdetail')
+
+            ->join('sales', 'salesdetail.salesid', '=', 'sales.salesidref')
+
+            ->select(
+
+                DB::raw('COUNT(DISTINCT sales.salesidref) as total_transactions'),
+
+                DB::raw('SUM(salesdetail.salesqty) as total_quantity'),
+
+                DB::raw('SUM(salesdetail.netamount) as total_omzet'),
+
+                DB::raw('SUM(salesdetail.cogs) as total_cogs'),
+
+                DB::raw('SUM(salesdetail.netamount - salesdetail.cogs) as total_margin'),
+
+                DB::raw('
+                    CASE
+                        WHEN SUM(salesdetail.netamount) > 0
+                        THEN ROUND((SUM(salesdetail.netamount - salesdetail.cogs) / SUM(salesdetail.netamount)) * 100, 2)
+                        ELSE 0
+                    END as avg_margin_percent
+                '),
+
+                DB::raw('MIN(sales.salestime) as earliest_transaction'),
+
+                DB::raw('MAX(sales.salestime) as latest_transaction'),
+
+                DB::raw('COUNT(DISTINCT salesdetail.productid) as total_products_sold')
+
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER SUMMARY DENGAN TANGGAL YANG SAMA
+        |--------------------------------------------------------------------------
+        */
+
+        if ($startDate && $endDate) {
+
+            $summaryQuery->whereBetween(
+
+                DB::raw('DATE(sales.salestime)'),
+
+                [$startDate, $endDate]
+
+            );
+
+        } elseif ($startDate) {
+
+            $summaryQuery->whereDate('sales.salestime', '>=', $startDate);
+
+        } elseif ($endDate) {
+
+            $summaryQuery->whereDate('sales.salestime', '<=', $endDate);
+        }
+
+        $summary = $summaryQuery->first();
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL TOP PRODUCTS
+        |--------------------------------------------------------------------------
+        */
+
+        $topProductsQuery = DB::table('salesdetail')
+
+            ->join('sales', 'salesdetail.salesid', '=', 'sales.salesidref')
+
+            ->leftJoin('product', 'salesdetail.productid', '=', 'product.id')
+
+            ->select(
+
+                'product.id as product_id',
+                'product.name as product_name',
+                DB::raw('COUNT(DISTINCT sales.salesidref) as transaction_count'),
+                DB::raw('SUM(salesdetail.salesqty) as total_quantity'),
+                DB::raw('SUM(salesdetail.netamount) as total_amount'),
+                DB::raw('SUM(salesdetail.netamount - salesdetail.cogs) as total_margin'),
+
+            )
+
+            ->groupBy('product.id', 'product.name');
+
+        if ($startDate && $endDate) {
+
+            $topProductsQuery->whereBetween(
+
+                DB::raw('DATE(sales.salestime)'),
+
+                [$startDate, $endDate]
+
+            );
+
+        } elseif ($startDate) {
+
+            $topProductsQuery->whereDate('sales.salestime', '>=', $startDate);
+
+        } elseif ($endDate) {
+
+            $topProductsQuery->whereDate('sales.salestime', '<=', $endDate);
+        }
+
+        $topProducts = $topProductsQuery
+
+            ->orderBy('total_quantity', 'DESC')
+
+            ->limit(10)
+
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | FORMAT RESPONSE
+        |--------------------------------------------------------------------------
+        */
+
+        return response()->json([
+
+            'success' => true,
+
+            'filters' => [
+
+                'start_date' => $startDate,
+
+                'end_date' => $endDate,
+
+                'limit' => $limit,
+
+                'current_page' => $salesDetail->currentPage(),
+
+                'total_pages' => $salesDetail->lastPage(),
+
+            ],
+
+            'summary' => [
+
+                'total_transactions' => $summary->total_transactions ?? 0,
+
+                'total_quantity' => $summary->total_quantity ?? 0,
+
+                'total_omzet' => number_format($summary->total_omzet ?? 0, 2, ',', '.'),
+
+                'total_cogs' => number_format($summary->total_cogs ?? 0, 2, ',', '.'),
+
+                'total_margin' => number_format($summary->total_margin ?? 0, 2, ',', '.'),
+
+                'avg_margin_percent' => $summary->avg_margin_percent ?? 0,
+
+                'earliest_transaction' => $summary->earliest_transaction ?? null,
+
+                'latest_transaction' => $summary->latest_transaction ?? null,
+
+                'total_products_sold' => $summary->total_products_sold ?? 0,
+
+            ],
+
+            'top_products' => $topProducts->map(function ($product) {
+
+                return [
+
+                    'product_id' => $product->product_id,
+
+                    'product_name' => $product->product_name,
+
+                    'transaction_count' => $product->transaction_count,
+
+                    'total_quantity' => $product->total_quantity,
+
+                    'total_amount' => number_format($product->total_amount, 2, ',', '.'),
+
+                    'total_margin' => number_format($product->total_margin, 2, ',', '.'),
+
+                ];
+
+            }),
+
+            'sales_detail' => $salesDetail->getCollection()->map(function ($item) {
+
+                return [
+
+                    'id' => $item->id,
+
+                    'sales_id' => $item->salesid,
+
+                    'product_id' => $item->productid,
+
+                    'product_name' => $item->product_name,
+
+                    'quantity' => $item->quantity,
+
+                    'unit_price' => number_format($item->unit_price, 2, ',', '.'),
+
+                    'net_amount' => number_format($item->netamount, 2, ',', '.'),
+
+                    'cost_of_goods' => number_format($item->cost_of_goods, 2, ',', '.'),
+
+                    'margin' => number_format($item->margin, 2, ',', '.'),
+
+                    'margin_percent' => $item->margin_percent . '%',
+
+                    'transaction_date' => $item->transaction_date,
+
+                    'transaction_date_only' => $item->transaction_date_only,
+
+                    'transaction_hour' => $item->transaction_hour,
+
+                ];
+
+            }),
+
+            'pagination' => [
+
+                'current_page' => $salesDetail->currentPage(),
+
+                'total_pages' => $salesDetail->lastPage(),
+
+                'per_page' => $salesDetail->perPage(),
+
+                'total_records' => $salesDetail->total(),
+
+            ],
+
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+
+            'success' => false,
+
+            'error' => $e->getMessage(),
+
+        ], 500);
+    }
+});
