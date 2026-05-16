@@ -783,7 +783,6 @@
             @foreach ($products as $product)
                 <div class="product-card" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}"
                     data-product-price="{{ $product->salesprice1 }}" data-product-stock="{{ $product->stock }}">
-                    data-product-price="{{ $product->salesprice1 }}">
 
                     <div class="product-image">
                         <i class="fas fa-box"></i>
