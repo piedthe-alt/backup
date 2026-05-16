@@ -767,13 +767,21 @@
 
         <!-- SEARCH -->
 
-        <div class="search-wrapper">
+<!-- SEARCH -->
 
-            <i class="fas fa-search search-icon"></i>
+<form method="GET" action="/shop" class="search-wrapper">
 
-            <input type="text" id="searchInput" class="search-input" placeholder="Cari produk...">
+    <i class="fas fa-search search-icon"></i>
 
-        </div>
+    <input
+        type="text"
+        name="keyword"
+        class="search-input"
+        placeholder="Cari produk..."
+        value="{{ request('keyword') }}"
+    >
+
+</form>
 
 
         <!-- GRID -->
@@ -1352,24 +1360,6 @@
                 alert(result.error || 'Terjadi kesalahan');
             }
         }
-
-        document.getElementById('searchInput')
-            .addEventListener('input', function() {
-
-                const keyword = this.value.toLowerCase();
-
-                document.querySelectorAll('.product-card')
-                    .forEach(card => {
-
-                        const name =
-                            card.dataset.productName.toLowerCase();
-
-                        card.style.display =
-                            name.includes(keyword) ?
-                            '' :
-                            'none';
-                    });
-            });
 
         updateCart();
     </script>
