@@ -2192,3 +2192,247 @@ Route::get('/api/all-sales', function (Illuminate\Http\Request $request) {
 
     ]);
 });
+
+Route::get('/market-basket-analysis', function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL TRANSAKSI
+    |--------------------------------------------------------------------------
+    */
+
+    $transactions = DB::table('salesdetail')
+
+        ->leftJoin(
+            'product',
+            'salesdetail.productid',
+            '=',
+            'product.id'
+        )
+
+        ->select(
+            'salesdetail.salesid',
+            'salesdetail.productid',
+            'product.name as product_name'
+        )
+
+        ->where('salesdetail.salesid', 'like', 'I/SL-%')
+
+        ->orderBy('salesdetail.salesid')
+
+        ->get()
+
+        ->groupBy('salesid');
+
+    /*
+    |--------------------------------------------------------------------------
+    | TOTAL TRANSAKSI
+    |--------------------------------------------------------------------------
+    */
+
+    $totalTransactions = count($transactions);
+
+    /*
+    |--------------------------------------------------------------------------
+    | HITUNG PRODUK INDIVIDU
+    |--------------------------------------------------------------------------
+    */
+
+    $singleCounts = [];
+
+    foreach ($transactions as $salesid => $items) {
+
+        $uniqueProducts = [];
+
+        foreach ($items as $item) {
+
+            $uniqueProducts[$item->productid] = $item->product_name;
+        }
+
+        foreach ($uniqueProducts as $productId => $productName) {
+
+            if (!isset($singleCounts[$productId])) {
+
+                $singleCounts[$productId] = [
+                    'product_name' => $productName,
+                    'count' => 0
+                ];
+            }
+
+            $singleCounts[$productId]['count']++;
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HITUNG PAIR PRODUK
+    |--------------------------------------------------------------------------
+    */
+
+    $pairs = [];
+
+    foreach ($transactions as $salesid => $items) {
+
+        $products = [];
+
+        foreach ($items as $item) {
+
+            $products[$item->productid] = $item->product_name;
+        }
+
+        $productIds = array_keys($products);
+
+        $countProducts = count($productIds);
+
+        for ($i = 0; $i < $countProducts; $i++) {
+
+            for ($j = $i + 1; $j < $countProducts; $j++) {
+
+                $a = $productIds[$i];
+                $b = $productIds[$j];
+
+                $sorted = [$a, $b];
+                sort($sorted);
+
+                $pairKey = $sorted[0] . '|' . $sorted[1];
+
+                if (!isset($pairs[$pairKey])) {
+
+                    $pairs[$pairKey] = [
+
+                        'product_a' => $sorted[0],
+                        'product_b' => $sorted[1],
+
+                        'product_a_name' => $products[$sorted[0]],
+                        'product_b_name' => $products[$sorted[1]],
+
+                        'frequency' => 0
+                    ];
+                }
+
+                $pairs[$pairKey]['frequency']++;
+            }
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUPPORT + CONFIDENCE + LIFT
+    |--------------------------------------------------------------------------
+    */
+
+    $analysis = [];
+
+    foreach ($pairs as $pair) {
+
+        $freqAB = $pair['frequency'];
+
+        $countA = $singleCounts[$pair['product_a']]['count'] ?? 1;
+        $countB = $singleCounts[$pair['product_b']]['count'] ?? 1;
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUPPORT
+        |--------------------------------------------------------------------------
+        */
+
+        $support = ($freqAB / $totalTransactions) * 100;
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONFIDENCE
+        |--------------------------------------------------------------------------
+        */
+
+        $confidenceAtoB = ($freqAB / $countA) * 100;
+
+        $confidenceBtoA = ($freqAB / $countB) * 100;
+
+        /*
+        |--------------------------------------------------------------------------
+        | LIFT
+        |--------------------------------------------------------------------------
+        */
+
+        $lift = (
+
+            $freqAB / $totalTransactions
+
+        ) /
+
+        (
+
+            ($countA / $totalTransactions)
+
+            *
+
+            ($countB / $totalTransactions)
+
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | REKOMENDASI
+        |--------------------------------------------------------------------------
+        */
+
+        $recommendation = 'Normal';
+
+        if ($lift >= 2 && $confidenceAtoB >= 30) {
+
+            $recommendation = 'Sangat Direkomendasikan Dekat';
+        } elseif ($lift >= 1.5) {
+
+            $recommendation = 'Cocok Dekat';
+        } elseif ($lift < 1) {
+
+            $recommendation = 'Kurang Berkaitan';
+        }
+
+        $analysis[] = [
+
+            'product_a' => $pair['product_a_name'],
+
+            'product_b' => $pair['product_b_name'],
+
+            'frequency' => $freqAB,
+
+            'support' => round($support, 2),
+
+            'confidence_a_to_b' => round($confidenceAtoB, 2),
+
+            'confidence_b_to_a' => round($confidenceBtoA, 2),
+
+            'lift' => round($lift, 2),
+
+            'recommendation' => $recommendation
+        ];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SORTING
+    |--------------------------------------------------------------------------
+    */
+
+    usort($analysis, function ($a, $b) {
+
+        return $b['frequency'] <=> $a['frequency'];
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | TOP 50
+    |--------------------------------------------------------------------------
+    */
+
+    $analysis = array_slice($analysis, 0, 50);
+
+    return view(
+        'market-basket-analysis',
+        compact(
+            'analysis',
+            'totalTransactions'
+        )
+    );
+});
