@@ -4,163 +4,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toko Online</title>
+    <title>{{ config('app.name') }} - Toko Online</title>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --success: #10b981;
+            --danger: #ef4444;
+            --gray: #64748b;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+        }
+
         * {
             font-family: 'Inter', sans-serif;
         }
 
         body {
-            background: #f8fafc;
-            color: #1e293b;
+            background:
+                radial-gradient(circle at top right, #dbeafe 0%, transparent 30%),
+                linear-gradient(180deg, #f8fafc 0%, #eef6ff 100%);
+            min-height: 100vh;
+            color: #0f172a;
         }
 
+        /* NAVBAR */
+
         .navbar-shop {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, .3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
+
+        .brand-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .nav-btn {
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-weight: 600;
+        }
+
+        /* HERO */
+
+        .hero-box {
+            background:
+                linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
+            border-radius: 24px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 24px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-box::before {
+            content: "";
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, .08);
+            border-radius: 50%;
+            right: -100px;
+            top: -100px;
+        }
+
+        .hero-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-subtitle {
+            opacity: .9;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* SEARCH */
+
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            width: 100%;
+            border: none;
+            border-radius: 18px;
+            padding: 16px 20px 16px 50px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+            font-size: .95rem;
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        /* GRID */
 
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 16px;
-            contain: content;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 18px;
         }
 
+        /* CARD */
+
         .product-card {
-            background: white;
-            border-radius: 14px;
+            background: rgba(255, 255, 255, .9);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-            transition: 0.25s;
+            border: 1px solid rgba(255, 255, 255, .6);
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+            transition: .25s;
             display: flex;
             flex-direction: column;
-            will-change: transform;
         }
 
         .product-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
         }
 
         .product-image {
-            height: 150px;
-            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+            height: 180px;
+            background:
+                linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 3rem;
-            color: #2563eb;
+            color: var(--primary);
         }
 
         .product-info {
-            padding: 14px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
             flex: 1;
         }
 
         .product-name {
-            font-weight: 600;
-            font-size: 0.95rem;
+            font-size: .95rem;
+            font-weight: 700;
+            line-height: 1.5;
             min-height: 48px;
             margin-bottom: 10px;
         }
 
-        .product-price {
-            color: #2563eb;
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
+        .product-stock {
+            font-size: .8rem;
+            color: var(--gray);
+            margin-bottom: 12px;
         }
 
-        .product-stock {
-            font-size: 0.82rem;
-            color: #64748b;
-            margin-bottom: 12px;
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 16px;
         }
 
         .product-actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             margin-top: auto;
         }
 
         .qty-input {
-            width: 55px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
+            width: 70px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
             text-align: center;
-            font-size: 0.9rem;
+            font-weight: 700;
         }
 
         .btn-add {
             flex: 1;
             border: none;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-radius: 14px;
+            background:
+                linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            font-weight: 600;
-            padding: 10px;
+            font-weight: 700;
+            padding: 12px;
+            transition: .25s;
         }
 
         .btn-add:hover {
-            opacity: 0.92;
+            transform: translateY(-2px);
+            opacity: .95;
         }
+
+        /* CART */
 
         .cart-toggle {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 62px;
-            height: 62px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
             border: none;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            background:
+                linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
+            box-shadow: 0 20px 30px rgba(37, 99, 235, .3);
             z-index: 999;
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
         }
 
         .cart-badge {
             position: absolute;
             top: -5px;
             right: -5px;
-            background: red;
-            width: 24px;
-            height: 24px;
+            background: var(--danger);
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
-            color: white;
-            font-size: 0.75rem;
-            display: none;
+            font-size: .75rem;
+            font-weight: 700;
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
         }
 
         .cart-sidebar {
             position: fixed;
             top: 0;
-            right: -100%;
-            width: 360px;
+            right: -420px;
+            width: 400px;
             max-width: 100%;
             height: 100vh;
             background: white;
-            z-index: 1000;
-            transition: 0.3s;
+            z-index: 2000;
+            transition: .3s;
             display: flex;
             flex-direction: column;
-            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, .1);
         }
 
         .cart-sidebar.open {
@@ -168,12 +274,14 @@
         }
 
         .cart-header {
-            background: #2563eb;
+            padding: 22px;
+            background:
+                linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-weight: 700;
         }
 
         .cart-items {
@@ -183,37 +291,123 @@
         }
 
         .cart-item {
+            display: flex;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 18px;
             background: #f8fafc;
-            border-radius: 10px;
-            padding: 10px;
             margin-bottom: 12px;
         }
 
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: 700;
+            font-size: .9rem;
+            margin-bottom: 6px;
+        }
+
+        .cart-item-price {
+            color: var(--gray);
+            font-size: .85rem;
+        }
+
         .cart-summary {
-            border-top: 1px solid #e2e8f0;
-            padding: 16px;
-            background: white;
+            border-top: 1px solid var(--border);
+            padding: 20px;
+            background: #f8fafc;
+        }
+
+        .summary-row,
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .summary-row {
+            margin-bottom: 10px;
+            color: var(--gray);
+        }
+
+        .summary-total {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin: 16px 0;
+            color: var(--primary);
         }
 
         .btn-checkout {
             width: 100%;
             border: none;
-            border-radius: 10px;
-            background: #10b981;
+            border-radius: 16px;
+            padding: 14px;
+            background:
+                linear-gradient(135deg, var(--success) 0%, #059669 100%);
             color: white;
-            font-weight: 600;
-            padding: 12px;
+            font-weight: 700;
         }
 
-        .search-box {
-            background: white;
-            padding: 18px;
-            border-radius: 14px;
-            margin-bottom: 22px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        /* MODAL */
+
+        .modal-checkout {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 16px;
         }
+
+        .modal-checkout.show {
+            display: flex;
+        }
+
+        .modal-content-custom {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+        }
+
+        .form-control-custom {
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            width: 100%;
+        }
+
+        .btn-submit {
+            width: 100%;
+            border: none;
+            border-radius: 16px;
+            padding: 14px;
+            background:
+                linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+            font-weight: 700;
+        }
+
+        /* MOBILE */
 
         @media(max-width:768px) {
+
+            .container-custom {
+                padding: 14px;
+            }
+
+            .hero-box {
+                padding: 24px;
+                border-radius: 20px;
+            }
+
+            .hero-title {
+                font-size: 1.5rem;
+            }
 
             .product-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -221,12 +415,16 @@
             }
 
             .product-image {
-                height: 120px;
-                font-size: 2rem;
+                height: 130px;
+                font-size: 2.2rem;
+            }
+
+            .product-info {
+                padding: 14px;
             }
 
             .product-name {
-                font-size: 0.85rem;
+                font-size: .82rem;
                 min-height: 42px;
             }
 
@@ -234,13 +432,32 @@
                 font-size: 1rem;
             }
 
+            .qty-input {
+                width: 55px;
+            }
+
+            .btn-add {
+                font-size: .8rem;
+                padding: 10px;
+            }
+
             .cart-sidebar {
                 width: 100%;
             }
 
-            .btn-add {
-                font-size: 0.85rem;
-                padding: 8px;
+            .cart-toggle {
+                width: 58px;
+                height: 58px;
+            }
+
+            .nav-mobile-wrap {
+                display: flex;
+                gap: 8px;
+            }
+
+            .nav-btn {
+                padding: 8px 10px;
+                font-size: .8rem;
             }
         }
     </style>
@@ -249,23 +466,27 @@
 <body>
 
     <!-- NAVBAR -->
-    <nav class="navbar-shop p-3 sticky-top">
-        <div class="container-fluid">
+
+    <nav class="navbar-shop">
+        <div class="container-fluid px-3 py-3">
 
             <div class="d-flex justify-content-between align-items-center">
 
-                <div class="text-white fw-bold fs-5">
-                    <i class="fas fa-store me-2"></i>Toko Online
+                <div class="brand-title">
+                    <i class="fas fa-store me-2"></i>
+                    SJ MART
                 </div>
 
-                <div class="d-flex gap-2">
-                    <a href="/shop/history" class="btn btn-light btn-sm">
+                <div class="nav-mobile-wrap">
+
+                    <a href="/shop/history" class="btn btn-light nav-btn">
                         <i class="fas fa-history"></i>
                     </a>
 
-                    <a href="/" class="btn btn-light btn-sm">
+                    <a href="/" class="btn btn-light nav-btn">
                         <i class="fas fa-arrow-left"></i>
                     </a>
+
                 </div>
 
             </div>
@@ -273,37 +494,41 @@
         </div>
     </nav>
 
-    <div class="container py-4">
+    <!-- CONTENT -->
 
-        <!-- SEARCH -->
-        <div class="search-box">
+    <div class="container-custom p-3 p-md-4">
 
-            <form method="GET" action="/shop">
+        <!-- HERO -->
 
-                <div class="input-group">
+        <div class="hero-box">
 
-                    <input type="text" class="form-control"
-                        name="keyword"
-                        placeholder="Cari produk..."
-                        value="{{ request('keyword') }}">
+            <div class="hero-title">
+                Belanja Mudah & Cepat
+            </div>
 
-                    <button class="btn btn-primary">
-                        <i class="fas fa-search"></i>
-                    </button>
-
-                </div>
-
-            </form>
+            <div class="hero-subtitle">
+                Cari produk favorit Anda dan checkout langsung tanpa ribet.
+            </div>
 
         </div>
 
-        <!-- PRODUCT GRID -->
-        <div class="product-grid">
+        <!-- SEARCH -->
+
+        <div class="search-wrapper">
+
+            <i class="fas fa-search search-icon"></i>
+
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari produk...">
+
+        </div>
+
+
+        <!-- GRID -->
+
+        <div class="product-grid" id="productGrid">
 
             @foreach ($products as $product)
-                <div class="product-card"
-                    data-product-id="{{ $product->id }}"
-                    data-product-name="{{ $product->name }}"
+                <div class="product-card" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}"
                     data-product-price="{{ $product->salesprice1 }}">
 
                     <div class="product-image">
@@ -316,24 +541,23 @@
                             {{ $product->name }}
                         </div>
 
+                        <div class="product-stock">
+                            Stock: {{ number_format($product->stock) }}
+                        </div>
+
                         <div class="product-price">
                             Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
                         </div>
 
-                        <div class="product-stock">
-                            Stok: {{ number_format($product->stock) }}
-                        </div>
-
                         <div class="product-actions">
 
-                            <input type="number"
-                                class="qty-input"
-                                min="1"
-                                value="1">
+                            <input type="number" class="qty-input" value="1" min="1">
 
-                            <button class="btn-add"
-                                onclick="addToCart(event)">
-                                <i class="fas fa-cart-plus"></i>
+                            <button class="btn-add" onclick="addToCart(event)">
+
+                                <i class="fas fa-cart-plus me-1"></i>
+                                Beli
+
                             </button>
 
                         </div>
@@ -345,72 +569,147 @@
 
         </div>
 
-        <!-- PAGINATION -->
-        <div class="mt-4">
-            {{ $products->links() }}
-        </div>
-
     </div>
 
-    <!-- CART -->
-    <div class="cart-sidebar" id="cartSidebar">
 
-        <div class="cart-header">
-            <strong>Keranjang</strong>
+    <!-- CART BUTTON -->
 
-            <button class="btn btn-sm btn-light"
-                onclick="toggleCart()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
+    <button class="cart-toggle" onclick="toggleCart()">
 
-        <div class="cart-items" id="cartItems">
-        </div>
+        <i class="fas fa-shopping-bag"></i>
 
-        <div class="cart-summary">
-
-            <div class="d-flex justify-content-between mb-2">
-                <span>Total Item</span>
-                <strong id="totalItems">0</strong>
-            </div>
-
-            <div class="d-flex justify-content-between mb-3">
-                <span>Total Harga</span>
-                <strong id="totalPrice">Rp 0</strong>
-            </div>
-
-            <button class="btn-checkout"
-                onclick="checkout()">
-                Checkout
-            </button>
-
-        </div>
-
-    </div>
-
-    <!-- FLOAT BUTTON -->
-    <button class="cart-toggle"
-        onclick="toggleCart()">
-
-        <i class="fas fa-shopping-cart"></i>
-
-        <div class="cart-badge" id="cartBadge">
+        <div class="cart-badge" id="cartBadge" style="display:none">
             0
         </div>
 
     </button>
 
+    <!-- CART -->
+
+    <div class="cart-sidebar" id="cartSidebar">
+
+        <div class="cart-header">
+
+            <div>
+                <i class="fas fa-shopping-cart me-2"></i>
+                Keranjang
+            </div>
+
+            <button class="btn btn-sm btn-light" onclick="toggleCart()">
+
+                <i class="fas fa-times"></i>
+
+            </button>
+
+        </div>
+
+        <div class="cart-items" id="cartItems"></div>
+
+        <div class="cart-summary">
+
+            <div class="summary-row">
+                <span>Total Item</span>
+                <span id="totalItems">0</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Total Qty</span>
+                <span id="totalQty">0</span>
+            </div>
+
+            <div class="summary-total">
+                <span>Total</span>
+                <span id="totalPrice">Rp 0</span>
+            </div>
+
+            <button class="btn-checkout" onclick="openCheckout()">
+
+                <i class="fas fa-credit-card me-2"></i>
+                Checkout
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL -->
+
+    <div class="modal-checkout" id="checkoutModal">
+
+        <div class="modal-content-custom">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <h5 class="fw-bold mb-0">
+                    Checkout
+                </h5>
+
+                <button class="btn btn-light" onclick="closeCheckout()">
+
+                    <i class="fas fa-times"></i>
+
+                </button>
+
+            </div>
+
+            <form onsubmit="processCheckout(event)">
+
+                <div class="mb-3">
+
+                    <label class="fw-semibold mb-2">
+                        Nama Pembeli
+                    </label>
+
+                    <input type="text" name="customer_name" class="form-control-custom" required>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="fw-semibold mb-2">
+                        Nomor HP
+                    </label>
+
+                    <input type="text" name="customer_phone" class="form-control-custom">
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="fw-semibold mb-2">
+                        Alamat
+                    </label>
+
+                    <textarea name="customer_address" class="form-control-custom" rows="3"></textarea>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label class="fw-semibold mb-2">
+                        Catatan
+                    </label>
+
+                    <textarea name="notes" class="form-control-custom" rows="2"></textarea>
+
+                </div>
+
+                <button type="submit" class="btn-submit">
+
+                    <i class="fas fa-check-circle me-2"></i>
+                    Proses Pesanan
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
     <script>
         let cart = JSON.parse(localStorage.getItem('shopCart')) || {};
-
-        function saveCart() {
-            localStorage.setItem('shopCart', JSON.stringify(cart));
-        }
-
-        function toggleCart() {
-            document.getElementById('cartSidebar')
-                .classList.toggle('open');
-        }
 
         function addToCart(event) {
 
@@ -436,26 +735,40 @@
 
             cart[id].quantity += qty;
 
-            saveCart();
+            localStorage.setItem(
+                'shopCart',
+                JSON.stringify(cart)
+            );
 
-            renderCart();
-
-            event.target.innerHTML =
-                '<i class="fas fa-check"></i>';
-
-            setTimeout(() => {
-
-                event.target.innerHTML =
-                    '<i class="fas fa-cart-plus"></i>';
-
-            }, 1000);
+            updateCart();
         }
 
-        function removeCart(id) {
+        function updateCart() {
 
-            delete cart[id];
+            const items = Object.values(cart);
 
-            saveCart();
+            document.getElementById('totalItems').innerText = items.length;
+
+            document.getElementById('totalQty').innerText =
+                items.reduce((a, b) => a + b.quantity, 0);
+
+            const total =
+                items.reduce((a, b) => a + (b.price * b.quantity), 0);
+
+            document.getElementById('totalPrice').innerText =
+                'Rp ' + total.toLocaleString('id-ID');
+
+            const badge = document.getElementById('cartBadge');
+
+            if (items.length > 0) {
+
+                badge.style.display = 'flex';
+                badge.innerText = items.length;
+
+            } else {
+
+                badge.style.display = 'none';
+            }
 
             renderCart();
         }
@@ -464,100 +777,166 @@
 
             const items = Object.values(cart);
 
-            const cartItems =
-                document.getElementById('cartItems');
-
-            const totalItems =
-                document.getElementById('totalItems');
-
-            const totalPrice =
-                document.getElementById('totalPrice');
-
-            const badge =
-                document.getElementById('cartBadge');
+            const container = document.getElementById('cartItems');
 
             if (items.length === 0) {
 
-                cartItems.innerHTML = `
-                    <div class="text-center text-muted mt-5">
-                        Keranjang kosong
+                container.innerHTML = `
+                    <div class="text-center text-secondary mt-5">
+                        <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                        <p>Keranjang kosong</p>
                     </div>
                 `;
-
-                totalItems.innerText = 0;
-                totalPrice.innerText = 'Rp 0';
-
-                badge.style.display = 'none';
 
                 return;
             }
 
             let html = '';
 
-            let totalQty = 0;
-            let total = 0;
-
             items.forEach(item => {
-
-                totalQty += item.quantity;
-
-                total += item.quantity * item.price;
 
                 html += `
                     <div class="cart-item">
 
-                        <div class="fw-semibold">
-                            ${item.name}
-                        </div>
+                        <div class="cart-item-info">
 
-                        <div class="small text-muted mb-2">
-                            ${item.quantity} x Rp ${item.price.toLocaleString('id-ID')}
-                        </div>
+                            <div class="cart-item-name">
+                                ${item.name}
+                            </div>
 
-                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="cart-item-price">
+                                Rp ${item.price.toLocaleString('id-ID')}
+                            </div>
 
-                            <strong>
-                                Rp ${(item.quantity * item.price).toLocaleString('id-ID')}
-                            </strong>
-
-                            <button class="btn btn-sm btn-danger"
-                                onclick="removeCart('${item.id}')">
-
-                                <i class="fas fa-trash"></i>
-
-                            </button>
+                            <div class="fw-bold text-primary mt-1">
+                                ${item.quantity} x
+                            </div>
 
                         </div>
+
+                        <button class="btn btn-sm btn-danger"
+                            onclick="removeItem('${item.id}')">
+
+                            <i class="fas fa-trash"></i>
+
+                        </button>
 
                     </div>
                 `;
             });
 
-            cartItems.innerHTML = html;
-
-            totalItems.innerText = totalQty;
-
-            totalPrice.innerText =
-                'Rp ' + total.toLocaleString('id-ID');
-
-            badge.innerText = totalQty;
-
-            badge.style.display = 'flex';
+            container.innerHTML = html;
         }
 
-        function checkout() {
+        function removeItem(id) {
+
+            delete cart[id];
+
+            localStorage.setItem(
+                'shopCart',
+                JSON.stringify(cart)
+            );
+
+            updateCart();
+        }
+
+        function toggleCart() {
+
+            document.getElementById('cartSidebar')
+                .classList.toggle('open');
+        }
+
+        function openCheckout() {
 
             if (Object.keys(cart).length === 0) {
-
                 alert('Keranjang kosong');
-
                 return;
             }
 
-            alert('Lanjutkan checkout');
+            document.getElementById('checkoutModal')
+                .classList.add('show');
         }
 
-        renderCart();
+        function closeCheckout() {
+
+            document.getElementById('checkoutModal')
+                .classList.remove('show');
+        }
+
+        async function processCheckout(event) {
+
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+
+            const payload = {
+                items: JSON.stringify(Object.values(cart)),
+                customer_name: formData.get('customer_name'),
+                customer_phone: formData.get('customer_phone'),
+                customer_address: formData.get('customer_address'),
+                notes: formData.get('notes'),
+            };
+
+            const response = await fetch('/shop/order', {
+
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+
+                body: JSON.stringify(payload)
+
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+
+                alert('Pesanan berhasil dibuat');
+
+                window.open(
+                    `/shop/order/${result.order_id}/pdf`,
+                    '_blank'
+                );
+
+                cart = {};
+
+                localStorage.setItem(
+                    'shopCart',
+                    JSON.stringify(cart)
+                );
+
+                updateCart();
+
+                closeCheckout();
+
+            } else {
+
+                alert(result.error || 'Terjadi kesalahan');
+            }
+        }
+
+        document.getElementById('searchInput')
+            .addEventListener('input', function() {
+
+                const keyword = this.value.toLowerCase();
+
+                document.querySelectorAll('.product-card')
+                    .forEach(card => {
+
+                        const name =
+                            card.dataset.productName.toLowerCase();
+
+                        card.style.display =
+                            name.includes(keyword) ?
+                            '' :
+                            'none';
+                    });
+            });
+
+        updateCart();
     </script>
 
 </body>
