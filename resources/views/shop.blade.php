@@ -37,6 +37,40 @@
             color: #0f172a;
         }
 
+        .qty-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 12px;
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 10px;
+            background: white;
+            font-weight: 800;
+            font-size: 1rem;
+            transition: .2s;
+        }
+
+        .qty-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .qty-input {
+            width: 45px;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-weight: 700;
+            outline: none;
+        }
+
         /* NAVBAR */
 
         .navbar-shop {
@@ -770,7 +804,19 @@
 
                         <div class="product-actions">
 
-                            <input type="number" class="qty-input" value="1" min="1">
+                            <div class="qty-box">
+
+                                <button type="button" class="qty-btn" onclick="changeQty(this, -1)">
+                                    -
+                                </button>
+
+                                <input type="number" class="qty-input" value="1" min="1">
+
+                                <button type="button" class="qty-btn" onclick="changeQty(this, 1)">
+                                    +
+                                </button>
+
+                            </div>
 
                             <button class="btn-add" onclick="addToCart(event)">
 
@@ -995,6 +1041,21 @@
 
     <script>
         let cart = JSON.parse(localStorage.getItem('shopCart')) || {};
+
+        function changeQty(button, change) {
+
+            const box = button.parentElement;
+
+            const input = box.querySelector('.qty-input');
+
+            let value = parseInt(input.value) || 1;
+
+            value += change;
+
+            if (value < 1) value = 1;
+
+            input.value = value;
+        }
 
         function addToCart(event) {
 
