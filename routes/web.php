@@ -2454,3 +2454,228 @@ Route::get('/market-basket-analysis', function () {
         )
     );
 });
+
+
+Route::get('/retail-intelligence', function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL TRANSAKSI
+    |--------------------------------------------------------------------------
+    */
+
+    $transactions = DB::table('salesdetail')
+
+        ->leftJoin(
+            'product',
+            'salesdetail.productid',
+            '=',
+            'product.id'
+        )
+
+        ->leftJoin(
+            'sales',
+            'salesdetail.salesid',
+            '=',
+            'sales.salesidref'
+        )
+
+        ->select(
+            'salesdetail.salesid',
+            'salesdetail.productid',
+            'salesdetail.salesqty',
+            'salesdetail.netamount',
+            'salesdetail.cogs',
+            'sales.salestime',
+            'product.name as product_name'
+        )
+
+        ->where('salesdetail.salesid', 'like', 'I/SL-%')
+
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | FAST MOVING
+    |--------------------------------------------------------------------------
+    */
+
+    $fastMoving = DB::table('salesdetail')
+
+        ->leftJoin(
+            'product',
+            'salesdetail.productid',
+            '=',
+            'product.id'
+        )
+
+        ->select(
+            'product.name',
+            DB::raw('SUM(salesdetail.salesqty) as total_qty'),
+            DB::raw('SUM(salesdetail.netamount) as omzet')
+        )
+
+        ->where('salesdetail.salesid', 'like', 'I/SL-%')
+
+        ->groupBy('product.id', 'product.name')
+
+        ->orderByDesc('total_qty')
+
+        ->limit(10)
+
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROFIT TERTINGGI
+    |--------------------------------------------------------------------------
+    */
+
+    $highestMargin = DB::table('salesdetail')
+
+        ->leftJoin(
+            'product',
+            'salesdetail.productid',
+            '=',
+            'product.id'
+        )
+
+        ->select(
+            'product.name',
+            DB::raw('SUM(salesdetail.netamount - salesdetail.cogs) as total_margin')
+        )
+
+        ->where('salesdetail.salesid', 'like', 'I/SL-%')
+
+        ->groupBy('product.id', 'product.name')
+
+        ->orderByDesc('total_margin')
+
+        ->limit(10)
+
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRODUK SERING DISKON
+    |--------------------------------------------------------------------------
+    */
+
+    $discountProducts = DB::table('salesdetail')
+
+        ->leftJoin(
+            'product',
+            'salesdetail.productid',
+            '=',
+            'product.id'
+        )
+
+        ->select(
+            'product.name',
+            DB::raw('SUM(salesdetail.valuedisc) as total_discount')
+        )
+
+        ->groupBy('product.id', 'product.name')
+
+        ->orderByDesc('total_discount')
+
+        ->limit(10)
+
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | JAM RAMAI
+    |--------------------------------------------------------------------------
+    */
+
+    $busyHours = DB::table('sales')
+
+        ->select(
+            DB::raw('HOUR(salestime) as hour'),
+            DB::raw('COUNT(*) as total_transactions')
+        )
+
+        ->groupBy(DB::raw('HOUR(salestime)'))
+
+        ->orderBy('hour')
+
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | MARKET BASKET
+    |--------------------------------------------------------------------------
+    */
+
+    $grouped = $transactions->groupBy('salesid');
+
+    $pairs = [];
+
+    foreach ($grouped as $salesid => $items) {
+
+        $products = [];
+
+        foreach ($items as $item) {
+
+            $products[$item->productid] = $item->product_name;
+        }
+
+        $ids = array_keys($products);
+
+        for ($i = 0; $i < count($ids); $i++) {
+
+            for ($j = $i + 1; $j < count($ids); $j++) {
+
+                $combo = [$ids[$i], $ids[$j]];
+
+                sort($combo);
+
+                $key = $combo[0] . '|' . $combo[1];
+
+                if (!isset($pairs[$key])) {
+
+                    $pairs[$key] = [
+
+                        'a' => $products[$combo[0]],
+
+                        'b' => $products[$combo[1]],
+
+                        'freq' => 0
+                    ];
+                }
+
+                $pairs[$key]['freq']++;
+            }
+        }
+    }
+
+    $pairAnalysis = collect($pairs)
+
+        ->filter(function ($item) {
+
+            return $item['freq'] >= 5;
+        })
+
+        ->sortByDesc('freq')
+
+        ->values();
+
+    return view(
+
+        'retail-intelligence',
+
+        compact(
+
+            'fastMoving',
+
+            'highestMargin',
+
+            'discountProducts',
+
+            'busyHours',
+
+            'pairAnalysis'
+        )
+    );
+});
