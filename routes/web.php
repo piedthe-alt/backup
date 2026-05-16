@@ -1473,9 +1473,9 @@ Route::get('/shop', function (Request $request) {
         ->where('product.isactive', 1);
 
     /*
-    |--------------------------------------------------------------------------
+    |------------------------------------------------------------------
     | SEARCH GLOBAL
-    |--------------------------------------------------------------------------
+    |------------------------------------------------------------------
     */
 
     if ($keyword) {
@@ -1484,6 +1484,7 @@ Route::get('/shop', function (Request $request) {
 
             $q->where('product.name', 'like', "%{$keyword}%")
               ->orWhere('product.id', 'like', "%{$keyword}%");
+
         });
     }
 
@@ -1503,7 +1504,7 @@ Route::get('/shop', function (Request $request) {
 
     return view(
         'shop',
-        compact('products', 'keyword')
+        compact('products')
     );
 });
 /*
