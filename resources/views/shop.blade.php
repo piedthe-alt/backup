@@ -392,72 +392,246 @@
             font-weight: 700;
         }
 
+        /* PAGINATION */
+
+        .pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin: 32px 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination-wrapper a,
+        .pagination-wrapper span {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: white;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 600;
+            transition: .25s;
+            font-size: .9rem;
+        }
+
+        .pagination-wrapper a:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .pagination-wrapper span.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .pagination-wrapper span.disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
         /* MOBILE */
+
+        @media(max-width:992px) {
+
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
 
         @media(max-width:768px) {
 
             .container-custom {
-                padding: 14px;
+                padding: 10px;
             }
 
             .hero-box {
-                padding: 24px;
-                border-radius: 20px;
+                padding: 20px;
+                border-radius: 18px;
+                margin-bottom: 16px;
             }
 
             .hero-title {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
+                margin-bottom: 6px;
+            }
+
+            .hero-subtitle {
+                font-size: .9rem;
             }
 
             .product-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
+                gap: 10px;
             }
 
             .product-image {
-                height: 130px;
-                font-size: 2.2rem;
+                height: 120px;
+                font-size: 2rem;
             }
 
             .product-info {
-                padding: 14px;
+                padding: 12px;
             }
 
             .product-name {
-                font-size: .82rem;
-                min-height: 42px;
+                font-size: .8rem;
+                min-height: 40px;
+                line-height: 1.4;
+            }
+
+            .product-stock {
+                font-size: .75rem;
+                margin-bottom: 8px;
             }
 
             .product-price {
-                font-size: 1rem;
+                font-size: .95rem;
+                margin-bottom: 12px;
+            }
+
+            .product-actions {
+                gap: 6px;
             }
 
             .qty-input {
-                width: 55px;
+                width: 50px;
+                padding: 6px 4px;
+                font-size: .8rem;
+                border-radius: 8px;
             }
 
             .btn-add {
-                font-size: .8rem;
-                padding: 10px;
+                font-size: .75rem;
+                padding: 8px;
+                border-radius: 10px;
+            }
+
+            .btn-add i {
+                display: none;
+            }
+
+            .search-input {
+                padding: 12px 16px 12px 40px;
+                font-size: .9rem;
             }
 
             .cart-sidebar {
                 width: 100%;
+                right: -100%;
             }
 
             .cart-toggle {
-                width: 58px;
-                height: 58px;
+                width: 54px;
+                height: 54px;
+                bottom: 16px;
+                right: 16px;
+                font-size: 1.1rem;
             }
 
-            .nav-mobile-wrap {
-                display: flex;
+            .cart-badge {
+                width: 22px;
+                height: 22px;
+                font-size: .7rem;
+            }
+
+            .cart-header {
+                padding: 16px;
+            }
+
+            .cart-items {
+                padding: 12px;
+            }
+
+            .cart-item {
+                padding: 10px;
+                margin-bottom: 8px;
+                border-radius: 12px;
+            }
+
+            .cart-summary {
+                padding: 16px;
+            }
+
+            .modal-content-custom {
+                max-width: 90%;
+                padding: 16px;
+                border-radius: 16px;
+            }
+
+            .form-control-custom {
+                font-size: .9rem;
+                padding: 10px 12px;
+            }
+
+            .pagination-wrapper {
+                margin: 24px 0;
+                gap: 4px;
+            }
+
+            .pagination-wrapper a,
+            .pagination-wrapper span {
+                padding: 8px 10px;
+                font-size: .8rem;
+            }
+        }
+
+        @media(max-width:480px) {
+
+            .brand-title {
+                font-size: 1rem;
+            }
+
+            .hero-box {
+                padding: 16px;
+            }
+
+            .hero-title {
+                font-size: 1.1rem;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
             }
 
+            .product-card {
+                border-radius: 16px;
+            }
+
+            .product-image {
+                height: 100px;
+                font-size: 1.8rem;
+            }
+
+            .product-name {
+                font-size: .75rem;
+                min-height: 36px;
+            }
+
+            .product-stock {
+                font-size: .7rem;
+            }
+
+            .product-price {
+                font-size: .85rem;
+                margin-bottom: 8px;
+            }
+
+            .qty-input {
+                width: 45px;
+                font-size: .75rem;
+            }
+
+            .btn-add {
+                font-size: .7rem;
+                padding: 6px;
+            }
+
             .nav-btn {
-                padding: 8px 10px;
-                font-size: .8rem;
+                padding: 6px 8px;
+                font-size: .75rem;
             }
         }
     </style>
@@ -567,6 +741,30 @@
                 </div>
             @endforeach
 
+        </div>
+
+        <!-- PAGINATION -->
+
+        <div class="pagination-wrapper">
+            @if ($products->onFirstPage())
+                <span class="disabled">&laquo; Sebelumnya</span>
+            @else
+                <a href="{{ $products->previousPageUrl() }}" class="pagination-link">&laquo; Sebelumnya</a>
+            @endif
+
+            @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
+                @if ($page == $products->currentPage())
+                    <span class="active">{{ $page }}</span>
+                @else
+                    <a href="{{ $url }}" class="pagination-link">{{ $page }}</a>
+                @endif
+            @endforeach
+
+            @if ($products->hasMorePages())
+                <a href="{{ $products->nextPageUrl() }}" class="pagination-link">Selanjutnya &raquo;</a>
+            @else
+                <span class="disabled">Selanjutnya &raquo;</span>
+            @endif
         </div>
 
     </div>
