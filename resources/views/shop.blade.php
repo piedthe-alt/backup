@@ -698,13 +698,13 @@
 
                 <div class="nav-mobile-wrap">
 
-                    <a href="/shop/history" class="btn btn-light nav-btn">
+                    {{-- <a href="/shop/history" class="btn btn-light nav-btn">
                         <i class="fas fa-history"></i>
                     </a>
 
                     <a href="/" class="btn btn-light nav-btn">
                         <i class="fas fa-arrow-left"></i>
-                    </a>
+                    </a> --}}
 
                 </div>
 
