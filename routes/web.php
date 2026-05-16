@@ -290,7 +290,7 @@ Route::get('/api/get-returns-by-group', function (Request $request) {
 
     $masterDb = config('database.connections.mysql.database');
 
-    $returns = DB::connection('u990824557_db_app')
+    $returns = DB::connection('mysql_app')
 
         ->table('product_returns')
 
@@ -329,7 +329,7 @@ Route::get('/api/get-returns-by-group', function (Request $request) {
 });
 
 Route::get('/test-db-app', function () {
-    return DB::connection('u990824557_db_app')->select("SELECT DATABASE() as db");
+    return DB::connection('mysql_app')->select("SELECT DATABASE() as db");
 });
 
 Route::post('/returns/store', [ProductReturnController::class, 'store']);
@@ -1509,7 +1509,7 @@ Route::post('/shop/order', function (Request $request) {
 
         /*
         |--------------------------------------------------------------------------
-        | SAVE TO mysql_app (u990824557_db_app)
+        | SAVE TO mysql_app (mysql_app)
         |--------------------------------------------------------------------------
         */
 
@@ -1535,7 +1535,7 @@ Route::post('/shop/order', function (Request $request) {
         }
 
         // Save ke mysql_app
-        $orderId = DB::connection('u990824557_db_app')->table('shop_orders')->insertGetId([
+        $orderId = DB::connection('mysql_app')->table('shop_orders')->insertGetId([
             'customer_name' => $data['customer_name'],
             'customer_phone' => $data['customer_phone'],
             'customer_address' => $data['customer_address'],
@@ -1570,7 +1570,7 @@ Route::get('/shop/order/{orderId}/pdf', function ($orderId) {
 
     try {
 
-        $order = DB::connection('u990824557_db_app')
+        $order = DB::connection('mysql_app')
             ->table('shop_orders')
             ->find($orderId);
 
