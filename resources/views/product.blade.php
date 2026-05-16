@@ -1140,9 +1140,9 @@
                                 <i class="fas fa-shopping-bag"></i> Pesanan Shopee
                             </a>
 
-                            <button class="btn btn-action btn-success" onclick="startScanner()">
+                            {{-- <button class="btn btn-action btn-success" onclick="startScanner()">
                                 <i class="fas fa-camera"></i> Scan
-                            </button>
+                            </button> --}}
 
                             <a href="/import-db" class="btn btn-action btn-danger"
                                 onclick="return confirm('Yakin mau import database?')">
@@ -3334,6 +3334,11 @@
                                 readerDiv.style.display = 'none';
 
                                 scannerBtn.innerHTML = '<i class="fas fa-barcode"></i>';
+
+                                // Auto search product and show modal
+                                setTimeout(() => {
+                                    searchProductByBarcode(decodedText);
+                                }, 500);
                             }
 
                         );
