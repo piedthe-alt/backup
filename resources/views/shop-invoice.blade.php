@@ -76,7 +76,6 @@
                 padding: 0;
             }
         }
-    </style>
 
         .header {
             text-align: center;
