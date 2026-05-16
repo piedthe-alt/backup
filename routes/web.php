@@ -1442,9 +1442,11 @@ Route::get('/api/products', [PesananShopeeController::class, 'getProducts']);
 |--------------------------------------------------------------------------
 */
 
-Route::get('/shop', function () {
+Route::get('/shop', function (Request $request) {
 
-    $products = DB::table('product')
+    $keyword = $request->keyword;
+
+    $query = DB::table('product')
 
         ->leftJoin(
             'inventory',
@@ -1468,7 +1470,24 @@ Route::get('/shop', function () {
 
         )
 
-        ->where('product.isactive', 1)
+        ->where('product.isactive', 1);
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEARCH GLOBAL
+    |--------------------------------------------------------------------------
+    */
+
+    if ($keyword) {
+
+        $query->where(function ($q) use ($keyword) {
+
+            $q->where('product.name', 'like', "%{$keyword}%")
+              ->orWhere('product.id', 'like', "%{$keyword}%");
+        });
+    }
+
+    $products = $query
 
         ->groupBy(
             'product.id',
@@ -1478,11 +1497,13 @@ Route::get('/shop', function () {
 
         ->orderBy('product.name')
 
-        ->paginate(50); // ← penting
+        ->paginate(50)
+
+        ->withQueryString();
 
     return view(
         'shop',
-        compact('products')
+        compact('products', 'keyword')
     );
 });
 /*

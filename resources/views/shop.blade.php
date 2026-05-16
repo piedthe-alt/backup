@@ -843,13 +843,38 @@
                 <a href="{{ $products->previousPageUrl() }}" class="pagination-link">&laquo; Sebelumnya</a>
             @endif
 
-            @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
-                @if ($page == $products->currentPage())
-                    <span class="active">{{ $page }}</span>
-                @else
-                    <a href="{{ $url }}" class="pagination-link">{{ $page }}</a>
+            @php
+                $start = max($products->currentPage() - 2, 1);
+                $end = min($products->currentPage() + 2, $products->lastPage());
+            @endphp
+
+            @if ($start > 1)
+                <a href="{{ $products->url(1) }}" class="pagination-link">1</a>
+
+                @if ($start > 2)
+                    <span class="disabled">...</span>
                 @endif
-            @endforeach
+            @endif
+
+            @for ($i = $start; $i <= $end; $i++)
+                @if ($i == $products->currentPage())
+                    <span class="active">{{ $i }}</span>
+                @else
+                    <a href="{{ $products->url($i) }}" class="pagination-link">
+                        {{ $i }}
+                    </a>
+                @endif
+            @endfor
+
+            @if ($end < $products->lastPage())
+                @if ($end < $products->lastPage() - 1)
+                    <span class="disabled">...</span>
+                @endif
+
+                <a href="{{ $products->url($products->lastPage()) }}" class="pagination-link">
+                    {{ $products->lastPage() }}
+                </a>
+            @endif
 
             @if ($products->hasMorePages())
                 <a href="{{ $products->nextPageUrl() }}" class="pagination-link">Selanjutnya &raquo;</a>
