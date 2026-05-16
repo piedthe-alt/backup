@@ -1184,8 +1184,7 @@
                             <div class="d-flex gap-2">
 
                                 <input type="text" name="keyword" id="searchInput" class="form-control search-input"
-                                    placeholder="🔍 Cari nama produk atau scan barcode..." value="{{ request('keyword') }}"
-                                    autofocus>
+                                    placeholder="🔍 Cari nama produk atau scan barcode..." value="{{ request('keyword') }}">
 
                                 <button type="button" id="start-scanner" class="btn btn-dark" style="white-space: nowrap;">
                                     <i class="fas fa-barcode"></i>
