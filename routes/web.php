@@ -247,7 +247,6 @@ Route::get('/sales-hour-analysis', function (Request $request) {
             : 0;
 
         return $item;
-
     });
 
     /*
@@ -281,7 +280,6 @@ Route::get('/sales-hour-analysis', function (Request $request) {
         'peakHour'
 
     ));
-
 });
 
 Route::get('/api/pesanan-shopee', [PesananShopeeController::class, 'apiList']);
@@ -1447,12 +1445,44 @@ Route::get('/api/products', [PesananShopeeController::class, 'getProducts']);
 Route::get('/shop', function () {
 
     $products = DB::table('product')
-        ->orderBy('name')
+
+        ->leftJoin(
+            'inventory',
+            'product.id',
+            '=',
+            'inventory.productid'
+        )
+
+        ->select(
+
+            'product.id',
+            'product.name',
+            'product.salesprice1',
+
+            DB::raw('
+                COALESCE(
+                    SUM(inventory.invin - inventory.invout),
+                    0
+                ) as stock
+            ')
+
+        )
+
+        ->groupBy(
+            'product.id',
+            'product.name',
+            'product.salesprice1'
+        )
+
+        ->orderBy('product.name')
+
         ->get();
 
-    return view('shop', compact('products'));
+    return view(
+        'shop',
+        compact('products')
+    );
 });
-
 /*
 |--------------------------------------------------------------------------
 | CREATE ORDER FROM SHOP
@@ -1524,7 +1554,6 @@ Route::post('/shop/order', function (Request $request) {
             'total' => $totalAmount,
             'items' => $orderDetails,
         ]);
-
     } catch (\Exception $e) {
 
         return response()->json(['error' => $e->getMessage()], 500);
@@ -1569,7 +1598,6 @@ Route::get('/shop/order/{orderId}/pdf', function ($orderId) {
             'order' => $order,
             'items' => $items,
         ]);
-
     } catch (\Exception $e) {
 
         return response()->json(['error' => $e->getMessage()], 500);

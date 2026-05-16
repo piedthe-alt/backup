@@ -474,7 +474,7 @@
                         </div>
 
                         <div class="product-actions">
-                            <input type="number" class="qty-input" value="1" min="1" max="{{ $product->stock }}">
+                            <input type="number" class="qty-input" value="1" min="1" max="{{ $product->stock ?? 999 }}">
                             <button class="btn-add" onclick="addToCart(event)">
                                 <i class="fas fa-shopping-cart me-1"></i>Beli
                             </button>
