@@ -2254,7 +2254,9 @@ Route::get('/market-basket-analysis', function () {
             if (!isset($singleCounts[$productId])) {
 
                 $singleCounts[$productId] = [
+
                     'product_name' => $productName,
+
                     'count' => 0
                 ];
             }
@@ -2284,6 +2286,12 @@ Route::get('/market-basket-analysis', function () {
 
         $countProducts = count($productIds);
 
+        /*
+        |--------------------------------------------------------------------------
+        | LOOP KOMBINASI
+        |--------------------------------------------------------------------------
+        */
+
         for ($i = 0; $i < $countProducts; $i++) {
 
             for ($j = $i + 1; $j < $countProducts; $j++) {
@@ -2292,6 +2300,7 @@ Route::get('/market-basket-analysis', function () {
                 $b = $productIds[$j];
 
                 $sorted = [$a, $b];
+
                 sort($sorted);
 
                 $pairKey = $sorted[0] . '|' . $sorted[1];
@@ -2317,7 +2326,7 @@ Route::get('/market-basket-analysis', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | SUPPORT + CONFIDENCE + LIFT
+    | ANALISIS
     |--------------------------------------------------------------------------
     */
 
@@ -2325,9 +2334,20 @@ Route::get('/market-basket-analysis', function () {
 
     foreach ($pairs as $pair) {
 
+        /*
+        |--------------------------------------------------------------------------
+        | FILTER MINIMAL 5x
+        |--------------------------------------------------------------------------
+        */
+
+        if ($pair['frequency'] < 5) {
+            continue;
+        }
+
         $freqAB = $pair['frequency'];
 
         $countA = $singleCounts[$pair['product_a']]['count'] ?? 1;
+
         $countB = $singleCounts[$pair['product_b']]['count'] ?? 1;
 
         /*
@@ -2381,10 +2401,12 @@ Route::get('/market-basket-analysis', function () {
         if ($lift >= 2 && $confidenceAtoB >= 30) {
 
             $recommendation = 'Sangat Direkomendasikan Dekat';
-        } elseif ($lift >= 1.5) {
+        }
+        elseif ($lift >= 1.5) {
 
             $recommendation = 'Cocok Dekat';
-        } elseif ($lift < 1) {
+        }
+        elseif ($lift < 1) {
 
             $recommendation = 'Kurang Berkaitan';
         }
@@ -2420,18 +2442,14 @@ Route::get('/market-basket-analysis', function () {
         return $b['frequency'] <=> $a['frequency'];
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | TOP 50
-    |--------------------------------------------------------------------------
-    */
-
-    $analysis = array_slice($analysis, 0, 50);
-
     return view(
+
         'market-basket-analysis',
+
         compact(
+
             'analysis',
+
             'totalTransactions'
         )
     );
