@@ -1,295 +1,243 @@
-<!-- PRODUCT DETAIL MODALS -->
-@foreach ($products as $product)
-    <div class="modal fade" id="productModal{{ $product->id }}" tabindex="-1" data-product-id="{{ $product->id }}">
+<!-- PRODUCT DETAIL MODAL (SINGLE DYNAMIC MODAL) -->
+<div class="modal" id="productDetailModal" tabindex="-1">
 
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
 
-            <div class="modal-content border-0 shadow-lg rounded-4">
+        <div class="modal-content border-0 shadow rounded-4">
 
-                <!-- HEADER -->
-                <div class="modal-header">
+            <!-- HEADER -->
+            <div class="modal-header bg-primary text-white border-0">
 
-                    <div>
-                        <h5 class="modal-title">
+                <div>
+                    <h5 class="modal-title">
+                        <i class="fas fa-box me-2"></i>
+                        <span id="modalProductName">Detail Produk</span>
+                    </h5>
 
-                            <i class="fas fa-box me-2"></i>{{ $product->name }}
-
-                        </h5>
-                        <small class="text-white-50">Detail Produk</small>
-                    </div>
-
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
-
-                    </button>
-
+                    <small class="text-white-50">
+                        Informasi Produk
+                    </small>
                 </div>
 
-                <!-- BODY -->
-                <div class="modal-body p-4">
+                <button type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
+                </button>
 
-                    <!-- TABS -->
-                    <ul class="nav nav-tabs mb-4" role="tablist" style="border-bottom: 2px solid #e5e7eb;">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="detail-tab-{{ $product->id }}" data-bs-toggle="tab" href="#detail-content-{{ $product->id }}" role="tab">
-                                <i class="fas fa-info-circle me-2"></i>Detail Produk
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="history-in-tab-{{ $product->id }}" data-bs-toggle="tab" href="#history-in-content-{{ $product->id }}" role="tab" data-product-id="{{ $product->id }}">
-                                <i class="fas fa-arrow-down me-2"></i>Riwayat Stok Masuk
-                            </a>
-                        </li>
-                    </ul>
+            </div>
 
-                    <!-- TAB CONTENT -->
-                    <div class="tab-content">
-                        <!-- DETAIL TAB -->
-                        <div class="tab-pane fade show active" id="detail-content-{{ $product->id }}" role="tabpanel">
+            <!-- BODY -->
+            <div class="modal-body p-4">
 
-                    <table class="table">
+                <!-- TABS -->
+                <ul class="nav nav-tabs mb-4" role="tablist">
 
-                        <tbody>
+                    <li class="nav-item">
 
-                            <tr>
+                        <button class="nav-link active"
+                            data-bs-toggle="tab"
+                            data-bs-target="#detail-tab-content"
+                            type="button">
 
-                                <th width="250">
-                                    <i class="fas fa-barcode me-2 text-success"></i>Kode Barang
-                                </th>
+                            <i class="fas fa-info-circle me-2"></i>
+                            Detail Produk
 
-                                <td>
+                        </button>
 
-                                    <span class="badge bg-success text-white">{{ $product->id }}</span>
+                    </li>
 
-                                </td>
+                    <li class="nav-item">
 
-                            </tr>
+                        <button class="nav-link"
+                            data-bs-toggle="tab"
+                            data-bs-target="#history-tab-content"
+                            type="button">
 
-                            <tr>
+                            <i class="fas fa-arrow-down me-2"></i>
+                            Riwayat Stok Masuk
 
-                                <th width="250">
-                                    <i class="fas fa-tag me-2 text-primary"></i>Group Produk
-                                </th>
+                        </button>
 
-                                <td>
+                    </li>
 
-                                    <span
-                                        class="badge bg-light text-dark">{{ $product->productgroup_name }}</span>
+                </ul>
 
-                                </td>
+                <!-- TAB CONTENT -->
+                <div class="tab-content">
 
-                            </tr>
+                    <!-- DETAIL -->
+                    <div class="tab-pane fade show active"
+                        id="detail-tab-content">
 
-                            <tr>
+                        <table class="table align-middle">
 
-                                <th>
-                                    <i class="fas fa-truck me-2 text-primary"></i>Supplier
-                                </th>
+                            <tbody>
 
-                                <td>
+                                <tr>
+                                    <th width="250">
+                                        <i class="fas fa-barcode me-2 text-success"></i>
+                                        Kode Barang
+                                    </th>
 
-                                    {{ $product->supplier_name }}
+                                    <td>
+                                        <span class="badge bg-success"
+                                            id="modalProductCode">
+                                        </span>
+                                    </td>
+                                </tr>
 
-                                </td>
+                                <tr>
+                                    <th>
+                                        <i class="fas fa-tag me-2 text-primary"></i>
+                                        Group Produk
+                                    </th>
 
-                            </tr>
+                                    <td>
+                                        <span class="badge bg-light text-dark"
+                                            id="modalProductGroup">
+                                        </span>
+                                    </td>
+                                </tr>
 
-                            <tr>
+                                <tr>
+                                    <th>
+                                        <i class="fas fa-truck me-2 text-primary"></i>
+                                        Supplier
+                                    </th>
 
-                                <th>
-                                    <i class="fas fa-warehouse me-2 text-info"></i>Stock Saat Ini
-                                </th>
+                                    <td id="modalSupplier"></td>
+                                </tr>
 
-                                <td>
+                                <tr>
+                                    <th>
+                                        <i class="fas fa-warehouse me-2 text-info"></i>
+                                        Stock Saat Ini
+                                    </th>
 
-                                    <strong class="text-info">{{ number_format($product->stock, 0, ',', '.') }}
-                                        pcs</strong>
+                                    <td>
+                                        <strong class="text-info"
+                                            id="modalStock">
+                                        </strong>
+                                    </td>
+                                </tr>
 
-                                </td>
+                                <tr>
+                                    <th>
+                                        <i class="fas fa-arrow-down me-2 text-success"></i>
+                                        Total Barang Masuk
+                                    </th>
 
-                            </tr>
+                                    <td>
+                                        <strong class="text-success"
+                                            id="modalMasuk">
+                                        </strong>
+                                    </td>
+                                </tr>
 
-                            <tr>
+                                <tr>
+                                    <th>
+                                        <i class="fas fa-arrow-up me-2 text-warning"></i>
+                                        Total Barang Keluar
+                                    </th>
 
-                                <th>
-                                    <i class="fas fa-arrow-down me-2 text-success"></i>Total Barang Masuk
-                                </th>
+                                    <td>
+                                        <strong class="text-warning"
+                                            id="modalKeluar">
+                                        </strong>
+                                    </td>
+                                </tr>
 
-                                <td>
+                                <tr>
+                                    <th>
+                                        <i class="fas fa-coins me-2 text-danger"></i>
+                                        Harga Modal
+                                    </th>
 
-                                    <strong
-                                        class="text-success">{{ number_format($product->total_masuk, 0, ',', '.') }}</strong>
+                                    <td>
+                                        <strong class="text-danger"
+                                            id="modalCostPrice">
+                                        </strong>
+                                    </td>
+                                </tr>
 
-                                </td>
+                                <tr>
+                                    <th>
+                                        <i class="fas fa-money-bill-wave me-2 text-success"></i>
+                                        Harga Jual
+                                    </th>
 
-                            </tr>
+                                    <td>
+                                        <strong class="text-success"
+                                            id="modalSalePrice">
+                                        </strong>
+                                    </td>
+                                </tr>
 
-                            <tr>
+                                <tr>
+                                    <th>
+                                        <i class="fas fa-percent me-2 text-primary"></i>
+                                        Margin
+                                    </th>
 
-                                <th>
-                                    <i class="fas fa-arrow-up me-2 text-warning"></i>Total Barang Keluar
-                                </th>
+                                    <td>
+                                        <strong class="text-primary"
+                                            id="modalMargin">
+                                        </strong>
+                                    </td>
+                                </tr>
 
-                                <td>
+                            </tbody>
 
-                                    <strong
-                                        class="text-warning">{{ number_format($product->total_keluar, 0, ',', '.') }}</strong>
+                        </table>
 
-                                </td>
+                        <!-- STRATA -->
+                        <div id="pricingStrataWrapper" class="mt-4 d-none">
 
-                            </tr>
-
-                            <tr>
-
-                                <th>
-                                    <i class="fas fa-coins me-2 text-danger"></i>Harga Modal
-                                </th>
-
-                                <td>
-
-                                    <strong class="text-danger">Rp
-                                        {{ number_format($product->costprice, 0, ',', '.') }}</strong>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <th>
-                                    <i class="fas fa-money-bill-wave me-2 text-success"></i>Harga Jual
-                                </th>
-
-                                <td>
-
-                                    <strong class="text-success">Rp
-                                        {{ number_format($product->salesprice1, 0, ',', '.') }}</strong>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <th>
-                                    <i class="fas fa-percent me-2 text-primary"></i>Margin
-                                </th>
-
-                                <td>
-
-                                    @php
-                                        $margin =
-                                            $product->costprice > 0
-                                                ? (($product->salesprice1 - $product->costprice) /
-                                                        $product->costprice) *
-                                                    100
-                                                : 0;
-                                    @endphp
-
-                                    <strong
-                                        class="text-primary">{{ number_format($margin, 2, ',', '.') }}%</strong>
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                    <!-- PRICING STRATA TABLE -->
-                    @php
-                        // Check if any salesdiscqty is not 0
-                        $hasPricingStrata = false;
-                        for ($i = 1; $i <= 7; $i++) {
-                            $field = 'salesdiscqty' . $i;
-                            if (isset($product->$field) && $product->$field != 0) {
-                                $hasPricingStrata = true;
-                                break;
-                            }
-                        }
-                    @endphp
-
-                    @if ($hasPricingStrata)
-                        <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
-                            <h6 style="margin-bottom: 15px; font-weight: 700; color: #1e293b;">
-                                <i class="fas fa-layer-group me-2 text-success"></i>Harga Bertingkat (Strata)
+                            <h6 class="fw-bold mb-3">
+                                <i class="fas fa-layer-group me-2 text-success"></i>
+                                Harga Bertingkat
                             </h6>
-                            <div style="overflow-x: auto;">
-                                <table class="table table-sm" style="font-size: 0.9rem; margin-bottom: 0;">
-                                    <thead style="background-color: #f8fafc;">
+
+                            <div class="table-responsive">
+
+                                <table class="table table-sm">
+
+                                    <thead class="table-light">
+
                                         <tr>
-                                            <th style="text-align: center; color: #1e293b; font-weight: 600;">
-                                                <i class="fas fa-cube me-1"></i>Jumlah Beli
-                                            </th>
-                                            <th style="text-align: center; color: #1e293b; font-weight: 600;">
-                                                <i class="fas fa-tag me-1"></i>Harga Satuan
-                                            </th>
-                                            <th style="text-align: center; color: #1e293b; font-weight: 600;">
-                                                <i class="fas fa-calculator me-1"></i>Total Harga
-                                            </th>
+                                            <th class="text-center">Jumlah</th>
+                                            <th class="text-center">Harga</th>
+                                            <th class="text-center">Total</th>
                                         </tr>
+
                                     </thead>
-                                    <tbody>
-                                        @for ($i = 1; $i <= 7; $i++)
-                                            @php
-                                                $qtyField = 'salesdiscqty' . $i;
-                                                $priceField = 'salesdiscprice' . $i;
-                                                $qty = (isset($product->$qtyField) && $product->$qtyField != 0) ? $product->$qtyField : null;
-                                                $price = isset($product->$priceField) ? $product->$priceField : 0;
-                                            @endphp
-                                            @if ($qty !== null && $qty != 0)
-                                                <tr style="border-bottom: 1px solid #e5e7eb; background-color: {{ $i % 2 == 0 ? '#f8fafc' : 'white' }};">
-                                                    <td style="text-align: center; font-weight: 600; color: #2563eb;">
-                                                        {{ number_format($qty, 0, ',', '.') }}
-                                                    </td>
-                                                    <td style="text-align: center; color: #64748b;">
-                                                        Rp {{ number_format($price, 0, ',', '.') }}
-                                                    </td>
-                                                    <td style="text-align: center; font-weight: 700; color: #10b981;">
-                                                        Rp {{ number_format($qty * $price, 0, ',', '.') }}
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @endfor
+
+                                    <tbody id="pricingStrataBody">
+
                                     </tbody>
+
                                 </table>
+
                             </div>
-                            <div style="margin-top: 12px; padding: 12px; background-color: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; border-radius: 6px;">
-                                <small style="color: #64748b;">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    Tabel ini menunjukkan diskon bertingkat. Semakin banyak jumlah pembelian, harga satuan semakin murah.
-                                </small>
-                            </div>
-                        </div>
-                    @endif
 
                         </div>
 
-                        <!-- HISTORY MASUK TAB -->
-                            <div class="tab-pane fade" id="history-in-content-{{ $product->id }}" role="tabpanel">
-                                <div id="inventory-history-in-loading-{{ $product->id }}" class="text-center py-4">
-                                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                                <p class="text-muted mt-2 small">Memuat data barang masuk...</p>
-                            </div>
-                                <div id="inventory-history-in-content-{{ $product->id }}" style="display: none;">
-                                    <!-- Summary Section -->
-                                    <div class="row mb-4 g-2">
-                                        <div class="col-12">
-                                            <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center">
-                                                <small class="text-muted">Total Barang Masuk</small>
-                                                <p class="mb-0 h6 text-success fw-bold" id="total-masuk-{{ $product->id }}">0</p>
-                                        </div>
-                                    </div>
-                                </div>
+                    </div>
 
-                                <!-- Transactions List -->
-                                <div class="inventory-transactions-in-{{ $product->id }}">
-                                    <p class="text-muted small">Tidak ada data barang masuk</p>
-                                </div>
-                            </div>
+                    <!-- HISTORY -->
+                    <div class="tab-pane fade"
+                        id="history-tab-content">
+
+                        <div class="text-center py-4">
+
+                            <div class="spinner-border spinner-border-sm text-primary"></div>
+
+                            <p class="small text-muted mt-2">
+                                Riwayat stok masuk akan ditampilkan di sini
+                            </p>
+
                         </div>
+
                     </div>
 
                 </div>
@@ -299,4 +247,161 @@
         </div>
 
     </div>
+
+</div>
+
+<!-- PRODUCT BUTTON -->
+@foreach ($products as $product)
+
+    @php
+        $margin =
+            $product->costprice > 0
+                ? (($product->salesprice1 - $product->costprice) / $product->costprice) * 100
+                : 0;
+
+        $pricingStrata = [];
+
+        for ($i = 1; $i <= 7; $i++) {
+
+            $qtyField = 'salesdiscqty' . $i;
+            $priceField = 'salesdiscprice' . $i;
+
+            if (!empty($product->$qtyField)) {
+
+                $pricingStrata[] = [
+                    'qty' => $product->$qtyField,
+                    'price' => $product->$priceField
+                ];
+            }
+        }
+    @endphp
+
+    <button
+        type="button"
+        class="btn btn-primary open-product-modal"
+
+        data-name="{{ $product->name }}"
+        data-code="{{ $product->id }}"
+        data-group="{{ $product->productgroup_name }}"
+        data-supplier="{{ $product->supplier_name }}"
+        data-stock="{{ number_format($product->stock, 0, ',', '.') }}"
+        data-masuk="{{ number_format($product->total_masuk, 0, ',', '.') }}"
+        data-keluar="{{ number_format($product->total_keluar, 0, ',', '.') }}"
+        data-cost="Rp {{ number_format($product->costprice, 0, ',', '.') }}"
+        data-sale="Rp {{ number_format($product->salesprice1, 0, ',', '.') }}"
+        data-margin="{{ number_format($margin, 2, ',', '.') }}%"
+        data-strata='@json($pricingStrata)'>
+
+        Detail Produk
+
+    </button>
+
 @endforeach
+
+<style>
+    .modal-dialog {
+        transform: none !important;
+    }
+
+    .modal.fade .modal-dialog {
+        transition: none !important;
+    }
+
+    .modal-content {
+        border-radius: 18px;
+    }
+
+    .nav-tabs .nav-link.active {
+        font-weight: 700;
+        color: #0d6efd;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const modalEl = document.getElementById('productDetailModal');
+
+        const modal = new bootstrap.Modal(modalEl);
+
+        document.querySelectorAll('.open-product-modal').forEach(button => {
+
+            button.addEventListener('click', function() {
+
+                document.getElementById('modalProductName').innerText =
+                    this.dataset.name;
+
+                document.getElementById('modalProductCode').innerText =
+                    this.dataset.code;
+
+                document.getElementById('modalProductGroup').innerText =
+                    this.dataset.group;
+
+                document.getElementById('modalSupplier').innerText =
+                    this.dataset.supplier;
+
+                document.getElementById('modalStock').innerText =
+                    this.dataset.stock + ' pcs';
+
+                document.getElementById('modalMasuk').innerText =
+                    this.dataset.masuk;
+
+                document.getElementById('modalKeluar').innerText =
+                    this.dataset.keluar;
+
+                document.getElementById('modalCostPrice').innerText =
+                    this.dataset.cost;
+
+                document.getElementById('modalSalePrice').innerText =
+                    this.dataset.sale;
+
+                document.getElementById('modalMargin').innerText =
+                    this.dataset.margin;
+
+                // STRATA
+                const strata = JSON.parse(this.dataset.strata);
+
+                const tbody = document.getElementById('pricingStrataBody');
+
+                tbody.innerHTML = '';
+
+                if (strata.length > 0) {
+
+                    document.getElementById('pricingStrataWrapper')
+                        .classList.remove('d-none');
+
+                    strata.forEach(item => {
+
+                        const total = item.qty * item.price;
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="text-center fw-bold">
+                                    ${Number(item.qty).toLocaleString('id-ID')}
+                                </td>
+
+                                <td class="text-center">
+                                    Rp ${Number(item.price).toLocaleString('id-ID')}
+                                </td>
+
+                                <td class="text-center text-success fw-bold">
+                                    Rp ${Number(total).toLocaleString('id-ID')}
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                } else {
+
+                    document.getElementById('pricingStrataWrapper')
+                        .classList.add('d-none');
+                }
+
+                modal.show();
+
+            });
+
+        });
+
+    });
+</script>
