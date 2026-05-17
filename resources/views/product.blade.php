@@ -1032,7 +1032,7 @@
         function showProductModal(product) {
 
             const modalHtml = `
-                <div class="modal fade" id="scanResultModal" tabindex="-1">
+                <div class="modal" id="scanResultModal" tabindex="-1">
                     <div class="modal-dialog modal-lg modal-dialog-centered">
                         <div class="modal-content border-0 shadow-lg rounded-4">
                             <div class="modal-header bg-primary text-white">
