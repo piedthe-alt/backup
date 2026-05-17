@@ -318,90 +318,97 @@
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('load', function () {
 
-        const modalEl = document.getElementById('productDetailModal');
+    const modalElement = document.getElementById('productDetailModal');
 
-        const modal = new bootstrap.Modal(modalEl);
+    if (!modalElement) {
+        console.error('Modal tidak ditemukan');
+        return;
+    }
 
-        document.querySelectorAll('.open-product-modal').forEach(button => {
+    const productModal =
+        bootstrap.Modal.getOrCreateInstance(modalElement);
 
-            button.addEventListener('click', function() {
+    document.querySelectorAll('.open-product-modal').forEach(button => {
 
-                document.getElementById('modalProductName').innerText =
-                    this.dataset.name;
+        button.addEventListener('click', function () {
 
-                document.getElementById('modalProductCode').innerText =
-                    this.dataset.code;
+            document.getElementById('modalProductName').innerText =
+                this.dataset.name;
 
-                document.getElementById('modalProductGroup').innerText =
-                    this.dataset.group;
+            document.getElementById('modalProductCode').innerText =
+                this.dataset.code;
 
-                document.getElementById('modalSupplier').innerText =
-                    this.dataset.supplier;
+            document.getElementById('modalProductGroup').innerText =
+                this.dataset.group;
 
-                document.getElementById('modalStock').innerText =
-                    this.dataset.stock + ' pcs';
+            document.getElementById('modalSupplier').innerText =
+                this.dataset.supplier;
 
-                document.getElementById('modalMasuk').innerText =
-                    this.dataset.masuk;
+            document.getElementById('modalStock').innerText =
+                this.dataset.stock + ' pcs';
 
-                document.getElementById('modalKeluar').innerText =
-                    this.dataset.keluar;
+            document.getElementById('modalMasuk').innerText =
+                this.dataset.masuk;
 
-                document.getElementById('modalCostPrice').innerText =
-                    this.dataset.cost;
+            document.getElementById('modalKeluar').innerText =
+                this.dataset.keluar;
 
-                document.getElementById('modalSalePrice').innerText =
-                    this.dataset.sale;
+            document.getElementById('modalCostPrice').innerText =
+                this.dataset.cost;
 
-                document.getElementById('modalMargin').innerText =
-                    this.dataset.margin;
+            document.getElementById('modalSalePrice').innerText =
+                this.dataset.sale;
 
-                // STRATA
-                const strata = JSON.parse(this.dataset.strata);
+            document.getElementById('modalMargin').innerText =
+                this.dataset.margin;
 
-                const tbody = document.getElementById('pricingStrataBody');
+            // STRATA
+            const strata = JSON.parse(this.dataset.strata || '[]');
 
-                tbody.innerHTML = '';
+            const tbody =
+                document.getElementById('pricingStrataBody');
 
-                if (strata.length > 0) {
+            tbody.innerHTML = '';
 
-                    document.getElementById('pricingStrataWrapper')
-                        .classList.remove('d-none');
+            if (strata.length > 0) {
 
-                    strata.forEach(item => {
+                document.getElementById('pricingStrataWrapper')
+                    .classList.remove('d-none');
 
-                        const total = item.qty * item.price;
+                strata.forEach(item => {
 
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="text-center fw-bold">
-                                    ${Number(item.qty).toLocaleString('id-ID')}
-                                </td>
+                    const total = item.qty * item.price;
 
-                                <td class="text-center">
-                                    Rp ${Number(item.price).toLocaleString('id-ID')}
-                                </td>
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="text-center fw-bold">
+                                ${Number(item.qty).toLocaleString('id-ID')}
+                            </td>
 
-                                <td class="text-center text-success fw-bold">
-                                    Rp ${Number(total).toLocaleString('id-ID')}
-                                </td>
-                            </tr>
-                        `;
-                    });
+                            <td class="text-center">
+                                Rp ${Number(item.price).toLocaleString('id-ID')}
+                            </td>
 
-                } else {
+                            <td class="text-center text-success fw-bold">
+                                Rp ${Number(total).toLocaleString('id-ID')}
+                            </td>
+                        </tr>
+                    `;
+                });
 
-                    document.getElementById('pricingStrataWrapper')
-                        .classList.add('d-none');
-                }
+            } else {
 
-                modal.show();
+                document.getElementById('pricingStrataWrapper')
+                    .classList.add('d-none');
+            }
 
-            });
+            productModal.show();
 
         });
 
     });
+
+});
 </script>
