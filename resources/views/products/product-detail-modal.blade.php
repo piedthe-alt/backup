@@ -1,4 +1,8 @@
-<!-- PRODUCT DETAIL MODAL (SINGLE DYNAMIC MODAL) -->
+{{-- ========================= --}}
+{{-- PRODUCT DETAIL MODAL --}}
+{{-- ========================= --}}
+
+<!-- SINGLE PRODUCT MODAL -->
 <div class="modal" id="productDetailModal" tabindex="-1">
 
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -11,11 +15,11 @@
                 <div>
                     <h5 class="modal-title">
                         <i class="fas fa-box me-2"></i>
-                        <span id="modalProductName">Detail Produk</span>
+                        <span id="modalProductName"></span>
                     </h5>
 
                     <small class="text-white-50">
-                        Informasi Produk
+                        Detail Produk
                     </small>
                 </div>
 
@@ -30,13 +34,13 @@
             <div class="modal-body p-4">
 
                 <!-- TABS -->
-                <ul class="nav nav-tabs mb-4" role="tablist">
+                <ul class="nav nav-tabs mb-4">
 
                     <li class="nav-item">
 
                         <button class="nav-link active"
                             data-bs-toggle="tab"
-                            data-bs-target="#detail-tab-content"
+                            data-bs-target="#detail-tab"
                             type="button">
 
                             <i class="fas fa-info-circle me-2"></i>
@@ -50,11 +54,11 @@
 
                         <button class="nav-link"
                             data-bs-toggle="tab"
-                            data-bs-target="#history-tab-content"
+                            data-bs-target="#history-tab"
                             type="button">
 
                             <i class="fas fa-arrow-down me-2"></i>
-                            Riwayat Stok Masuk
+                            Riwayat Barang Masuk
 
                         </button>
 
@@ -65,9 +69,9 @@
                 <!-- TAB CONTENT -->
                 <div class="tab-content">
 
-                    <!-- DETAIL -->
+                    <!-- DETAIL TAB -->
                     <div class="tab-pane fade show active"
-                        id="detail-tab-content">
+                        id="detail-tab">
 
                         <table class="table align-middle">
 
@@ -190,50 +194,18 @@
 
                         </table>
 
-                        <!-- STRATA -->
-                        <div id="pricingStrataWrapper" class="mt-4 d-none">
-
-                            <h6 class="fw-bold mb-3">
-                                <i class="fas fa-layer-group me-2 text-success"></i>
-                                Harga Bertingkat
-                            </h6>
-
-                            <div class="table-responsive">
-
-                                <table class="table table-sm">
-
-                                    <thead class="table-light">
-
-                                        <tr>
-                                            <th class="text-center">Jumlah</th>
-                                            <th class="text-center">Harga</th>
-                                            <th class="text-center">Total</th>
-                                        </tr>
-
-                                    </thead>
-
-                                    <tbody id="pricingStrataBody">
-
-                                    </tbody>
-
-                                </table>
-
-                            </div>
-
-                        </div>
-
                     </div>
 
-                    <!-- HISTORY -->
+                    <!-- HISTORY TAB -->
                     <div class="tab-pane fade"
-                        id="history-tab-content">
+                        id="history-tab">
 
                         <div class="text-center py-4">
 
                             <div class="spinner-border spinner-border-sm text-primary"></div>
 
                             <p class="small text-muted mt-2">
-                                Riwayat stok masuk akan ditampilkan di sini
+                                Riwayat barang masuk
                             </p>
 
                         </div>
@@ -250,7 +222,10 @@
 
 </div>
 
-<!-- PRODUCT BUTTON -->
+{{-- ========================= --}}
+{{-- BUTTON DETAIL PRODUK --}}
+{{-- ========================= --}}
+
 @foreach ($products as $product)
 
     @php
@@ -258,22 +233,6 @@
             $product->costprice > 0
                 ? (($product->salesprice1 - $product->costprice) / $product->costprice) * 100
                 : 0;
-
-        $pricingStrata = [];
-
-        for ($i = 1; $i <= 7; $i++) {
-
-            $qtyField = 'salesdiscqty' . $i;
-            $priceField = 'salesdiscprice' . $i;
-
-            if (!empty($product->$qtyField)) {
-
-                $pricingStrata[] = [
-                    'qty' => $product->$qtyField,
-                    'price' => $product->$priceField
-                ];
-            }
-        }
     @endphp
 
     <button
@@ -289,8 +248,7 @@
         data-keluar="{{ number_format($product->total_keluar, 0, ',', '.') }}"
         data-cost="Rp {{ number_format($product->costprice, 0, ',', '.') }}"
         data-sale="Rp {{ number_format($product->salesprice1, 0, ',', '.') }}"
-        data-margin="{{ number_format($margin, 2, ',', '.') }}%"
-        data-strata='@json($pricingStrata)'>
+        data-margin="{{ number_format($margin, 2, ',', '.') }}%">
 
         Detail Produk
 
@@ -298,117 +256,87 @@
 
 @endforeach
 
+{{-- ========================= --}}
+{{-- CSS --}}
+{{-- ========================= --}}
+
 <style>
-    .modal-dialog {
-        transform: none !important;
-    }
 
-    .modal.fade .modal-dialog {
-        transition: none !important;
-    }
+.modal-dialog {
+    transform: none !important;
+}
 
-    .modal-content {
-        border-radius: 18px;
-    }
+.modal.fade .modal-dialog {
+    transition: none !important;
+}
 
-    .nav-tabs .nav-link.active {
-        font-weight: 700;
-        color: #0d6efd;
-    }
+.modal-content {
+    border-radius: 18px;
+}
+
 </style>
 
+{{-- ========================= --}}
+{{-- BOOTSTRAP JS --}}
+{{-- ========================= --}}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{{-- ========================= --}}
+{{-- JAVASCRIPT --}}
+{{-- ========================= --}}
+
 <script>
+
 window.addEventListener('load', function () {
 
-    const modalElement = document.getElementById('productDetailModal');
-
-    if (!modalElement) {
-        console.error('Modal tidak ditemukan');
-        return;
-    }
+    const modalElement =
+        document.getElementById('productDetailModal');
 
     const productModal =
         bootstrap.Modal.getOrCreateInstance(modalElement);
 
-    document.querySelectorAll('.open-product-modal').forEach(button => {
+    document.querySelectorAll('.open-product-modal')
 
-        button.addEventListener('click', function () {
+        .forEach(button => {
 
-            document.getElementById('modalProductName').innerText =
-                this.dataset.name;
+            button.addEventListener('click', function () {
 
-            document.getElementById('modalProductCode').innerText =
-                this.dataset.code;
+                document.getElementById('modalProductName').innerText =
+                    this.dataset.name;
 
-            document.getElementById('modalProductGroup').innerText =
-                this.dataset.group;
+                document.getElementById('modalProductCode').innerText =
+                    this.dataset.code;
 
-            document.getElementById('modalSupplier').innerText =
-                this.dataset.supplier;
+                document.getElementById('modalProductGroup').innerText =
+                    this.dataset.group;
 
-            document.getElementById('modalStock').innerText =
-                this.dataset.stock + ' pcs';
+                document.getElementById('modalSupplier').innerText =
+                    this.dataset.supplier;
 
-            document.getElementById('modalMasuk').innerText =
-                this.dataset.masuk;
+                document.getElementById('modalStock').innerText =
+                    this.dataset.stock + ' pcs';
 
-            document.getElementById('modalKeluar').innerText =
-                this.dataset.keluar;
+                document.getElementById('modalMasuk').innerText =
+                    this.dataset.masuk;
 
-            document.getElementById('modalCostPrice').innerText =
-                this.dataset.cost;
+                document.getElementById('modalKeluar').innerText =
+                    this.dataset.keluar;
 
-            document.getElementById('modalSalePrice').innerText =
-                this.dataset.sale;
+                document.getElementById('modalCostPrice').innerText =
+                    this.dataset.cost;
 
-            document.getElementById('modalMargin').innerText =
-                this.dataset.margin;
+                document.getElementById('modalSalePrice').innerText =
+                    this.dataset.sale;
 
-            // STRATA
-            const strata = JSON.parse(this.dataset.strata || '[]');
+                document.getElementById('modalMargin').innerText =
+                    this.dataset.margin;
 
-            const tbody =
-                document.getElementById('pricingStrataBody');
+                productModal.show();
 
-            tbody.innerHTML = '';
-
-            if (strata.length > 0) {
-
-                document.getElementById('pricingStrataWrapper')
-                    .classList.remove('d-none');
-
-                strata.forEach(item => {
-
-                    const total = item.qty * item.price;
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="text-center fw-bold">
-                                ${Number(item.qty).toLocaleString('id-ID')}
-                            </td>
-
-                            <td class="text-center">
-                                Rp ${Number(item.price).toLocaleString('id-ID')}
-                            </td>
-
-                            <td class="text-center text-success fw-bold">
-                                Rp ${Number(total).toLocaleString('id-ID')}
-                            </td>
-                        </tr>
-                    `;
-                });
-
-            } else {
-
-                document.getElementById('pricingStrataWrapper')
-                    .classList.add('d-none');
-            }
-
-            productModal.show();
+            });
 
         });
-
-    });
 
 });
 </script>
