@@ -2935,290 +2935,218 @@
                 alert('Terjadi kesalahan saat mencari produk');
             }
         }
-function formatNumber(value) {
-    return parseInt(value || 0).toLocaleString('id-ID');
-}
 
-function generatePricingStrata(product) {
+        // ==========================================================================
+        // SHOW DYNAMIC PRODUCT MODAL
+        // ==========================================================================
 
-    let hasPricingStrata = false;
-    let rows = '';
+        function showProductModal(product) {
 
-    for (let i = 1; i <= 7; i++) {
+            // Hitung margin
+            const costprice = product.costprice || 0;
+            const salesprice = product.salesprice1 || 0;
+            const margin = costprice > 0 ? ((salesprice - costprice) / costprice) * 100 : 0;
 
-        const qty = product[`salesdiscqty${i}`];
-        const price = product[`salesdiscprice${i}`];
+            // Check if ada pricing strata
+            let hasPricingStrata = false;
+            let pricingStrataHtml = '';
 
-        if (qty && qty != 0) {
+            for (let i = 1; i <= 7; i++) {
+                const qtyField = `salesdiscqty${i}`;
+                const priceField = `salesdiscprice${i}`;
+                const qty = product[qtyField];
+                const price = product[priceField];
 
-            hasPricingStrata = true;
-
-            rows += `
-                <tr style="border-bottom: 1px solid #e5e7eb; background-color: ${i % 2 === 0 ? '#f8fafc' : 'white'};">
-                    <td style="text-align:center;font-weight:600;color:#2563eb;">
-                        ${formatNumber(qty)}
-                    </td>
-
-                    <td style="text-align:center;color:#64748b;">
-                        Rp ${formatNumber(price)}
-                    </td>
-
-                    <td style="text-align:center;font-weight:700;color:#10b981;">
-                        Rp ${formatNumber(qty * price)}
-                    </td>
-                </tr>
-            `;
-        }
-    }
-
-    if (!hasPricingStrata) {
-        return '';
-    }
-
-    return `
-        <div style="margin-top:20px;padding-top:20px;border-top:2px solid #e5e7eb;">
-
-            <h6 style="margin-bottom:15px;font-weight:700;color:#1e293b;">
-                <i class="fas fa-layer-group me-2 text-success"></i>
-                Harga Bertingkat (Strata)
-            </h6>
-
-            <div style="overflow-x:auto;">
-
-                <table class="table table-sm">
-
-                    <thead style="background-color:#f8fafc;">
-                        <tr>
-                            <th style="text-align:center;">Jumlah Beli</th>
-                            <th style="text-align:center;">Harga Satuan</th>
-                            <th style="text-align:center;">Total Harga</th>
+                if (qty && qty != 0) {
+                    hasPricingStrata = true;
+                    const bgColor = i % 2 == 0 ? '#f8fafc' : 'white';
+                    pricingStrataHtml += `
+                        <tr style="border-bottom: 1px solid #e5e7eb; background-color: ${bgColor};">
+                            <td style="text-align: center; font-weight: 600; color: #2563eb;">
+                                ${parseInt(qty).toLocaleString('id-ID')}
+                            </td>
+                            <td style="text-align: center; color: #64748b;">
+                                Rp ${parseInt(price).toLocaleString('id-ID')}
+                            </td>
+                            <td style="text-align: center; font-weight: 700; color: #10b981;">
+                                Rp ${(qty * price).toLocaleString('id-ID')}
+                            </td>
                         </tr>
-                    </thead>
+                    `;
+                }
+            }
 
-                    <tbody>
-                        ${rows}
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </div>
-    `;
-}
-
-function showProductModal(product) {
-
-    const margin =
-        product.costprice > 0
-            ? ((product.salesprice1 - product.costprice) / product.costprice) * 100
-            : 0;
-
-    const modalHtml = `
-        <div class="modal fade" id="scanResultModal" tabindex="-1">
-
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-
-                <div class="modal-content border-0 shadow-lg rounded-4">
-
-                    <div class="modal-header">
-
-                        <div>
-
-                            <h5 class="modal-title">
-                                <i class="fas fa-box me-2"></i>${product.name}
-                            </h5>
-
-                            <small class="text-white-50">
-                                Detail Produk
-                            </small>
-
-                        </div>
-
-                        <button
-                            type="button"
-                            class="btn-close btn-close-white"
-                            data-bs-dismiss="modal">
-                        </button>
-
-                    </div>
-
-                    <div class="modal-body p-4">
-
-                        <ul class="nav nav-tabs mb-4">
-
-                            <li class="nav-item">
-
-                                <a class="nav-link active"
-                                   data-bs-toggle="tab"
-                                   href="#scan-detail-tab">
-
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    Detail Produk
-
-                                </a>
-
-                            </li>
-
-                        </ul>
-
-                        <div class="tab-content">
-
-                            <div class="tab-pane fade show active"
-                                 id="scan-detail-tab">
-
-                                <table class="table">
-
-                                    <tbody>
-
-                                        <tr>
-                                            <th width="250">
-                                                <i class="fas fa-barcode me-2 text-success"></i>
-                                                Kode Barang
-                                            </th>
-
-                                            <td>
-                                                <span class="badge bg-success text-white">
-                                                    ${product.id}
-                                                </span>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <th>
-                                                <i class="fas fa-tag me-2 text-primary"></i>
-                                                Group Produk
-                                            </th>
-
-                                            <td>
-                                                <span class="badge bg-light text-dark">
-                                                    ${product.productgroup_name || '-'}
-                                                </span>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <th>
-                                                <i class="fas fa-truck me-2 text-primary"></i>
-                                                Supplier
-                                            </th>
-
-                                            <td>
-                                                ${product.supplier_name || '-'}
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <th>
-                                                <i class="fas fa-warehouse me-2 text-info"></i>
-                                                Stock Saat Ini
-                                            </th>
-
-                                            <td>
-                                                <strong class="text-info">
-                                                    ${formatNumber(product.stock)} pcs
-                                                </strong>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <th>
-                                                <i class="fas fa-arrow-down me-2 text-success"></i>
-                                                Total Barang Masuk
-                                            </th>
-
-                                            <td>
-                                                <strong class="text-success">
-                                                    ${formatNumber(product.total_masuk)}
-                                                </strong>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <th>
-                                                <i class="fas fa-arrow-up me-2 text-warning"></i>
-                                                Total Barang Keluar
-                                            </th>
-
-                                            <td>
-                                                <strong class="text-warning">
-                                                    ${formatNumber(product.total_keluar)}
-                                                </strong>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <th>
-                                                <i class="fas fa-coins me-2 text-danger"></i>
-                                                Harga Modal
-                                            </th>
-
-                                            <td>
-                                                <strong class="text-danger">
-                                                    Rp ${formatNumber(product.costprice)}
-                                                </strong>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <th>
-                                                <i class="fas fa-money-bill-wave me-2 text-success"></i>
-                                                Harga Jual
-                                            </th>
-
-                                            <td>
-                                                <strong class="text-success">
-                                                    Rp ${formatNumber(product.salesprice1)}
-                                                </strong>
-                                            </td>
-                                        </tr>
-
-                                        <tr>
-                                            <th>
-                                                <i class="fas fa-percent me-2 text-primary"></i>
-                                                Margin
-                                            </th>
-
-                                            <td>
-                                                <strong class="text-primary">
-                                                    ${margin.toFixed(2)}%
-                                                </strong>
-                                            </td>
-                                        </tr>
-
-                                    </tbody>
-
-                                </table>
-
-                                ${generatePricingStrata(product)}
-
+            const modalHtml = `
+                <div class="modal fade" id="scanResultModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg rounded-4">
+                            <!-- HEADER -->
+                            <div class="modal-header" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; border: none;">
+                                <div>
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-box me-2"></i>${product.name}
+                                    </h5>
+                                    <small class="text-white-50">Hasil Scan Produk</small>
+                                </div>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
 
+                            <!-- BODY -->
+                            <div class="modal-body p-4">
+                                <!-- TABS -->
+                                <ul class="nav nav-tabs mb-4" role="tablist" style="border-bottom: 2px solid #e5e7eb;">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="scan-detail-tab" data-bs-toggle="tab" href="#scan-detail-content" role="tab">
+                                            <i class="fas fa-info-circle me-2"></i>Detail Produk
+                                        </a>
+                                    </li>
+                                </ul>
+
+                                <!-- TAB CONTENT -->
+                                <div class="tab-content">
+                                    <!-- DETAIL TAB -->
+                                    <div class="tab-pane fade show active" id="scan-detail-content" role="tabpanel">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <th width="250">
+                                                        <i class="fas fa-barcode me-2 text-success"></i>Kode Barang
+                                                    </th>
+                                                    <td>
+                                                        <span class="badge bg-success text-white">${product.id}</span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th width="250">
+                                                        <i class="fas fa-tag me-2 text-primary"></i>Group Produk
+                                                    </th>
+                                                    <td>
+                                                        <span class="badge bg-light text-dark">${product.productgroup_name || '-'}</span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>
+                                                        <i class="fas fa-truck me-2 text-primary"></i>Supplier
+                                                    </th>
+                                                    <td>
+                                                        ${product.supplier_name || '-'}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>
+                                                        <i class="fas fa-warehouse me-2 text-info"></i>Stock Saat Ini
+                                                    </th>
+                                                    <td>
+                                                        <strong class="text-info">${parseInt(product.stock).toLocaleString('id-ID')} pcs</strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>
+                                                        <i class="fas fa-arrow-down me-2 text-success"></i>Total Barang Masuk
+                                                    </th>
+                                                    <td>
+                                                        <strong class="text-success">${parseInt(product.total_masuk).toLocaleString('id-ID')}</strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>
+                                                        <i class="fas fa-arrow-up me-2 text-warning"></i>Total Barang Keluar
+                                                    </th>
+                                                    <td>
+                                                        <strong class="text-warning">${parseInt(product.total_keluar).toLocaleString('id-ID')}</strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>
+                                                        <i class="fas fa-coins me-2 text-danger"></i>Harga Modal
+                                                    </th>
+                                                    <td>
+                                                        <strong class="text-danger">Rp ${parseInt(costprice).toLocaleString('id-ID')}</strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>
+                                                        <i class="fas fa-money-bill-wave me-2 text-success"></i>Harga Jual
+                                                    </th>
+                                                    <td>
+                                                        <strong class="text-success">Rp ${parseInt(salesprice).toLocaleString('id-ID')}</strong>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>
+                                                        <i class="fas fa-percent me-2 text-primary"></i>Margin
+                                                    </th>
+                                                    <td>
+                                                        <strong class="text-primary">${margin.toFixed(2).replace('.', ',')}%</strong>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        ${hasPricingStrata ? `
+                                            <!-- PRICING STRATA TABLE -->
+                                            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+                                                <h6 style="margin-bottom: 15px; font-weight: 700; color: #1e293b;">
+                                                    <i class="fas fa-layer-group me-2 text-success"></i>Harga Bertingkat (Strata)
+                                                </h6>
+                                                <div style="overflow-x: auto;">
+                                                    <table class="table table-sm" style="font-size: 0.9rem; margin-bottom: 0;">
+                                                        <thead style="background-color: #f8fafc;">
+                                                            <tr>
+                                                                <th style="text-align: center; color: #1e293b; font-weight: 600;">
+                                                                    <i class="fas fa-cube me-1"></i>Jumlah Beli
+                                                                </th>
+                                                                <th style="text-align: center; color: #1e293b; font-weight: 600;">
+                                                                    <i class="fas fa-tag me-1"></i>Harga Satuan
+                                                                </th>
+                                                                <th style="text-align: center; color: #1e293b; font-weight: 600;">
+                                                                    <i class="fas fa-calculator me-1"></i>Total Harga
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            ${pricingStrataHtml}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div style="margin-top: 12px; padding: 12px; background-color: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; border-radius: 6px;">
+                                                    <small style="color: #64748b;">
+                                                        <i class="fas fa-info-circle me-2"></i>
+                                                        Tabel ini menunjukkan diskon bertingkat. Semakin banyak jumlah pembelian, harga satuan semakin murah.
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
                     </div>
-
                 </div>
+            `;
 
-            </div>
+            // Remove old modal if exists
+            const oldModal = document.getElementById('scanResultModal');
+            if (oldModal) {
+                oldModal.remove();
+            }
 
-        </div>
-    `;
+            // Add new modal to page
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-    document.getElementById('scanResultModal')?.remove();
+            // Show modal
+            const modal = new bootstrap.Modal(
+                document.getElementById('scanResultModal')
+            );
 
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
+            modal.show();
 
-    const modalEl = document.getElementById('scanResultModal');
-
-    const modal = new bootstrap.Modal(modalEl);
-
-    modal.show();
-
-    modalEl.addEventListener('hidden.bs.modal', function () {
-        this.remove();
-    });
-}
+            // Remove modal from DOM when hidden
+            document.getElementById('scanResultModal')
+                .addEventListener('hidden.bs.modal', function() {
+                    this.remove();
+                });
+        }
 
         // ==========================================================================
         // SOUND BEEP
