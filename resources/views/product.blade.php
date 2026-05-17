@@ -3000,6 +3000,11 @@
                                             <i class="fas fa-info-circle me-2"></i>Detail Produk
                                         </a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="scan-history-in-tab" data-bs-toggle="tab" href="#scan-history-in-content" role="tab">
+                                            <i class="fas fa-arrow-down me-2"></i>Riwayat Stok Masuk
+                                        </a>
+                                    </li>
                                 </ul>
 
                                 <!-- TAB CONTENT -->
@@ -3118,6 +3123,32 @@
                                             </div>
                                         ` : ''}
                                     </div>
+
+                                    <!-- HISTORY MASUK TAB -->
+                                    <div class="tab-pane fade" id="scan-history-in-content" role="tabpanel">
+                                        <div id="scan-inventory-history-in-loading" class="text-center py-4">
+                                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="text-muted mt-2 small">Memuat data barang masuk...</p>
+                                        </div>
+                                        <div id="scan-inventory-history-in-content" style="display: none;">
+                                            <!-- Summary Section -->
+                                            <div class="row mb-4 g-2">
+                                                <div class="col-12">
+                                                    <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center">
+                                                        <small class="text-muted">Total Barang Masuk</small>
+                                                        <p class="mb-0 h6 text-success fw-bold" id="scan-total-masuk">0</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Transactions List -->
+                                            <div id="scan-inventory-transactions-in">
+                                                <p class="text-muted small">Tidak ada data barang masuk</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -3134,6 +3165,11 @@
             // Add new modal to page
             document.body.insertAdjacentHTML('beforeend', modalHtml);
 
+            // Setup tab click handler for history
+            document.getElementById('scan-history-in-tab').addEventListener('click', function() {
+                loadScanInventoryHistory(product.id);
+            });
+
             // Show modal
             const modal = new bootstrap.Modal(
                 document.getElementById('scanResultModal')
@@ -3146,6 +3182,64 @@
                 .addEventListener('hidden.bs.modal', function() {
                     this.remove();
                 });
+        }
+
+        // ==========================================================================
+        // LOAD SCAN INVENTORY HISTORY
+        // ==========================================================================
+
+        async function loadScanInventoryHistory(productId) {
+            const loadingEl = document.getElementById('scan-inventory-history-in-loading');
+            const contentEl = document.getElementById('scan-inventory-history-in-content');
+
+            if (contentEl.style.display !== 'none') {
+                return; // Already loaded
+            }
+
+            try {
+                const response = await fetch(`/api/products/${productId}/inventory-history`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    let totalMasuk = 0;
+                    let historyHtml = '';
+
+                    result.data.forEach((item) => {
+                        if (item.transtype === 'IN') {
+                            totalMasuk += item.invin;
+                            historyHtml += `
+                                <div class="card border-0 mb-2" style="background-color: #f8fafc;">
+                                    <div class="card-body p-3">
+                                        <div class="row align-items-center g-0">
+                                            <div class="col">
+                                                <div>
+                                                    <p class="mb-0 fw-bold text-dark">${item.notes || 'Barang Masuk'}</p>
+                                                    <small class="text-muted">${new Date(item.transdate).toLocaleDateString('id-ID', {year: 'numeric', month: 'long', day: 'numeric'})}</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <span class="badge bg-success">${item.invin} pcs</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+
+                    document.getElementById('scan-total-masuk').textContent = `${totalMasuk.toLocaleString('id-ID')} pcs`;
+                    document.getElementById('scan-inventory-transactions-in').innerHTML = historyHtml || '<p class="text-muted small">Tidak ada data barang masuk</p>';
+                    loadingEl.style.display = 'none';
+                    contentEl.style.display = 'block';
+                } else {
+                    loadingEl.style.display = 'none';
+                    contentEl.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading inventory history:', error);
+                loadingEl.style.display = 'none';
+                contentEl.style.display = 'block';
+            }
         }
 
         // ==========================================================================
