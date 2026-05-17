@@ -2953,7 +2953,7 @@
             let hasPricingStrata = false;
             let pricingStrataHtml = '';
 
-            for (let i = 1; i <= 7; i++) {
+            for (let i = 1; i <= 3; i++) {
                 const qtyField = `salesdiscqty${i}`;
                 const priceField = `salesdiscprice${i}`;
                 const qty = product[qtyField];

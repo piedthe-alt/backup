@@ -2837,14 +2837,6 @@ Route::get('/api/search-product-by-barcode', function (Request $request) {
                 'product.salesdiscprice2',
                 'product.salesdiscqty3',
                 'product.salesdiscprice3',
-                'product.salesdiscqty4',
-                'product.salesdiscprice4',
-                'product.salesdiscqty5',
-                'product.salesdiscprice5',
-                'product.salesdiscqty6',
-                'product.salesdiscprice6',
-                'product.salesdiscqty7',
-                'product.salesdiscprice7',
                 DB::raw('COALESCE(productgroup.name, "-") as productgroup_name'),
                 DB::raw('COALESCE(supplier.name, "-") as supplier_name')
             )
