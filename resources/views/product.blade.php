@@ -2926,13 +2926,15 @@
 
                 } else {
 
-                    alert(`Produk "${barcode}" tidak ditemukan`);
+                    const errorMsg = result.message || result.error || 'Produk tidak ditemukan';
+                    alert(`❌ ${errorMsg}`);
+                    console.error('API Error:', result);
                 }
 
             } catch (error) {
 
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat mencari produk');
+                console.error('Fetch Error:', error);
+                alert('❌ Terjadi kesalahan saat mencari produk: ' + error.message);
             }
         }
 

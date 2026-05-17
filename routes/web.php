@@ -2817,123 +2817,77 @@ Route::get('/api/search-product-by-barcode', function (Request $request) {
     $keyword = $request->query('keyword');
 
     if (!$keyword) {
-        return response()->json(['error' => 'Keyword required'], 400);
+        return response()->json(['success' => false, 'error' => 'Keyword required'], 400);
     }
 
-    $product = DB::table('product')
+    try {
+        // First, get the product basic info
+        $product = DB::table('product')
+            ->leftJoin('productgroup', 'product.productgroup', '=', 'productgroup.id')
+            ->leftJoin('supplier', 'product.supplier', '=', 'supplier.id')
+            ->select(
+                'product.id',
+                'product.name',
+                'product.productgroup',
+                'product.costprice',
+                'product.salesprice1',
+                'product.salesdiscqty1',
+                'product.salesdiscprice1',
+                'product.salesdiscqty2',
+                'product.salesdiscprice2',
+                'product.salesdiscqty3',
+                'product.salesdiscprice3',
+                'product.salesdiscqty4',
+                'product.salesdiscprice4',
+                'product.salesdiscqty5',
+                'product.salesdiscprice5',
+                'product.salesdiscqty6',
+                'product.salesdiscprice6',
+                'product.salesdiscqty7',
+                'product.salesdiscprice7',
+                DB::raw('COALESCE(productgroup.name, "-") as productgroup_name'),
+                DB::raw('COALESCE(supplier.name, "-") as supplier_name')
+            )
+            ->where('product.isactive', 1)
+            ->where(function ($q) use ($keyword) {
+                $q->where('product.id', 'like', "%{$keyword}%")
+                  ->orWhere('product.name', 'like', "%{$keyword}%");
+            })
+            ->first();
 
-        ->leftJoin('productgroup', 'product.productgroup', '=', 'productgroup.id')
+        if (!$product) {
+            return response()->json(['success' => false, 'message' => 'Produk tidak ditemukan'], 404);
+        }
 
-        ->leftJoin('supplier', 'product.supplier', '=', 'supplier.id')
+        // Get inventory stats separately
+        $inventoryStats = DB::table('inventory')
+            ->where('productid', $product->id)
+            ->select(
+                DB::raw('COALESCE(SUM(invin - invout), 0) as stock'),
+                DB::raw('COALESCE(SUM(CASE WHEN transtype = "IN" THEN invin ELSE 0 END), 0) as total_masuk'),
+                DB::raw('COALESCE(SUM(CASE WHEN transtype = "OUT" THEN invout ELSE 0 END), 0) as total_keluar')
+            )
+            ->first();
 
-        ->leftJoin(
-            'inventory',
-            'product.id',
-            '=',
-            'inventory.productid'
-        )
-
-        ->select(
-
-            'product.id',
-            'product.name',
-            'product.productgroup',
-            'product.costprice',
-            'product.salesprice1',
-            'product.salesdiscqty1',
-            'product.salesdiscprice1',
-            'product.salesdiscqty2',
-            'product.salesdiscprice2',
-            'product.salesdiscqty3',
-            'product.salesdiscprice3',
-            'product.salesdiscqty4',
-            'product.salesdiscprice4',
-            'product.salesdiscqty5',
-            'product.salesdiscprice5',
-            'product.salesdiscqty6',
-            'product.salesdiscprice6',
-            'product.salesdiscqty7',
-            'product.salesdiscprice7',
-            DB::raw('COALESCE(productgroup.name, "-") as productgroup_name'),
-            DB::raw('COALESCE(supplier.name, "-") as supplier_name'),
-
-            DB::raw('
-                COALESCE(
-                    SUM(inventory.invin - inventory.invout),
-                    0
-                ) as stock
-            '),
-
-            DB::raw('
-                COALESCE(
-                    SUM(CASE WHEN inventory.transtype = "IN" THEN inventory.invin ELSE 0 END),
-                    0
-                ) as total_masuk
-            '),
-
-            DB::raw('
-                COALESCE(
-                    SUM(CASE WHEN inventory.transtype = "OUT" THEN inventory.invout ELSE 0 END),
-                    0
-                ) as total_keluar
-            ')
-
-        )
-
-        ->where('product.isactive', 1)
-
-        ->where(function ($q) use ($keyword) {
-
-            $q->where('product.id', 'like', "%{$keyword}%")
-
-              ->orWhere('product.name', 'like', "%{$keyword}%");
-
-        })
-
-        ->groupBy(
-
-            'product.id',
-            'product.name',
-            'product.productgroup',
-            'product.costprice',
-            'product.salesprice1',
-            'product.salesdiscqty1',
-            'product.salesdiscprice1',
-            'product.salesdiscqty2',
-            'product.salesdiscprice2',
-            'product.salesdiscqty3',
-            'product.salesdiscprice3',
-            'product.salesdiscqty4',
-            'product.salesdiscprice4',
-            'product.salesdiscqty5',
-            'product.salesdiscprice5',
-            'product.salesdiscqty6',
-            'product.salesdiscprice6',
-            'product.salesdiscqty7',
-            'product.salesdiscprice7',
-            'productgroup.name',
-            'supplier.name'
-
-        )
-
-        ->first();
-
-    if ($product) {
+        if ($inventoryStats) {
+            $product->stock = $inventoryStats->stock;
+            $product->total_masuk = $inventoryStats->total_masuk;
+            $product->total_keluar = $inventoryStats->total_keluar;
+        } else {
+            $product->stock = 0;
+            $product->total_masuk = 0;
+            $product->total_keluar = 0;
+        }
 
         return response()->json([
-
             'success' => true,
             'data' => $product
-
         ]);
 
-    } else {
-
+    } catch (\Exception $e) {
         return response()->json([
-
             'success' => false,
-            'message' => 'Produk tidak ditemukan'
-
-        ], 404);
+            'error' => $e->getMessage()
+        ], 500);
     }
 });
