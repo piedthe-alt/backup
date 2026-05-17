@@ -22,13 +22,13 @@
 
             <!-- HARGA -->
             <div class="price-badge" onclick="event.stopPropagation()" data-bs-toggle="modal"
-                data-bs-target="#productModal{{ $loop->index }}" data-product-id="{{ $product->id }}" style="cursor: pointer;">
+                data-bs-target="#productModal{{ $product->id }}" data-product-id="{{ $product->id }}" style="cursor: pointer;">
                 Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
             </div>
 
             <!-- INFO HORIZONTAL -->
             <div class="product-info" onclick="event.stopPropagation()"
-                data-bs-toggle="modal" data-bs-target="#productModal{{ $loop->index }}"
+                data-bs-toggle="modal" data-bs-target="#productModal{{ $product->id }}"
                 data-product-id="{{ $product->id }}" style="cursor: pointer;">
 
                 <!-- STOCK -->

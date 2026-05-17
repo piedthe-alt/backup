@@ -332,6 +332,23 @@ Route::get('/test-db-app', function () {
     return DB::connection('mysql_app')->select("SELECT DATABASE() as db");
 });
 
+/**
+ * ============================================================================
+ * RETURN PRODUK (RETUR BARANG) ROUTE
+ * ============================================================================
+ * Controller: App\Http\Controllers\ProductReturnController
+ * View: resources/views/return.blade.php
+ *
+ * 📝 DOKUMENTASI:
+ * Edit view: resources/views/return.blade.php
+ * Edit form fields: Lihat ProductReturnController@index
+ *
+ * Features:
+ * - List semua product returns
+ * - Create return baru
+ * - Update return status
+ * ============================================================================
+ */
 Route::post('/returns/store', [ProductReturnController::class, 'store']);
 Route::get('/return', [ProductReturnController::class, 'index']);
 Route::post('/returns/taken/{id}', function ($id) {
@@ -1264,6 +1281,90 @@ Route::get('/sales-chart', function (Request $request) {
     );
 });
 
+/**
+ * ============================================================================
+ * MANAJEMEN STOCK PRODUK ROUTE
+ * ============================================================================
+ * View: resources/views/product.blade.php
+ * Status: Modular (split into reusable components)
+ *
+ * 📝 DOCUMENTATION - Tempat Edit Setiap Bagian:
+ * ============================================================================
+ *
+ * 🎨 STYLING / CSS
+ *    File: resources/views/products/styles.blade.php
+ *    Deskripsi: Semua CSS untuk product page, including variables, media queries
+ *    Edit untuk: Mengubah warna, ukuran font, layout, animations
+ *
+ * 📌 HEADER (Judul + Tombol Navigasi)
+ *    File: resources/views/products/header.blade.php
+ *    Deskripsi: "Manajemen Stock Produk" title + 5 action buttons (AI, Retur, Pesanan, Import, Cart)
+ *    Edit untuk: Menambah/mengubah tombol header, mengubah title
+ *
+ * 🔍 SEARCH & FILTER FORM
+ *    File: resources/views/products/search-form.blade.php
+ *    Deskripsi: Search input, scanner button, group dropdown dengan JavaScript
+ *    Edit untuk: Mengubah search placeholder, menambah filter, dropdown behavior
+ *
+ * 📊 SORTING BUTTONS
+ *    File: resources/views/products/sorting-buttons.blade.php
+ *    Deskripsi: 6 sort options (Stock Terendah, Tertinggi, Laris, etc)
+ *    Edit untuk: Menambah sort options, mengubah sort labels/icons
+ *
+ * 📱 BARCODE/QR SCANNER MODAL
+ *    File: resources/views/products/scanner-modal.blade.php
+ *    Deskripsi: Canvas-based barcode/QR scanner UI
+ *    Edit untuk: Mengubah scanner styling, status messages
+ *
+ * 🛍️ PRODUCT CARD (Reusable)
+ *    File: resources/views/products/product-card.blade.php
+ *    Deskripsi: Single product card (name, price, stock, qty selector, add to cart buttons)
+ *    Edit untuk: Mengubah card layout, menambah info items, styling
+ *    Note: Digunakan di product-grid melalui @include
+ *
+ * 📦 PRODUCT GRID & PAGINATION
+ *    File: resources/views/products/product-grid.blade.php
+ *    Deskripsi: @forelse loop untuk render product cards dengan pagination
+ *    Edit untuk: Mengubah grid columns, pagination, empty state
+ *
+ * 📋 PRODUCT DETAIL MODAL (dengan tabs)
+ *    File: resources/views/products/product-detail-modal.blade.php
+ *    Deskripsi: Detail modal dengan 2 tabs: (1) Detail Produk, (2) Riwayat Stok Masuk
+ *              Includes pricing strata table dengan isset validation
+ *    Edit untuk: Menambah/menghapus kolom detail, mengubah tab content, pricing table
+ *    Note: Modal ID menggunakan $product->id (unik per produk, tidak berdasar index)
+ *
+ * 🛒 SHOPPING CART MODAL
+ *    File: resources/views/products/cart-modal.blade.php
+ *    Deskripsi: Cart display, cart items list, summary, copy/clear buttons
+ *    Edit untuk: Mengubah cart layout, buttons, styling
+ *
+ * ⚙️ JAVASCRIPT FUNCTIONS
+ *    File: resources/views/product.blade.php (bagian <script> di akhir)
+ *    Deskripsi: 18+ functions untuk cart management, scanner, modals
+ *    Functions: addToCart, removeFromCart, clearCart, copyCartList,
+ *              startScanner, stopScanner, searchProductByBarcode, showProductModal,
+ *              copyProductName, validateQty, increaseQty, decreaseQty, etc
+ *    Edit untuk: Mengubah cart logic, scanner behavior, modal interactions
+ *
+ * ============================================================================
+ * TROUBLESHOOTING:
+ * ============================================================================
+ *
+ * ❌ Modal flickering saat klik product?
+ *    → Sudah diperbaiki! Modal ID sekarang menggunakan $product->id (unique)
+ *    → Bukan lagi $loop->index (berubah setiap halaman pagination)
+ *
+ * ❌ Scanner tidak bekerja?
+ *    → Check loadInventoryHistoryTab() function di bottom product.blade.php
+ *    → Pastikan librari Quagga dan html5-qrcode sudah ter-load
+ *
+ * ❌ Cart tidak menyimpan data?
+ *    → Check localStorage implementation di JavaScript section
+ *    → Pastikan browser allow localStorage
+ *
+ * ============================================================================
+ */
 Route::get('/', function (Request $request) {
 
     $keyword = $request->keyword;
@@ -1429,7 +1530,32 @@ Route::get('/', function (Request $request) {
     );
 });
 
-// Pesanan Shopee Routes
+/**
+ * ============================================================================
+ * PESANAN SHOPEE ROUTES
+ * ============================================================================
+ * Controller: App\Http\Controllers\PesananShopeeController
+ * View: resources/views/pesanan-shopee.blade.php
+ *
+ * 📝 DOKUMENTASI:
+ * Edit view: resources/views/pesanan-shopee.blade.php
+ * Edit form fields: Lihat PesananShopeeController
+ * Edit models: App\Models\PesananShopee
+ *
+ * Routes:
+ * - GET  /pesanan-shopee           → List semua pesanan
+ * - POST /pesanan-shopee/store     → Create pesanan baru
+ * - GET  /pesanan-shopee/detail/{id} → View detail pesanan
+ * - POST /pesanan-shopee/update-status/{id} → Update status pesanan
+ * - GET  /api/products             → API untuk ambil product list
+ *
+ * Features:
+ * - List pesanan dari Shopee
+ * - Create/edit pesanan
+ * - Update status pesanan (pending, processing, shipped, completed)
+ * - Integration dengan product inventory
+ * ============================================================================
+ */
 Route::get('/pesanan-shopee', [PesananShopeeController::class, 'index']);
 Route::post('/pesanan-shopee/store', [PesananShopeeController::class, 'store']);
 Route::get('/pesanan-shopee/detail/{id}', [PesananShopeeController::class, 'show']);

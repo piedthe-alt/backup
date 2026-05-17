@@ -1,6 +1,6 @@
 <!-- PRODUCT DETAIL MODALS -->
 @foreach ($products as $product)
-    <div class="modal fade" id="productModal{{ $loop->index }}" tabindex="-1" data-product-id="{{ $product->id }}">
+    <div class="modal fade" id="productModal{{ $product->id }}" tabindex="-1" data-product-id="{{ $product->id }}">
 
         <div class="modal-dialog modal-lg modal-dialog-centered">
 
@@ -30,12 +30,12 @@
                     <!-- TABS -->
                     <ul class="nav nav-tabs mb-4" role="tablist" style="border-bottom: 2px solid #e5e7eb;">
                         <li class="nav-item">
-                            <a class="nav-link active" id="detail-tab-{{ $loop->index }}" data-bs-toggle="tab" href="#detail-content-{{ $loop->index }}" role="tab">
+                            <a class="nav-link active" id="detail-tab-{{ $product->id }}" data-bs-toggle="tab" href="#detail-content-{{ $product->id }}" role="tab">
                                 <i class="fas fa-info-circle me-2"></i>Detail Produk
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="history-in-tab-{{ $loop->index }}" data-bs-toggle="tab" href="#history-in-content-{{ $loop->index }}" role="tab" data-product-id="{{ $product->id }}">
+                            <a class="nav-link" id="history-in-tab-{{ $product->id }}" data-bs-toggle="tab" href="#history-in-content-{{ $product->id }}" role="tab" data-product-id="{{ $product->id }}">
                                 <i class="fas fa-arrow-down me-2"></i>Riwayat Stok Masuk
                             </a>
                         </li>
@@ -44,7 +44,7 @@
                     <!-- TAB CONTENT -->
                     <div class="tab-content">
                         <!-- DETAIL TAB -->
-                        <div class="tab-pane fade show active" id="detail-content-{{ $loop->index }}" role="tabpanel">
+                        <div class="tab-pane fade show active" id="detail-content-{{ $product->id }}" role="tabpanel">
 
                     <table class="table">
 
@@ -266,26 +266,26 @@
                         </div>
 
                         <!-- HISTORY MASUK TAB -->
-                        <div class="tab-pane fade" id="history-in-content-{{ $loop->index }}" role="tabpanel">
-                            <div id="inventory-history-in-loading-{{ $loop->index }}" class="text-center py-4">
+                            <div class="tab-pane fade" id="history-in-content-{{ $product->id }}" role="tabpanel">
+                                <div id="inventory-history-in-loading-{{ $product->id }}" class="text-center py-4">
                                 <div class="spinner-border spinner-border-sm text-primary" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
                                 <p class="text-muted mt-2 small">Memuat data barang masuk...</p>
                             </div>
-                            <div id="inventory-history-in-content-{{ $loop->index }}" style="display: none;">
-                                <!-- Summary Section -->
-                                <div class="row mb-4 g-2">
-                                    <div class="col-12">
-                                        <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center">
-                                            <small class="text-muted">Total Barang Masuk</small>
-                                            <p class="mb-0 h6 text-success fw-bold" id="total-masuk-{{ $loop->index }}">0</p>
+                                <div id="inventory-history-in-content-{{ $product->id }}" style="display: none;">
+                                    <!-- Summary Section -->
+                                    <div class="row mb-4 g-2">
+                                        <div class="col-12">
+                                            <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center">
+                                                <small class="text-muted">Total Barang Masuk</small>
+                                                <p class="mb-0 h6 text-success fw-bold" id="total-masuk-{{ $product->id }}">0</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Transactions List -->
-                                <div class="inventory-transactions-in-{{ $loop->index }}">
+                                <div class="inventory-transactions-in-{{ $product->id }}">
                                     <p class="text-muted small">Tidak ada data barang masuk</p>
                                 </div>
                             </div>
