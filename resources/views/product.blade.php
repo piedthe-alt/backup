@@ -983,14 +983,15 @@
                 |--------------------------------------------------------------------------
                 */
 
-                setTimeout(() => {
+setTimeout(async () => {
 
-                    stopScanner();
+    await stopScanner();
 
-                    // Fetch product data via API
-                    searchProductByBarcode(scannedValue);
+    setTimeout(() => {
+        searchProductByBarcode(scannedValue);
+    }, 300);
 
-                }, 700);
+}, 700);
             }
         }
 
@@ -1169,28 +1170,40 @@
         // STOP SCANNER
         // ==========================================================================
 
-        function stopScanner() {
+async function stopScanner() {
 
-            try {
+    try {
 
-                Quagga.offDetected(onScanSuccess);
+        Quagga.offDetected(onScanSuccess);
 
-                Quagga.offProcessed(onProcessed);
+        Quagga.offProcessed(onProcessed);
 
-                Quagga.stop();
+        await Quagga.stop();
 
-            } catch (err) {
+    } catch (err) {
 
-                console.error(err);
-            }
+        console.error(err);
+    }
 
-            scannerState.isRunning = false;
+    scannerState.isRunning = false;
 
-            const scannerModal =
-                document.getElementById('scanner-modal');
+    const scannerModal =
+        document.getElementById('scanner-modal');
 
-            scannerModal.classList.remove('active');
-        }
+    scannerModal.classList.remove('active');
+
+    /*
+    |--------------------------------------------------------------------------
+    | BERSIHKAN VIDEO
+    |--------------------------------------------------------------------------
+    */
+
+    const videoContainer = document.querySelector('#video-canvas');
+
+    if (videoContainer) {
+        videoContainer.innerHTML = '';
+    }
+}
 
         // ==========================================================================
         // CLOSE MODAL
