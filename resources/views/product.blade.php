@@ -3052,7 +3052,7 @@
                                                         <i class="fas fa-arrow-down me-2 text-success"></i>Total Barang Masuk
                                                     </th>
                                                     <td>
-                                                        <strong class="text-success">${{ number_format($product->total_masuk, 0, ',', '.') }}</strong>
+                                                        <strong class="text-success">{{ number_format($product->total_masuk, 0, ',', '.') }}</strong>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -3060,7 +3060,7 @@
                                                         <i class="fas fa-arrow-up me-2 text-warning"></i>Total Barang Keluar
                                                     </th>
                                                     <td>
-                                                        <strong class="text-warning">${parseInt(product.total_keluar).toLocaleString('id-ID')}</strong>
+                                                        <strong class="text-warning">{{ number_format($product->total_keluar, 0, ',', '.') }}</strong>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -3127,30 +3127,30 @@
                                     </div>
 
                                     <!-- HISTORY MASUK TAB -->
-                                    <div class="tab-pane fade" id="scan-history-in-content" role="tabpanel">
-                                        <div id="scan-inventory-history-in-loading" class="text-center py-4">
-                                            <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                                <span class="visually-hidden">Loading...</span>
-                                            </div>
-                                            <p class="text-muted mt-2 small">Memuat data barang masuk...</p>
-                                        </div>
-                                        <div id="scan-inventory-history-in-content" style="display: none;">
-                                            <!-- Summary Section -->
-                                            <div class="row mb-4 g-2">
-                                                <div class="col-12">
-                                                    <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center">
-                                                        <small class="text-muted">Total Barang Masuk</small>
-                                                        <p class="mb-0 h6 text-success fw-bold" id="scan-total-masuk">0</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Transactions List -->
-                                            <div id="scan-inventory-transactions-in">
-                                                <p class="text-muted small">Tidak ada data barang masuk</p>
+                            <div class="tab-pane fade" id="history-in-content-{{ $loop->index }}" role="tabpanel">
+                                <div id="inventory-history-in-loading-{{ $loop->index }}" class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="text-muted mt-2 small">Memuat data barang masuk...</p>
+                                </div>
+                                <div id="inventory-history-in-content-{{ $loop->index }}" style="display: none;">
+                                    <!-- Summary Section -->
+                                    <div class="row mb-4 g-2">
+                                        <div class="col-12">
+                                            <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center">
+                                                <small class="text-muted">Total Barang Masuk</small>
+                                                <p class="mb-0 h6 text-success fw-bold" id="total-masuk-{{ $loop->index }}">0</p>
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- Transactions List -->
+                                    <div class="inventory-transactions-in-{{ $loop->index }}">
+                                        <p class="text-muted small">Tidak ada data barang masuk</p>
+                                    </div>
+                                </div>
+                            </div>
                                 </div>
                             </div>
                         </div>
