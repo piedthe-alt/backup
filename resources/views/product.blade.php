@@ -3052,7 +3052,7 @@
                                                         <i class="fas fa-arrow-down me-2 text-success"></i>Total Barang Masuk
                                                     </th>
                                                     <td>
-                                                        <strong class="text-success">${parseInt(product.total_masuk).toLocaleString('id-ID')}</strong>
+                                                        <strong class="text-success">${{ number_format($product->total_masuk, 0, ',', '.') }}</strong>
                                                     </td>
                                                 </tr>
                                                 <tr>
