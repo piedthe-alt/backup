@@ -16,7 +16,1082 @@
     <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 
-    @include('products.styles')
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            --light-bg: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        .card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color) !important;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(100px, -100px);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-box.stock {
+            border-left-color: var(--info-color);
+        }
+
+        .stat-box.masuk {
+            border-left-color: var(--success-color);
+        }
+
+        .stat-box.keluar {
+            border-left-color: var(--warning-color);
+        }
+
+        .stat-box h6 {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .stat-box .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .product-card {
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .product-card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+            transform: translateY(-8px);
+        }
+
+        .product-header-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .product-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1e293b;
+            margin-bottom: 0;
+            line-height: 1.3;
+            flex: 1;
+        }
+
+        .copy-btn {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            color: var(--primary-color);
+            border-radius: 6px;
+            padding: 6px 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .copy-btn:hover {
+            background: rgba(37, 99, 235, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .copy-btn.copied {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--success-color);
+        }
+
+        .copy-btn i {
+            font-size: 0.8rem;
+        }
+
+        .price-badge {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            color: white;
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            white-space: nowrap;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            flex: 1;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 60px;
+            padding: 6px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-item-label {
+            color: #64748b;
+            font-weight: 500;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+        }
+
+        .info-item-value {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 0.85rem;
+        }
+
+        .stock-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .stock-high {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .stock-medium {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .stock-low {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .search-input {
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-action {
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .sort-buttons .sort-label {
+            font-weight: 600;
+            color: #1e293b;
+            align-self: center;
+            white-space: nowrap;
+            margin-right: 8px;
+            font-size: 0.95rem;
+        }
+
+        .sort-btn {
+            border-radius: 8px;
+            padding: 8px 14px;
+            border: 1.5px solid var(--border-color);
+            background: white;
+            color: #1e293b;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .sort-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .sort-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary.btn-action {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .btn-success.btn-action {
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-warning.btn-action {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%);
+            color: white;
+        }
+
+        .btn-danger.btn-action {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-info.btn-action {
+            background: linear-gradient(135deg, var(--info-color) 0%, #0891b2 100%);
+            color: white;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+        }
+
+        .table {
+            font-size: 0.95rem;
+        }
+
+        .table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #1e293b;
+            border-color: var(--border-color);
+        }
+
+        .table td {
+            vertical-align: middle;
+            border-color: var(--border-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .pagination {
+            gap: 8px;
+        }
+
+        .pagination .page-link {
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            padding: 8px 12px;
+            font-weight: 500;
+        }
+
+        .pagination .page-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .btn-action {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            .product-name {
+                font-size: 0.9rem;
+            }
+
+            .stat-box .stat-value {
+                font-size: 24px;
+            }
+
+            .header-section {
+                padding: 1.5rem !important;
+            }
+
+            .header-content h2 {
+                font-size: 1.5rem;
+            }
+
+            .product-card-header {
+                padding: 10px;
+            }
+
+            .card-body {
+                padding: 10px !important;
+            }
+
+            .price-badge {
+                font-size: 0.75rem;
+                padding: 4px 8px;
+            }
+
+            .product-info {
+                gap: 4px;
+            }
+
+            .info-item {
+                min-width: 50px;
+                padding: 4px;
+            }
+
+            .info-item-label {
+                font-size: 0.6rem;
+            }
+
+            .info-item-value {
+                font-size: 0.75rem;
+            }
+
+            .header-section::before {
+                width: 200px;
+                height: 200px;
+            }
+
+            .search-input {
+                font-size: 0.95rem;
+                padding: 10px 12px;
+            }
+
+            .btn-action {
+                font-size: 0.85rem;
+                padding: 8px 10px;
+            }
+
+            .container-fluid {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+
+            .card-body {
+                padding: 1rem !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-content {
+                text-align: center;
+            }
+
+            .header-content h2 {
+                font-size: 1.3rem;
+            }
+
+            .header-section {
+                padding: 1rem !important;
+            }
+
+            .d-flex.justify-content-between {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
+                font-size: 0.8rem;
+                padding: 6px 8px;
+            }
+
+            .row.g-3 {
+                gap: 0.5rem !important;
+            }
+
+            .col-md-6,
+            .col-md-3 {
+                padding: 0.25rem;
+            }
+
+            .product-info {
+                gap: 3px;
+            }
+
+            .info-item {
+                min-width: 45px;
+                padding: 3px;
+            }
+
+            .info-item-label {
+                font-size: 0.55rem;
+            }
+
+            .info-item-value {
+                font-size: 0.7rem;
+            }
+
+            .product-name {
+                font-size: 0.85rem;
+            }
+
+            .price-badge {
+                font-size: 0.7rem;
+                padding: 3px 6px;
+            }
+        }
+
+        /* Scanner Modal Styles */
+        .scanner-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .scanner-modal.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scanner-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            max-width: 90vw;
+            width: 100%;
+            max-height: 90vh;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .scanner-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .scanner-header h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .scanner-header .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .scanner-header .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .scanner-body {
+            flex: 1;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 300px;
+        }
+
+        #video-canvas {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+        .scanner-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            width: 250px;
+            height: 250px;
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+
+            0%,
+            100% {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
+            }
+
+            50% {
+                border-color: var(--success-color);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            }
+        }
+
+        .scanner-footer {
+            padding: 1rem;
+            background: #f8fafc;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .scanner-status {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .scanner-status.scanning {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .scanner-status.success {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .scanner-status.error {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        .spinner-small {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 6px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Cart Styles */
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+
+        .cart-btn-wrapper {
+            position: relative;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .qty-btn {
+            background: white;
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .qty-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .qty-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-to-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+
+        .add-to-cart-btn:active {
+            transform: translateY(0);
+        }
+
+        .add-to-cart-btn.added {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+        }
+
+        /* Cart Modal Styles */
+        .cart-empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .cart-empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .cart-item {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        .cart-item-code {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .cart-item-price {
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .cart-item-qty {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--primary-color);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .cart-item-remove {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .cart-item-remove:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .cart-summary {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid var(--primary-color);
+            margin-top: 20px;
+        }
+
+        .cart-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .cart-summary-row:last-child {
+            margin-bottom: 0;
+            padding-top: 8px;
+            border-top: 2px solid rgba(37, 99, 235, 0.2);
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .cart-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .cart-copy-btn {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .cart-copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+
+        .cart-clear-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .cart-clear-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--danger-color);
+        }
+
+        /* ============================================
+           MODERN STOCK STATUS BADGE
+           ============================================ */
+
+        .stock-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            border: 1px solid transparent;
+        }
+
+        .stock-status-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stock-status-badge i {
+            font-size: 13px;
+        }
+
+        /* DEAD STOCK - Abu-abu */
+        .stock-status-badge.status-dead-stock {
+            background: rgba(108, 117, 125, 0.12);
+            color: #495057;
+            border-color: rgba(108, 117, 125, 0.2);
+        }
+
+        .stock-status-badge.status-dead-stock:hover {
+            background: rgba(108, 117, 125, 0.18);
+            border-color: rgba(108, 117, 125, 0.3);
+        }
+
+        /* KRITIS - Merah */
+        .stock-status-badge.status-kritis {
+            background: rgba(220, 53, 69, 0.12);
+            color: #dc3545;
+            border-color: rgba(220, 53, 69, 0.2);
+        }
+
+        .stock-status-badge.status-kritis:hover {
+            background: rgba(220, 53, 69, 0.18);
+            border-color: rgba(220, 53, 69, 0.3);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
+        }
+
+        /* MENIPIS - Orange */
+        .stock-status-badge.status-menipis {
+            background: rgba(255, 152, 0, 0.12);
+            color: #ff9800;
+            border-color: rgba(255, 152, 0, 0.2);
+        }
+
+        .stock-status-badge.status-menipis:hover {
+            background: rgba(255, 152, 0, 0.18);
+            border-color: rgba(255, 152, 0, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
+        }
+
+        /* AMAN - Hijau */
+        .stock-status-badge.status-aman {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .stock-status-badge.status-aman:hover {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
+
+        /* Stock info dengan badge modern */
+        .stock-info-modern {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stock-current {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .stock-current-value {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 16px;
+        }
+
+        .stock-estimasi {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* Animasi pulse untuk KRITIS */
+        @keyframes pulse-kritis {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .stock-status-badge.status-kritis {
+            animation: pulse-kritis 2s infinite;
+        }
+
+        /* TAB STYLING */
+        .nav-tabs .nav-link {
+            color: #6b7280 !important;
+            border: none !important;
+            border-bottom: 3px solid transparent !important;
+            padding-bottom: 12px !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #2563eb !important;
+            border-bottom: 3px solid #2563eb !important;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #2563eb !important;
+            border-bottom: 3px solid #2563eb !important;
+            background-color: transparent !important;
+        }
+
+    </style>
 
 </head>
 
@@ -27,31 +1102,867 @@
         <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
 
             <!-- HEADER -->
-            @include('products.header')
+            <div class="header-section p-4">
+
+                <div class="header-content">
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+                        <div>
+
+                            <h2 class="mb-2 fw-bold">
+                                <i class="fas fa-boxes me-2"></i>Manajemen Stock Produk
+                            </h2>
+
+                            <small class="opacity-75">
+                                Kelola dan pantau inventory produk secara real-time
+                            </small>
+
+                        </div>
+
+                        <div class="d-flex gap-2 flex-wrap">
+
+                            <a href="/ai-dashboard" class="btn btn-action btn-warning">
+                                <i class="fas fa-robot"></i> AI Analysis
+                            </a>
+
+                            {{-- <a href="/sales-chart" class="btn btn-action btn-info">
+                                <i class="fas fa-chart-line"></i> Grafik
+                            </a> --}}
+
+                            <!-- TOMBOL RETUR -->
+                            <a href="/return" class="btn btn-action btn-secondary">
+                                <i class="fas fa-undo"></i> Retur
+                            </a>
+
+                            <!-- TOMBOL PESANAN SHOPEE -->
+                            <a href="/pesanan-shopee" class="btn btn-action btn-info">
+                                <i class="fas fa-shopping-bag"></i> Pesanan Shopee
+                            </a>
+
+                            {{-- <button class="btn btn-action btn-success" onclick="startScanner()">
+                                <i class="fas fa-camera"></i> Scan
+                            </button> --}}
+
+                            <a href="/import-db" class="btn btn-action btn-danger"
+                                onclick="return confirm('Yakin mau import database?')">
+
+                                <i class="fas fa-database"></i> Import DB
+
+                            </a>
+
+                            <button class="btn btn-action btn-primary cart-btn-wrapper" onclick="openCartModal()"
+                                style="position: relative;">
+
+                                <i class="fas fa-shopping-cart"></i> Cart
+
+                                <span class="cart-badge" id="cart-count" style="display: none;">
+                                    0
+                                </span>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
             <!-- BODY -->
             <div class="card-body p-4">
 
-            <!-- SEARCH & FILTER -->
-            @include('products.search-form')
+                <!-- FORM SEARCH -->
+                <form method="GET" action="/" class="mb-5">
 
-            <!-- SORTING BUTTONS -->
-            @include('products.sorting-buttons')
+                    <div class="row g-3 mb-4">
+
+                        <!-- SEARCH -->
+                        <div class="col-md-6">
+
+                            <div class="d-flex gap-2">
+
+                                <input type="text" name="keyword" id="searchInput" class="form-control search-input"
+                                    placeholder="🔍 Cari nama produk atau scan barcode..." value="{{ request('keyword') }}">
+
+                                <button type="button" id="start-scanner" class="btn btn-dark" style="white-space: nowrap;">
+                                    <i class="fas fa-barcode"></i>
+                                </button>
+
+                            </div>
+
+                            <!-- SCANNER -->
+                            <div id="reader" style="width: 100%; margin-top: 10px; display: none;"></div>
+
+                        </div>
+
+                        <!-- FILTER GROUP -->
+<!-- FILTER GROUP -->
+<div class="col-md-3">
+
+    <div class="position-relative">
+
+        <!-- INPUT SEARCH -->
+        <input
+            type="text"
+            id="groupSearch"
+            class="form-control search-input"
+            placeholder="📂 Cari Group..."
+            autocomplete="off"
+            value="@php
+                $selectedGroup = $productgroups->firstWhere('id', request('productgroup'));
+                echo $selectedGroup ? $selectedGroup->name : '';
+            @endphp"
+        >
+
+        <!-- HIDDEN -->
+        <input
+            type="hidden"
+            name="productgroup"
+            id="selectedGroup"
+            value="{{ request('productgroup') }}"
+        >
+
+        <!-- DROPDOWN -->
+        <div
+            id="groupDropdown"
+            class="bg-white border rounded shadow-sm"
+            style="
+                position:absolute;
+                top:100%;
+                left:0;
+                right:0;
+                max-height:300px;
+                overflow-y:auto;
+                z-index:9999;
+                display:none;
+            "
+        >
+
+            <!-- SEMUA -->
+            <div
+                class="group-item p-2 border-bottom"
+                data-id=""
+                data-name="Semua Group"
+                style="cursor:pointer;"
+            >
+                📂 Semua Group
+            </div>
+
+            <!-- GROUP -->
+            @foreach ($productgroups as $group)
+
+                <div
+                    class="group-item p-2 border-bottom"
+                    data-id="{{ $group->id }}"
+                    data-name="{{ strtolower($group->name) }}"
+                    data-label="{{ $group->name }}"
+                    style="cursor:pointer;"
+                >
+
+                    {{ $group->name }}
+
+                </div>
+
+            @endforeach
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function(){
+
+        const searchInput =
+            document.getElementById('groupSearch');
+
+        const dropdown =
+            document.getElementById('groupDropdown');
+
+        const hiddenInput =
+            document.getElementById('selectedGroup');
+
+        const items =
+            document.querySelectorAll('.group-item');
+
+        /*
+        |--------------------------------------------------------------------------
+        | SHOW DROPDOWN
+        |--------------------------------------------------------------------------
+        */
+
+        searchInput.addEventListener('focus', function(){
+
+            dropdown.style.display = 'block';
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | SEARCH
+        |--------------------------------------------------------------------------
+        */
+
+        searchInput.addEventListener('keyup', function(){
+
+            const keyword =
+                this.value.toLowerCase();
+
+            dropdown.style.display = 'block';
+
+            items.forEach(item => {
+
+                const name =
+                    item.dataset.name;
+
+                if(name.includes(keyword)){
+
+                    item.style.display = 'block';
+
+                }else{
+
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | SELECT ITEM
+        |--------------------------------------------------------------------------
+        */
+
+        items.forEach(item => {
+
+            item.addEventListener('click', function(){
+
+                hiddenInput.value =
+                    this.dataset.id;
+
+                searchInput.value =
+                    this.dataset.label || 'Semua Group';
+
+                dropdown.style.display =
+                    'none';
+
+                /*
+                |--------------------------------------------------------------------------
+                | AUTO SUBMIT FORM
+                |--------------------------------------------------------------------------
+                */
+
+                const form =
+                    searchInput.closest('form');
+
+                if(form){
+
+                    form.submit();
+                }
+            });
+
+            /*
+            |--------------------------------------------------------------------------
+            | HOVER
+            |--------------------------------------------------------------------------
+            */
+
+            item.addEventListener('mouseenter', function(){
+
+                this.style.background =
+                    '#f8fafc';
+            });
+
+            item.addEventListener('mouseleave', function(){
+
+                this.style.background =
+                    'white';
+            });
+
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLOSE OUTSIDE
+        |--------------------------------------------------------------------------
+        */
+
+        document.addEventListener('click', function(e){
+
+            if(!e.target.closest('.position-relative')){
+
+                dropdown.style.display = 'none';
+            }
+        });
+
+    });
+
+</script>
+
+                        <!-- BUTTON -->
+                        <div class="col-md-3">
+
+                            <button type="submit" class="btn btn-action btn-primary w-100">
+
+                                <i class="fas fa-search"></i> Cari
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+                <!-- SORTING BUTTONS -->
+                <div class="sort-buttons mb-5">
+                    <span class="sort-label">📊 Urutkan Berdasarkan:</span>
+
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=stock_terendah"
+                        class="sort-btn {{ request('sort') == 'stock_terendah' || !request('sort') ? 'active' : '' }}">
+                        <i class="fas fa-arrow-down me-1"></i>Stock Terendah
+                    </a>
+
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=stock_tertinggi"
+                        class="sort-btn {{ request('sort') == 'stock_tertinggi' ? 'active' : '' }}">
+                        <i class="fas fa-arrow-up me-1"></i>Stock Tertinggi
+                    </a>
+
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=paling_laris"
+                        class="sort-btn {{ request('sort') == 'paling_laris' ? 'active' : '' }}">
+                        <i class="fas fa-fire me-1"></i>Paling Laris
+                    </a>
+
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=gak_jalan"
+                        class="sort-btn {{ request('sort') == 'gak_jalan' ? 'active' : '' }}">
+                        <i class="fas fa-snooze me-1"></i>Gak Jalan
+                    </a>
+
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=nama_asc"
+                        class="sort-btn {{ request('sort') == 'nama_asc' ? 'active' : '' }}">
+                        <i class="fas fa-sort-alpha-down me-1"></i>A-Z
+                    </a>
+
+                    <a href="?keyword={{ request('keyword') }}&productgroup={{ request('productgroup') }}&sort=nama_desc"
+                        class="sort-btn {{ request('sort') == 'nama_desc' ? 'active' : '' }}">
+                        <i class="fas fa-sort-alpha-up-alt me-1"></i>Z-A
+                    </a>
+                </div>
 
                 <!-- QR READER MODAL -->
-            @include('products.scanner-modal')
+                <div id="scanner-modal" class="scanner-modal">
+                    <div class="scanner-container">
+                        <div class="scanner-header">
+                            <h5><i class="fas fa-barcode me-2"></i>Scanner QR/Barcode</h5>
+                            <button type="button" class="close-btn" onclick="stopScanner()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="scanner-body">
+                            <canvas id="video-canvas"></canvas>
+                            <div class="scanner-overlay"></div>
+                        </div>
+                        <div class="scanner-footer">
+                            <div class="scanner-status scanning" id="scanner-status">
+                                <span class="spinner-small"></span>Scanning...
+                            </div>
+                            <small class="text-muted">Arahkan kamera ke barcode atau QR code</small>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- PRODUK -->
-            <!-- PRODUCT GRID -->
-            @include('products.product-grid')
+                <div class="row g-4">
 
-            <!-- MODALS -->
-            @include('products.product-detail-modal')
+                    @forelse ($products as $product)
+                        <div class="col-md-6 col-lg-4 col-xl-3">
+
+                            <div class="product-card shadow-sm">
+
+                                <div class="product-card-header">
+
+                                    <div class="product-header-wrapper">
+                                        <h5 class="product-name">
+                                            {{ Str::limit($product->name, 35) }}
+                                        </h5>
+                                        <button type="button" class="copy-btn"
+                                            onclick="copyProductName(event, '{{ $product->id }}', '{{ addslashes($product->name) }}')"
+                                            title="Copy nama produk">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                                <div class="card-body p-3 d-flex flex-column">
+
+                                    <!-- HARGA -->
+                                    <div class="price-badge" onclick="event.stopPropagation()" data-bs-toggle="modal"
+                                        data-bs-target="#productModal{{ $loop->index }}" data-product-id="{{ $product->id }}" style="cursor: pointer;">
+                                        Rp {{ number_format($product->salesprice1, 0, ',', '.') }}
+                                    </div>
+
+                                    <!-- INFO HORIZONTAL -->
+                                    <div class="product-info" onclick="event.stopPropagation()"
+                                        data-bs-toggle="modal" data-bs-target="#productModal{{ $loop->index }}"
+                                        data-product-id="{{ $product->id }}" style="cursor: pointer;">
+
+                                        <!-- STOCK -->
+                                        <div class="info-item">
+                                            <span class="info-item-label">Stock</span>
+                                            @php
+                                                $stockStatus = \App\Helpers\StockStatusHelper::getStockStatus(
+                                                    $product->stock,
+                                                    $product->total_keluar ?? 0,
+                                                    $product->created_at ?? null
+                                                );
+                                            @endphp
+                                            <div class="stock-info-modern">
+                                                <div class="stock-current">
+                                                    <span>Sisa: <strong class="stock-current-value">{{ number_format($product->stock, 0, ',', '.') }}</strong></span>
+                                                </div>
+                                                <span class="stock-status-badge status-{{ strtolower(str_replace('_', '-', $stockStatus['status'])) }}"
+                                                    title="Estimasi habis: {{ $stockStatus['estimasi'] }}">
+                                                    <i class="fas {{ $stockStatus['icon'] }}"></i>
+                                                    <span>{{ $stockStatus['label'] }}</span>
+                                                </span>
+                                                <span class="stock-estimasi">{{ $stockStatus['estimasi'] }}</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- MASUK -->
+                                        <div class="info-item">
+                                            <span class="info-item-label">Masuk</span>
+                                            <span
+                                                class="info-item-value">{{ number_format($product->total_masuk, 0, ',', '.') }}</span>
+                                        </div>
+
+                                        <!-- KELUAR -->
+                                        <div class="info-item">
+                                            <span class="info-item-label">Keluar</span>
+                                            <span
+                                                class="info-item-value">{{ number_format($product->total_keluar, 0, ',', '.') }}</span>
+                                        </div>
+
+                                    </div>
+
+                                    <!-- QUANTITY SELECTOR -->
+                                    <div class="quantity-selector" onclick="event.stopPropagation();">
+                                        <button type="button" class="qty-btn" onclick="decreaseQty(this)">−</button>
+                                        <input type="number" class="qty-input" value="1" min="1"
+                                            max="{{ $product->stock }}"
+                                            onchange="validateQty(this, {{ $product->stock }})">
+                                        <button type="button" class="qty-btn"
+                                            onclick="increaseQty(this, {{ $product->stock }})">+</button>
+                                    </div>
+
+                                    <!-- ADD TO CART BUTTONS -->
+                                    <div style="display: flex; gap: 8px;">
+                                        <button type="button" class="add-to-cart-btn" style="flex: 1;"
+                                            onclick="event.stopPropagation(); addToCart(event, '{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->salesprice1 }}, '{{ addslashes($product->productgroup_name) }}', 'pcs')">
+                                            <i class="fas fa-box"></i> Beli Pcs
+                                        </button>
+                                        <button type="button" class="add-to-cart-btn" style="flex: 1;"
+                                            onclick="event.stopPropagation(); addToCart(event, '{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->salesprice1 }}, '{{ addslashes($product->productgroup_name) }}', 'box')">
+                                            <i class="fas fa-cubes"></i> Beli Box
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    @empty
+
+                        <div class="col-12">
+
+                            <div class="empty-state">
+
+                                <i class="fas fa-inbox"></i>
+
+                                <h5 class="text-muted mt-3">Produk tidak ditemukan</h5>
+
+                                <p class="text-muted small">Coba gunakan keyword lain atau ubah filter</p>
+
+                            </div>
+
+                        </div>
+                    @endforelse
+
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="mt-5 d-flex justify-content-center">
+
+                    {{ $products->links('pagination::bootstrap-4') }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL -->
+    @foreach ($products as $product)
+        <div class="modal fade" id="productModal{{ $loop->index }}" tabindex="-1" data-product-id="{{ $product->id }}">
+
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+
+                <div class="modal-content border-0 shadow-lg rounded-4">
+
+                    <!-- HEADER -->
+                    <div class="modal-header">
+
+                        <div>
+                            <h5 class="modal-title">
+
+                                <i class="fas fa-box me-2"></i>{{ $product->name }}
+
+                            </h5>
+                            <small class="text-white-50">Detail Produk</small>
+                        </div>
+
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close">
+
+                        </button>
+
+                    </div>
+
+                    <!-- BODY -->
+                    <div class="modal-body p-4">
+
+                        <!-- TABS -->
+                        <ul class="nav nav-tabs mb-4" role="tablist" style="border-bottom: 2px solid #e5e7eb;">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="detail-tab-{{ $loop->index }}" data-bs-toggle="tab" href="#detail-content-{{ $loop->index }}" role="tab">
+                                    <i class="fas fa-info-circle me-2"></i>Detail Produk
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="history-in-tab-{{ $loop->index }}" data-bs-toggle="tab" href="#history-in-content-{{ $loop->index }}" role="tab" data-product-id="{{ $product->id }}">
+                                    <i class="fas fa-arrow-down me-2"></i>Riwayat Stok Masuk
+                                </a>
+                            </li>
+                        </ul>
+
+                        <!-- TAB CONTENT -->
+                        <div class="tab-content">
+                            <!-- DETAIL TAB -->
+                            <div class="tab-pane fade show active" id="detail-content-{{ $loop->index }}" role="tabpanel">
+
+                        <table class="table">
+
+                            <tbody>
+
+                                <tr>
+
+                                    <th width="250">
+                                        <i class="fas fa-barcode me-2 text-success"></i>Kode Barang
+                                    </th>
+
+                                    <td>
+
+                                        <span class="badge bg-success text-white">{{ $product->id }}</span>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th width="250">
+                                        <i class="fas fa-tag me-2 text-primary"></i>Group Produk
+                                    </th>
+
+                                    <td>
+
+                                        <span
+                                            class="badge bg-light text-dark">{{ $product->productgroup_name }}</span>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-truck me-2 text-primary"></i>Supplier
+                                    </th>
+
+                                    <td>
+
+                                        {{ $product->supplier_name }}
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-warehouse me-2 text-info"></i>Stock Saat Ini
+                                    </th>
+
+                                    <td>
+
+                                        <strong class="text-info">{{ number_format($product->stock, 0, ',', '.') }}
+                                            pcs</strong>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-arrow-down me-2 text-success"></i>Total Barang Masuk
+                                    </th>
+
+                                    <td>
+
+                                        <strong
+                                            class="text-success">{{ number_format($product->total_masuk, 0, ',', '.') }}</strong>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-arrow-up me-2 text-warning"></i>Total Barang Keluar
+                                    </th>
+
+                                    <td>
+
+                                        <strong
+                                            class="text-warning">{{ number_format($product->total_keluar, 0, ',', '.') }}</strong>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-coins me-2 text-danger"></i>Harga Modal
+                                    </th>
+
+                                    <td>
+
+                                        <strong class="text-danger">Rp
+                                            {{ number_format($product->costprice, 0, ',', '.') }}</strong>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-money-bill-wave me-2 text-success"></i>Harga Jual
+                                    </th>
+
+                                    <td>
+
+                                        <strong class="text-success">Rp
+                                            {{ number_format($product->salesprice1, 0, ',', '.') }}</strong>
+
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+
+                                    <th>
+                                        <i class="fas fa-percent me-2 text-primary"></i>Margin
+                                    </th>
+
+                                    <td>
+
+                                        @php
+                                            $margin =
+                                                $product->costprice > 0
+                                                    ? (($product->salesprice1 - $product->costprice) /
+                                                            $product->costprice) *
+                                                        100
+                                                    : 0;
+                                        @endphp
+
+                                        <strong
+                                            class="text-primary">{{ number_format($margin, 2, ',', '.') }}%</strong>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                        <!-- PRICING STRATA TABLE -->
+                        @php
+                            // Check if any salesdiscqty is not 0
+                            $hasPricingStrata = false;
+                            for ($i = 1; $i <= 7; $i++) {
+                                $field = 'salesdiscqty' . $i;
+                                if (isset($product->$field) && $product->$field != 0) {
+                                    $hasPricingStrata = true;
+                                    break;
+                                }
+                            }
+                        @endphp
+
+                        @if ($hasPricingStrata)
+                            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+                                <h6 style="margin-bottom: 15px; font-weight: 700; color: #1e293b;">
+                                    <i class="fas fa-layer-group me-2 text-success"></i>Harga Bertingkat (Strata)
+                                </h6>
+                                <div style="overflow-x: auto;">
+                                    <table class="table table-sm" style="font-size: 0.9rem; margin-bottom: 0;">
+                                        <thead style="background-color: #f8fafc;">
+                                            <tr>
+                                                <th style="text-align: center; color: #1e293b; font-weight: 600;">
+                                                    <i class="fas fa-cube me-1"></i>Jumlah Beli
+                                                </th>
+                                                <th style="text-align: center; color: #1e293b; font-weight: 600;">
+                                                    <i class="fas fa-tag me-1"></i>Harga Satuan
+                                                </th>
+                                                <th style="text-align: center; color: #1e293b; font-weight: 600;">
+                                                    <i class="fas fa-calculator me-1"></i>Total Harga
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for ($i = 1; $i <= 7; $i++)
+                                                @php
+                                                    $qtyField = 'salesdiscqty' . $i;
+                                                    $priceField = 'salesdiscprice' . $i;
+                                                    $qty = (isset($product->$qtyField) && $product->$qtyField != 0) ? $product->$qtyField : null;
+                                                    $price = isset($product->$priceField) ? $product->$priceField : 0;
+                                                @endphp
+                                                @if ($qty !== null && $qty != 0)
+                                                    <tr style="border-bottom: 1px solid #e5e7eb; background-color: {{ $i % 2 == 0 ? '#f8fafc' : 'white' }};">
+                                                        <td style="text-align: center; font-weight: 600; color: #2563eb;">
+                                                            {{ number_format($qty, 0, ',', '.') }}
+                                                        </td>
+                                                        <td style="text-align: center; color: #64748b;">
+                                                            Rp {{ number_format($price, 0, ',', '.') }}
+                                                        </td>
+                                                        <td style="text-align: center; font-weight: 700; color: #10b981;">
+                                                            Rp {{ number_format($qty * $price, 0, ',', '.') }}
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endfor
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="margin-top: 12px; padding: 12px; background-color: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; border-radius: 6px;">
+                                    <small style="color: #64748b;">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Tabel ini menunjukkan diskon bertingkat. Semakin banyak jumlah pembelian, harga satuan semakin murah.
+                                    </small>
+                                </div>
+                            </div>
+                        @endif
+
+                            </div>
+
+                            <!-- HISTORY MASUK TAB -->
+                            <div class="tab-pane fade" id="history-in-content-{{ $loop->index }}" role="tabpanel">
+                                <div id="inventory-history-in-loading-{{ $loop->index }}" class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="text-muted mt-2 small">Memuat data barang masuk...</p>
+                                </div>
+                                <div id="inventory-history-in-content-{{ $loop->index }}" style="display: none;">
+                                    <!-- Summary Section -->
+                                    <div class="row mb-4 g-2">
+                                        <div class="col-12">
+                                            <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center">
+                                                <small class="text-muted">Total Barang Masuk</small>
+                                                <p class="mb-0 h6 text-success fw-bold" id="total-masuk-{{ $loop->index }}">0</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Transactions List -->
+                                    <div class="inventory-transactions-in-{{ $loop->index }}">
+                                        <p class="text-muted small">Tidak ada data barang masuk</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    @endforeach
 
     <!-- CART MODAL -->
-    @include('products.cart-modal')
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <!-- HEADER -->
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title">
+                            <i class="fas fa-shopping-cart me-2"></i>Keranjang Order
+                        </h5>
+                        <small class="text-white-50">Daftar produk yang akan di-order</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- BODY -->
+                <div class="modal-body p-4">
+                    <div id="cart-items-container">
+                        <div class="cart-empty-state">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h5 class="text-muted mt-3">Keranjang kosong</h5>
+                            <p class="text-muted small">Tambahkan produk dengan menekan tombol "Tambah ke Cart"</p>
+                        </div>
+                    </div>
 
-    <!-- JAVASCRIPT FUNCTIONS -->
+                    <div id="cart-summary-container" style="display: none;">
+                        <div class="cart-summary">
+                            <div class="cart-summary-row">
+                                <span>Total Item:</span>
+                                <span id="cart-total-items">0</span>
+                            </div>
+                            <div class="cart-summary-row">
+                                <span>Total Jumlah:</span>
+                                <span id="cart-total-qty">0</span>
+                            </div>
+                        </div>
+
+                        <div class="cart-actions">
+                            <button type="button" class="cart-copy-btn" id="cart-copy-btn"
+                                onclick="copyCartList(this)">
+                                <i class="fas fa-copy"></i> Copy List
+                            </button>
+                            <button type="button" class="cart-clear-btn" onclick="clearCart()">
+                                <i class="fas fa-trash"></i> Kosongkan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT -->
     <script>
         // ============ CART MANAGEMENT ============
         let cart = JSON.parse(localStorage.getItem('orderCart')) || {};
@@ -983,15 +2894,14 @@
                 |--------------------------------------------------------------------------
                 */
 
-setTimeout(async () => {
+                setTimeout(() => {
 
-    await stopScanner();
+                    stopScanner();
 
-    setTimeout(() => {
-        searchProductByBarcode(scannedValue);
-    }, 300);
+                    // Fetch product data via API
+                    searchProductByBarcode(scannedValue);
 
-}, 700);
+                }, 700);
             }
         }
 
@@ -1033,7 +2943,7 @@ setTimeout(async () => {
         function showProductModal(product) {
 
             const modalHtml = `
-                <div class="modal" id="scanResultModal" tabindex="-1">
+                <div class="modal fade" id="scanResultModal" tabindex="-1">
                     <div class="modal-dialog modal-lg modal-dialog-centered">
                         <div class="modal-content border-0 shadow-lg rounded-4">
                             <div class="modal-header bg-primary text-white">
@@ -1170,40 +3080,28 @@ setTimeout(async () => {
         // STOP SCANNER
         // ==========================================================================
 
-async function stopScanner() {
+        function stopScanner() {
 
-    try {
+            try {
 
-        Quagga.offDetected(onScanSuccess);
+                Quagga.offDetected(onScanSuccess);
 
-        Quagga.offProcessed(onProcessed);
+                Quagga.offProcessed(onProcessed);
 
-        await Quagga.stop();
+                Quagga.stop();
 
-    } catch (err) {
+            } catch (err) {
 
-        console.error(err);
-    }
+                console.error(err);
+            }
 
-    scannerState.isRunning = false;
+            scannerState.isRunning = false;
 
-    const scannerModal =
-        document.getElementById('scanner-modal');
+            const scannerModal =
+                document.getElementById('scanner-modal');
 
-    scannerModal.classList.remove('active');
-
-    /*
-    |--------------------------------------------------------------------------
-    | BERSIHKAN VIDEO
-    |--------------------------------------------------------------------------
-    */
-
-    const videoContainer = document.querySelector('#video-canvas');
-
-    if (videoContainer) {
-        videoContainer.innerHTML = '';
-    }
-}
+            scannerModal.classList.remove('active');
+        }
 
         // ==========================================================================
         // CLOSE MODAL
