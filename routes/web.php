@@ -415,13 +415,18 @@ Route::get('/api/product-inventory-history', function (Request $request) {
     try {
         $transactions = DB::connection('mysql')->table('inventory')
             ->leftJoin('product', 'inventory.productid', '=', 'product.id')
+            ->leftJoin('purchasedetail', function($join) {
+                $join->on('inventory.transid', '=', 'purchasedetail.purchaseid')
+                     ->on('inventory.productid', '=', 'purchasedetail.productid');
+            })
             ->where('inventory.productid', $productId)
             ->orderBy('inventory.transdate', 'DESC')
             ->orderBy('inventory.id', 'DESC')
             ->select(
                 'inventory.*',
                 'product.costprice',
-                'product.salesprice1'
+                'product.salesprice1',
+                'purchasedetail.price as purchase_price'
             )
             ->get();
 
@@ -447,14 +452,14 @@ Route::get('/api/product-inventory-history', function (Request $request) {
             $totalPrice = 0;
 
             if (strpos($trans->transid, 'I/PC') === 0) {
-                // Pembelian
+                // Pembelian - gunakan harga dari purchasedetail
                 $type = 'Pembelian';
                 $category = 'pembelian';
                 $direction = 'in';
                 $quantity = $trans->invin;
                 $icon = 'fa-arrow-down';
                 $color = 'success';
-                $unitPrice = $trans->costprice ?? 0;
+                $unitPrice = $trans->purchase_price ?? $trans->costprice ?? 0;
                 $totalPrice = $quantity * $unitPrice;
                 $summary['pembelian'] += $quantity;
             } elseif (strpos($trans->transid, 'I/SL') === 0) {
@@ -480,14 +485,14 @@ Route::get('/api/product-inventory-history', function (Request $request) {
                 $totalPrice = $quantity * $unitPrice;
                 $summary['retur_penjualan'] += $quantity;
             } elseif (strpos($trans->transid, 'I/PR') === 0) {
-                // Retur Pembelian (barang keluar)
+                // Retur Pembelian (barang keluar) - gunakan harga dari purchasedetail
                 $type = 'Retur Pembelian';
                 $category = 'retur_pembelian';
                 $direction = 'out';
                 $quantity = $trans->invout;
                 $icon = 'fa-share';
                 $color = 'danger';
-                $unitPrice = $trans->costprice ?? 0;
+                $unitPrice = $trans->purchase_price ?? $trans->costprice ?? 0;
                 $totalPrice = $quantity * $unitPrice;
                 $summary['retur_pembelian'] += $quantity;
             } elseif (strpos($trans->transid, 'I/IM') === 0) {
