@@ -118,8 +118,8 @@
 
         .product-header-wrapper {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            align-items: flex-start;
+            gap: 12px;
             justify-content: space-between;
         }
 
@@ -127,16 +127,18 @@
             font-weight: 600;
             font-size: 0.95rem;
             color: #1e293b;
-            margin-bottom: 0;
-            line-height: 1.3;
+            margin-bottom: 4px;
+            line-height: 1.25;
             flex: 1;
+            word-break: break-word;
         }
 
         .product-code {
             font-size: 0.78rem;
-            color: #64748b;
-            margin-top: 4px;
-            letter-spacing: 0.02em;
+            color: #475569;
+            margin-top: 0;
+            letter-spacing: 0.03em;
+            opacity: 0.85;
         }
 
         .copy-btn {
