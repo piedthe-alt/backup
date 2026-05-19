@@ -3052,7 +3052,7 @@
                                                         <i class="fas fa-arrow-down me-2 text-success"></i>Total Barang Masuk
                                                     </th>
                                                     <td>
-                                                        <strong class="text-success">{{ number_format($product->total_masuk, 0, ',', '.') }}</strong>
+                                                        <strong class="text-success">${parseInt(product.total_masuk || 0).toLocaleString('id-ID')}</strong>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -3060,7 +3060,7 @@
                                                         <i class="fas fa-arrow-up me-2 text-warning"></i>Total Barang Keluar
                                                     </th>
                                                     <td>
-                                                        <strong class="text-warning">{{ number_format($product->total_keluar, 0, ',', '.') }}</strong>
+                                                        <strong class="text-warning">${parseInt(product.total_keluar || 0).toLocaleString('id-ID')}</strong>
                                                     </td>
                                                 </tr>
                                                 <tr>
