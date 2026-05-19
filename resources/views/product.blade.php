@@ -3730,8 +3730,12 @@
                         console.error('Chart canvas not found:', chartCanvasId);
                     }
 
-                    // Get existing chart from Chart registry
-                    const existingChart = Chart.helpers?.getChart?.(chartCanvas);
+                    // Get existing chart from Chart registry (compatible way)
+                    let existingChart = null;
+                    if (chartCanvas && window.Chart && window.Chart.instances) {
+                        const instances = window.Chart.instances || [];
+                        existingChart = instances.find(chart => chart.canvas === chartCanvas);
+                    }
                     if (existingChart) {
                         existingChart.destroy();
                     }
@@ -3742,7 +3746,7 @@
                             const ctx = chartCanvas.getContext('2d');
 
                             // Format dates for display
-                            const formattedDates = chartData.dates.map(date => {
+                            const formattedDates = chartData.dates.map(function(date) {
                                 const d = new Date(date + 'T00:00:00');
                                 return d.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' });
                             });
@@ -3754,7 +3758,7 @@
                                 margins: chartData.margins
                             });
 
-                            new Chart(ctx, {
+                            var chartInstance = new Chart(ctx, {
                                 type: 'line',
                                 data: {
                                     labels: formattedDates,
@@ -3767,7 +3771,6 @@
                                             borderWidth: 2,
                                             fill: true,
                                             tension: 0.4,
-                                            yAxisID: 'y',
                                             pointBackgroundColor: '#10b981',
                                             pointBorderColor: '#059669',
                                             pointRadius: 5,
@@ -3781,7 +3784,6 @@
                                             borderWidth: 2,
                                             fill: true,
                                             tension: 0.4,
-                                            yAxisID: 'y1',
                                             pointBackgroundColor: '#2563eb',
                                             pointBorderColor: '#1d4ed8',
                                             pointRadius: 5,
@@ -3795,7 +3797,6 @@
                                             borderWidth: 2,
                                             fill: true,
                                             tension: 0.4,
-                                            yAxisID: 'y',
                                             pointBackgroundColor: '#f59e0b',
                                             pointBorderColor: '#d97706',
                                             pointRadius: 5,
@@ -3852,18 +3853,6 @@
                                                 callback: function(value) {
                                                     return 'Rp ' + number_format(value);
                                                 }
-                                            }
-                                        },
-                                        y1: {
-                                            type: 'linear',
-                                            position: 'right',
-                                            title: {
-                                                display: true,
-                                                text: 'Qty (pcs)',
-                                                font: { size: 12, weight: 'bold' }
-                                            },
-                                            grid: {
-                                                drawOnChartArea: false
                                             }
                                         },
                                         x: {
