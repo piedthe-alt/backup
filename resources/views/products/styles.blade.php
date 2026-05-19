@@ -184,11 +184,12 @@
         }
 
         .product-info {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 10px;
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
             flex: 1;
-            align-items: stretch;
+            align-items: center;
+            flex-wrap: wrap;
             font-size: 0.8rem;
         }
 
@@ -196,13 +197,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             flex: 1;
             min-width: 60px;
-            min-height: 100px;
-            padding: 10px;
+            padding: 6px;
             background: #f8fafc;
-            border-radius: 10px;
+            border-radius: 6px;
             border: 1px solid #e2e8f0;
         }
 
@@ -1084,8 +1084,8 @@
         .stock-info-modern {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            margin-bottom: 0;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .stock-current {
@@ -1094,7 +1094,6 @@
             justify-content: space-between;
             font-size: 13px;
             color: #64748b;
-            width: 100%;
         }
 
         .stock-current-value {
