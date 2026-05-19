@@ -1086,7 +1086,6 @@
             flex-direction: column;
             gap: 6px;
             margin-bottom: 0;
-            align-items: center;
         }
 
         .stock-current {
