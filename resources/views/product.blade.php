@@ -3706,11 +3706,15 @@
                     return response.json();
                 })
                 .then(data => {
+                    console.log('Sales API Response:', data);
+
                     if (!data.success) throw new Error(data.error || 'Unknown error');
 
                     const summary = data.summary;
                     const dailyData = data.daily_aggregate;
                     const chartData = data.chart_data;
+
+                    console.log('Chart Data:', chartData);
 
                     // Update summary cards
                     document.getElementById(`sales-total-qty-${tabIndex}`).textContent = number_format(summary.total_quantity);
@@ -3721,143 +3725,162 @@
                     // Destroy existing chart if any
                     const chartCanvasId = `sales-chart-${tabIndex}`;
                     const chartCanvas = document.getElementById(chartCanvasId);
-                    const existingChart = Chart.helpers.getChart(chartCanvas);
+
+                    if (!chartCanvas) {
+                        console.error('Chart canvas not found:', chartCanvasId);
+                    }
+
+                    // Get existing chart from Chart registry
+                    const existingChart = Chart.helpers?.getChart?.(chartCanvas);
                     if (existingChart) {
                         existingChart.destroy();
                     }
 
                     // Create chart if we have data
-                    if (dailyData.length > 0) {
-                        const ctx = chartCanvas.getContext('2d');
+                    if (dailyData && dailyData.length > 0 && chartData && chartData.dates && chartData.dates.length > 0) {
+                        try {
+                            const ctx = chartCanvas.getContext('2d');
 
-                        // Format dates for display
-                        const formattedDates = chartData.dates.map(date => {
-                            const d = new Date(date + 'T00:00:00');
-                            return d.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' });
-                        });
+                            // Format dates for display
+                            const formattedDates = chartData.dates.map(date => {
+                                const d = new Date(date + 'T00:00:00');
+                                return d.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' });
+                            });
 
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: formattedDates,
-                                datasets: [
-                                    {
-                                        label: 'Omzet (Rp)',
-                                        data: chartData.amounts,
-                                        borderColor: '#10b981',
-                                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                        borderWidth: 2,
-                                        fill: true,
-                                        tension: 0.4,
-                                        yAxisID: 'y',
-                                        pointBackgroundColor: '#10b981',
-                                        pointBorderColor: '#059669',
-                                        pointRadius: 5,
-                                        pointHoverRadius: 7
-                                    },
-                                    {
-                                        label: 'Qty (pcs)',
-                                        data: chartData.quantities,
-                                        borderColor: '#2563eb',
-                                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                                        borderWidth: 2,
-                                        fill: true,
-                                        tension: 0.4,
-                                        yAxisID: 'y1',
-                                        pointBackgroundColor: '#2563eb',
-                                        pointBorderColor: '#1d4ed8',
-                                        pointRadius: 5,
-                                        pointHoverRadius: 7
-                                    },
-                                    {
-                                        label: 'Margin (Rp)',
-                                        data: chartData.margins,
-                                        borderColor: '#f59e0b',
-                                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                                        borderWidth: 2,
-                                        fill: true,
-                                        tension: 0.4,
-                                        yAxisID: 'y',
-                                        pointBackgroundColor: '#f59e0b',
-                                        pointBorderColor: '#d97706',
-                                        pointRadius: 5,
-                                        pointHoverRadius: 7
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                interaction: {
-                                    mode: 'index',
-                                    intersect: false
-                                },
-                                plugins: {
-                                    legend: {
-                                        display: true,
-                                        position: 'top',
-                                        labels: {
-                                            font: { size: 12, weight: '600' },
-                                            color: '#1e293b',
-                                            padding: 15,
-                                            usePointStyle: true
+                            console.log('Creating chart with data:', {
+                                dates: formattedDates,
+                                quantities: chartData.quantities,
+                                amounts: chartData.amounts,
+                                margins: chartData.margins
+                            });
+
+                            new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: formattedDates,
+                                    datasets: [
+                                        {
+                                            label: 'Omzet (Rp)',
+                                            data: chartData.amounts,
+                                            borderColor: '#10b981',
+                                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                            borderWidth: 2,
+                                            fill: true,
+                                            tension: 0.4,
+                                            yAxisID: 'y',
+                                            pointBackgroundColor: '#10b981',
+                                            pointBorderColor: '#059669',
+                                            pointRadius: 5,
+                                            pointHoverRadius: 7
+                                        },
+                                        {
+                                            label: 'Qty (pcs)',
+                                            data: chartData.quantities,
+                                            borderColor: '#2563eb',
+                                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                                            borderWidth: 2,
+                                            fill: true,
+                                            tension: 0.4,
+                                            yAxisID: 'y1',
+                                            pointBackgroundColor: '#2563eb',
+                                            pointBorderColor: '#1d4ed8',
+                                            pointRadius: 5,
+                                            pointHoverRadius: 7
+                                        },
+                                        {
+                                            label: 'Margin (Rp)',
+                                            data: chartData.margins,
+                                            borderColor: '#f59e0b',
+                                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                            borderWidth: 2,
+                                            fill: true,
+                                            tension: 0.4,
+                                            yAxisID: 'y',
+                                            pointBackgroundColor: '#f59e0b',
+                                            pointBorderColor: '#d97706',
+                                            pointRadius: 5,
+                                            pointHoverRadius: 7
                                         }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    interaction: {
+                                        mode: 'index',
+                                        intersect: false
                                     },
-                                    tooltip: {
-                                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                        padding: 12,
-                                        titleFont: { size: 13, weight: 'bold' },
-                                        bodyFont: { size: 12 },
-                                        borderColor: '#e2e8f0',
-                                        borderWidth: 1,
-                                        callbacks: {
-                                            label: function(context) {
-                                                if (context.datasetIndex === 0 || context.datasetIndex === 2) {
-                                                    return context.dataset.label + ': Rp ' + number_format(Math.round(context.parsed.y));
-                                                } else {
-                                                    return context.dataset.label + ': ' + number_format(context.parsed.y);
+                                    plugins: {
+                                        legend: {
+                                            display: true,
+                                            position: 'top',
+                                            labels: {
+                                                font: { size: 12, weight: '600' },
+                                                color: '#1e293b',
+                                                padding: 15,
+                                                usePointStyle: true
+                                            }
+                                        },
+                                        tooltip: {
+                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                            padding: 12,
+                                            titleFont: { size: 13, weight: 'bold' },
+                                            bodyFont: { size: 12 },
+                                            borderColor: '#e2e8f0',
+                                            borderWidth: 1,
+                                            callbacks: {
+                                                label: function(context) {
+                                                    if (context.datasetIndex === 0 || context.datasetIndex === 2) {
+                                                        return context.dataset.label + ': Rp ' + number_format(Math.round(context.parsed.y));
+                                                    } else {
+                                                        return context.dataset.label + ': ' + number_format(context.parsed.y);
+                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                },
-                                scales: {
-                                    y: {
-                                        type: 'linear',
-                                        position: 'left',
-                                        title: {
-                                            display: true,
-                                            text: 'Omzet & Margin (Rp)',
-                                            font: { size: 12, weight: 'bold' }
-                                        },
-                                        ticks: {
-                                            callback: function(value) {
-                                                return 'Rp ' + number_format(value);
+                                    },
+                                    scales: {
+                                        y: {
+                                            type: 'linear',
+                                            position: 'left',
+                                            title: {
+                                                display: true,
+                                                text: 'Omzet & Margin (Rp)',
+                                                font: { size: 12, weight: 'bold' }
+                                            },
+                                            ticks: {
+                                                callback: function(value) {
+                                                    return 'Rp ' + number_format(value);
+                                                }
                                             }
-                                        }
-                                    },
-                                    y1: {
-                                        type: 'linear',
-                                        position: 'right',
-                                        title: {
-                                            display: true,
-                                            text: 'Qty (pcs)',
-                                            font: { size: 12, weight: 'bold' }
                                         },
-                                        grid: {
-                                            drawOnChartArea: false
-                                        }
-                                    },
-                                    x: {
-                                        title: {
-                                            display: true,
-                                            text: 'Tanggal',
-                                            font: { size: 12, weight: 'bold' }
+                                        y1: {
+                                            type: 'linear',
+                                            position: 'right',
+                                            title: {
+                                                display: true,
+                                                text: 'Qty (pcs)',
+                                                font: { size: 12, weight: 'bold' }
+                                            },
+                                            grid: {
+                                                drawOnChartArea: false
+                                            }
+                                        },
+                                        x: {
+                                            title: {
+                                                display: true,
+                                                text: 'Tanggal',
+                                                font: { size: 12, weight: 'bold' }
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        });
+                            });
+                        } catch (chartError) {
+                            console.error('Error creating chart:', chartError);
+                        }
+                    } else {
+                        console.warn('No chart data available');
                     }
 
                     // Render daily data table
@@ -3900,28 +3923,7 @@
                     loadingDiv.style.display = 'none';
                     contentDiv.style.display = 'block';
                     const tableBody = document.getElementById(`sales-daily-table-${tabIndex}`);
-                    tableBody.innerHTML = `<tr><td colspan="5" class="text-danger small text-center py-3">Gagal memuat data penjualan</td></tr>`;
-                });
-        }
-
-        // ============ SALES DATA FOR SCAN MODAL ============
-        function loadScanSalesData(productId, days = 7) {
-            const loadingDiv = document.getElementById('scan-sales-loading');
-            const contentDiv = document.getElementById('scan-sales-content-data');
-
-            if (!loadingDiv || !contentDiv) {
-                console.error('Scan sales elements not found');
-                return;
-            }
-
-            loadingDiv.style.display = 'block';
-            contentDiv.style.display = 'none';
-
-            fetch(`/api/products/${productId}/sales?days=${days}`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Failed to load sales data');
-                    return response.json();
-                })
+                    tableBody.innerHTML = `<tr><td colspan="5" class="text-danger small text-center py-3">Gagal memuat data penjualan: ${error.message}</td></tr>`;
                 .then(data => {
                     if (!data.success) throw new Error(data.error || 'Unknown error');
 

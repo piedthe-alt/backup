@@ -2952,6 +2952,19 @@ Route::get('/api/products/{productId}/sales', function (Request $request, $produ
             ];
         })->values()->sortBy('date')->values(); // Sort ascending (oldest to newest)
 
+        // Prepare chart data as proper arrays
+        $chartDates = [];
+        $chartQuantities = [];
+        $chartAmounts = [];
+        $chartMargins = [];
+
+        foreach ($dailyAggregate as $day) {
+            $chartDates[] = $day['date'];
+            $chartQuantities[] = (int)$day['quantity'];
+            $chartAmounts[] = (int)$day['amount'];
+            $chartMargins[] = (int)$day['margin'];
+        }
+
         return response()->json([
             'success' => true,
             'data' => $sales,
@@ -2959,10 +2972,10 @@ Route::get('/api/products/{productId}/sales', function (Request $request, $produ
             'daily_aggregate' => $dailyAggregate,
             'period_days' => $days,
             'chart_data' => [
-                'dates' => $dailyAggregate->pluck('date'),
-                'quantities' => $dailyAggregate->pluck('quantity'),
-                'amounts' => $dailyAggregate->pluck('amount'),
-                'margins' => $dailyAggregate->pluck('margin')
+                'dates' => $chartDates,
+                'quantities' => $chartQuantities,
+                'amounts' => $chartAmounts,
+                'margins' => $chartMargins
             ]
         ]);
 
