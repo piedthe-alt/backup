@@ -1691,17 +1691,26 @@
             loadingDiv.style.display = 'block';
             contentDiv.style.display = 'none';
 
+            console.log('Loading sales data for product:', productId, 'days:', days);
+
             fetch(`/api/products/${productId}/sales?days=${days}`)
                 .then(response => {
-                    if (!response.ok) throw new Error('Failed to load sales data');
+                    console.log('Response status:', response.status);
+                    if (!response.ok) throw new Error('Failed to load sales data: ' + response.status);
                     return response.json();
                 })
                 .then(data => {
+                    console.log('Sales data received:', data);
+
                     if (!data.success) throw new Error(data.error || 'Unknown error');
 
                     const summary = data.summary;
                     const dailyData = data.daily_aggregate;
                     const chartData = data.chart_data;
+
+                    if (!chartData || !chartData.dates) {
+                        console.error('Chart data is missing or incomplete:', chartData);
+                    }
 
                     // Update summary cards
                     document.getElementById(`sales-total-qty-${tabIndex}`).textContent = number_format(summary.total_quantity);
@@ -1712,14 +1721,33 @@
                     // Destroy existing chart if any
                     const chartCanvasId = `sales-chart-${tabIndex}`;
                     const chartCanvas = document.getElementById(chartCanvasId);
-                    const existingChart = Chart.helpers.getChart(chartCanvas);
-                    if (existingChart) {
-                        existingChart.destroy();
+
+                    if (!chartCanvas) {
+                        console.error('Chart canvas not found:', chartCanvasId);
+                        loadingDiv.style.display = 'none';
+                        contentDiv.style.display = 'block';
+                        return;
+                    }
+
+                    // Initialize chart instance storage if needed
+                    if (!window.chartInstances) {
+                        window.chartInstances = {};
+                    }
+
+                    // Get and destroy existing chart
+                    if (window.chartInstances[chartCanvasId]) {
+                        window.chartInstances[chartCanvasId].destroy();
                     }
 
                     // Create chart if we have data
-                    if (dailyData.length > 0) {
+                    if (dailyData && dailyData.length > 0) {
                         const ctx = chartCanvas.getContext('2d');
+                        if (!ctx) {
+                            console.error('Failed to get 2D context for chart canvas');
+                            loadingDiv.style.display = 'none';
+                            contentDiv.style.display = 'block';
+                            return;
+                        }
 
                         // Format dates for display
                         const formattedDates = chartData.dates.map(date => {
@@ -1727,7 +1755,7 @@
                             return d.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' });
                         });
 
-                        new Chart(ctx, {
+                        window.chartInstances[chartCanvasId] = new Chart(ctx, {
                             type: 'line',
                             data: {
                                 labels: formattedDates,

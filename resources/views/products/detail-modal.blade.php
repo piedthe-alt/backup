@@ -304,6 +304,7 @@
                                     <div class="col-md-6">
                                         <label class="form-label small fw-bold mb-2">Filter Periode (Hari)</label>
                                         <select class="form-select form-select-sm" id="sales-days-filter-{{ $loop->index }}" onchange="loadSalesData({{ $product->id }}, {{ $loop->index }}, this.value)">
+                                            <option value="1">1 Hari</option>
                                             <option value="7" selected>7 Hari Terakhir</option>
                                             <option value="14">14 Hari Terakhir</option>
                                             <option value="30">30 Hari Terakhir</option>
