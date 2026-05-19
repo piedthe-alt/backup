@@ -15,6 +15,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         * {
@@ -1963,6 +1964,16 @@
                                         </div>
                                     </div>
 
+                                    <!-- Chart Section -->
+                                    <div class="mt-4 p-3 bg-light rounded-3" style="border-left: 4px solid #2563eb;">
+                                        <h6 class="mb-3" style="font-weight: 700; color: #1e293b;">
+                                            <i class="fas fa-chart-bar me-2 text-primary"></i>Grafik Penjualan Harian
+                                        </h6>
+                                        <div style="position: relative; height: 300px; max-height: 400px;">
+                                            <canvas id="sales-chart-{{ $loop->index }}" class="mb-4"></canvas>
+                                        </div>
+                                    </div>
+
                                     <!-- Daily Aggregate Table -->
                                     <div class="mt-4">
                                         <h6 class="mb-3" style="font-weight: 700; color: #1e293b;">
@@ -3699,12 +3710,155 @@
 
                     const summary = data.summary;
                     const dailyData = data.daily_aggregate;
+                    const chartData = data.chart_data;
 
                     // Update summary cards
                     document.getElementById(`sales-total-qty-${tabIndex}`).textContent = number_format(summary.total_quantity);
                     document.getElementById(`sales-total-amount-${tabIndex}`).textContent = 'Rp ' + number_format(Math.round(summary.total_amount));
                     document.getElementById(`sales-total-margin-${tabIndex}`).textContent = 'Rp ' + number_format(Math.round(summary.total_margin));
                     document.getElementById(`sales-transaction-count-${tabIndex}`).textContent = summary.transaction_count;
+
+                    // Destroy existing chart if any
+                    const chartCanvasId = `sales-chart-${tabIndex}`;
+                    const chartCanvas = document.getElementById(chartCanvasId);
+                    const existingChart = Chart.helpers.getChart(chartCanvas);
+                    if (existingChart) {
+                        existingChart.destroy();
+                    }
+
+                    // Create chart if we have data
+                    if (dailyData.length > 0) {
+                        const ctx = chartCanvas.getContext('2d');
+
+                        // Format dates for display
+                        const formattedDates = chartData.dates.map(date => {
+                            const d = new Date(date + 'T00:00:00');
+                            return d.toLocaleDateString('id-ID', { month: 'short', day: 'numeric' });
+                        });
+
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: formattedDates,
+                                datasets: [
+                                    {
+                                        label: 'Omzet (Rp)',
+                                        data: chartData.amounts,
+                                        borderColor: '#10b981',
+                                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                        borderWidth: 2,
+                                        fill: true,
+                                        tension: 0.4,
+                                        yAxisID: 'y',
+                                        pointBackgroundColor: '#10b981',
+                                        pointBorderColor: '#059669',
+                                        pointRadius: 5,
+                                        pointHoverRadius: 7
+                                    },
+                                    {
+                                        label: 'Qty (pcs)',
+                                        data: chartData.quantities,
+                                        borderColor: '#2563eb',
+                                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                                        borderWidth: 2,
+                                        fill: true,
+                                        tension: 0.4,
+                                        yAxisID: 'y1',
+                                        pointBackgroundColor: '#2563eb',
+                                        pointBorderColor: '#1d4ed8',
+                                        pointRadius: 5,
+                                        pointHoverRadius: 7
+                                    },
+                                    {
+                                        label: 'Margin (Rp)',
+                                        data: chartData.margins,
+                                        borderColor: '#f59e0b',
+                                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                        borderWidth: 2,
+                                        fill: true,
+                                        tension: 0.4,
+                                        yAxisID: 'y',
+                                        pointBackgroundColor: '#f59e0b',
+                                        pointBorderColor: '#d97706',
+                                        pointRadius: 5,
+                                        pointHoverRadius: 7
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                interaction: {
+                                    mode: 'index',
+                                    intersect: false
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'top',
+                                        labels: {
+                                            font: { size: 12, weight: '600' },
+                                            color: '#1e293b',
+                                            padding: 15,
+                                            usePointStyle: true
+                                        }
+                                    },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                        padding: 12,
+                                        titleFont: { size: 13, weight: 'bold' },
+                                        bodyFont: { size: 12 },
+                                        borderColor: '#e2e8f0',
+                                        borderWidth: 1,
+                                        callbacks: {
+                                            label: function(context) {
+                                                if (context.datasetIndex === 0 || context.datasetIndex === 2) {
+                                                    return context.dataset.label + ': Rp ' + number_format(Math.round(context.parsed.y));
+                                                } else {
+                                                    return context.dataset.label + ': ' + number_format(context.parsed.y);
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        type: 'linear',
+                                        position: 'left',
+                                        title: {
+                                            display: true,
+                                            text: 'Omzet & Margin (Rp)',
+                                            font: { size: 12, weight: 'bold' }
+                                        },
+                                        ticks: {
+                                            callback: function(value) {
+                                                return 'Rp ' + number_format(value);
+                                            }
+                                        }
+                                    },
+                                    y1: {
+                                        type: 'linear',
+                                        position: 'right',
+                                        title: {
+                                            display: true,
+                                            text: 'Qty (pcs)',
+                                            font: { size: 12, weight: 'bold' }
+                                        },
+                                        grid: {
+                                            drawOnChartArea: false
+                                        }
+                                    },
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: 'Tanggal',
+                                            font: { size: 12, weight: 'bold' }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
 
                     // Render daily data table
                     const tableBody = document.getElementById(`sales-daily-table-${tabIndex}`);

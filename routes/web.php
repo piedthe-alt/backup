@@ -2950,14 +2950,20 @@ Route::get('/api/products/{productId}/sales', function (Request $request, $produ
                 'margin' => $daySales->sum('margin'),
                 'transactions' => $daySales->count()
             ];
-        })->values();
+        })->values()->sortBy('date')->values(); // Sort ascending (oldest to newest)
 
         return response()->json([
             'success' => true,
             'data' => $sales,
             'summary' => $summary,
             'daily_aggregate' => $dailyAggregate,
-            'period_days' => $days
+            'period_days' => $days,
+            'chart_data' => [
+                'dates' => $dailyAggregate->pluck('date'),
+                'quantities' => $dailyAggregate->pluck('quantity'),
+                'amounts' => $dailyAggregate->pluck('amount'),
+                'margins' => $dailyAggregate->pluck('margin')
+            ]
         ]);
 
     } catch (\Exception $e) {
