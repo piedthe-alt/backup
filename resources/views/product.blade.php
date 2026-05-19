@@ -36,7 +36,7 @@
             <div class="card-body p-4">
 
                 {{-- Search Form Component --}}
-                @include('products.search-form', compact('productgroups', 'keyword', 'sort'))
+                @include('products.search-form', compact('productgroups'))
 
                 {{-- Sorting Buttons Component --}}
                 @include('products.sorting', compact('sort'))
