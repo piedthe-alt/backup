@@ -85,15 +85,15 @@
             let groupedItems = {};
 
             // Group items by group name
-            for (let productId in cart) {
-                const item = cart[productId];
+            for (let cartKey in cart) {
+                const item = cart[cartKey];
                 const group = item.group || 'Uncategorized';
 
                 if (!groupedItems[group]) {
                     groupedItems[group] = [];
                 }
                 groupedItems[group].push({
-                    id: productId,
+                    cartKey,
                     ...item
                 });
                 totalItems++;
@@ -113,8 +113,14 @@
                                 <div class="cart-item-name">${item.name}</div>
                                 <div class="cart-item-code">Kode: ${item.id}</div>
                             </div>
-                            <div class="cart-item-qty">${item.quantity} pcs</div>
-                            <button type="button" class="cart-item-remove" onclick="removeFromCart('${item.id}')">
+                            <div class="cart-item-qty-controls">
+                                <button type="button" class="cart-qty-btn" onclick="changeCartQty('${item.cartKey}', -1)">-</button>
+                                <input type="number" class="cart-qty-input" value="${item.quantity}" min="1" max="${item.stock}" onchange="setCartQty('${item.cartKey}', this.value)">
+                                <button type="button" class="cart-qty-btn" onclick="changeCartQty('${item.cartKey}', 1)">+</button>
+                            </div>
+                            <div class="cart-item-stock text-muted" style="font-size:0.85rem; margin-top:4px;">Stok: ${number_format(item.stock)}</div>
+                            <div class="cart-item-subtotal">Subtotal: Rp ${number_format(item.price * item.quantity)}</div>
+                            <button type="button" class="cart-item-remove" onclick="removeFromCart('${item.cartKey}')">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
@@ -138,6 +144,44 @@
             document.getElementById('cart-total-items').textContent = totalItems;
             document.getElementById('cart-total-qty').textContent = totalQty;
             summaryContainer.style.display = 'block';
+        }
+
+        function changeCartQty(cartKey, change) {
+            if (!cart[cartKey]) {
+                return;
+            }
+
+            let newQty = cart[cartKey].quantity + change;
+            if (newQty < 1) {
+                newQty = 1;
+            }
+
+            cart[cartKey].quantity = newQty;
+            localStorage.setItem('orderCart', JSON.stringify(cart));
+            updateCartBadge();
+            renderCartItems();
+        }
+
+        function setCartQty(cartKey, value) {
+            if (!cart[cartKey]) {
+                return;
+            }
+
+            let qty = parseInt(value, 10);
+            if (!Number.isInteger(qty) || qty < 1) {
+                qty = cart[cartKey].quantity;
+            }
+
+            const maxStock = cart[cartKey].stock || qty;
+            if (qty > maxStock) {
+                alert(`Stock ${cart[cartKey].name} hanya tersedia ${maxStock}`);
+                qty = maxStock;
+            }
+
+            cart[cartKey].quantity = qty;
+            localStorage.setItem('orderCart', JSON.stringify(cart));
+            updateCartBadge();
+            renderCartItems();
         }
 
         // Load and display returns for a group
