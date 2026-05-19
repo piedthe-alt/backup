@@ -1634,11 +1634,23 @@
                                                 <span class="badge ${badgeClass} text-white" style="font-size: 10px; padding: 3px 8px;">${directionText}</span>
                                             </div>
                                             <p class="mb-1 small text-muted"><strong>${trans.transid}</strong></p>
-                                            <p class="mb-0 small text-muted">
+                                            <p class="mb-2 small text-muted">
                                                 <i class="far fa-calendar me-1"></i>
                                                 ${new Date(trans.date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                            </p>
-                                            ${trans.memo ? `<p class="mb-0 small text-muted mt-1"><i class="fas fa-comment me-1"></i>${trans.memo}</p>` : ''}
+                                            </p>\n                                            ${trans.unitPrice > 0 ? `
+                                            <div style="background: #fff; padding: 8px 10px; border-radius: 6px; border-left: 3px solid #2563eb; margin-bottom: 8px;">
+                                                <div class="row g-2">
+                                                    <div class="col-6">
+                                                        <small class="text-muted d-block">Harga Beli/pcs</small>
+                                                        <strong class="text-primary" style="font-size: 0.9rem;">Rp ${number_format(trans.unitPrice)}</strong>
+                                                    </div>
+                                                    <div class="col-6 text-end">
+                                                        <small class="text-muted d-block">Total Harga</small>
+                                                        <strong class="text-success" style="font-size: 0.9rem;">Rp ${number_format(trans.totalPrice)}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            ` : ''}\n                                            ${trans.memo ? `<p class="mb-0 small text-muted mt-1"><i class="fas fa-comment me-1"></i>${trans.memo}</p>` : ''}
                                         </div>
                                     </div>
                                     <div class="text-end">

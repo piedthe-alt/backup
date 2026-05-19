@@ -414,9 +414,15 @@ Route::get('/api/product-inventory-history', function (Request $request) {
 
     try {
         $transactions = DB::connection('mysql')->table('inventory')
-            ->where('productid', $productId)
-            ->orderBy('transdate', 'DESC')
-            ->orderBy('id', 'DESC')
+            ->leftJoin('product', 'inventory.productid', '=', 'product.id')
+            ->where('inventory.productid', $productId)
+            ->orderBy('inventory.transdate', 'DESC')
+            ->orderBy('inventory.id', 'DESC')
+            ->select(
+                'inventory.*',
+                'product.costprice',
+                'product.salesprice1'
+            )
             ->get();
 
         // Kategorisasi transaksi dan hitung ringkasan
@@ -437,6 +443,8 @@ Route::get('/api/product-inventory-history', function (Request $request) {
             $quantity = 0;
             $icon = null;
             $color = null;
+            $unitPrice = 0;
+            $totalPrice = 0;
 
             if (strpos($trans->transid, 'I/PC') === 0) {
                 // Pembelian
@@ -446,6 +454,8 @@ Route::get('/api/product-inventory-history', function (Request $request) {
                 $quantity = $trans->invin;
                 $icon = 'fa-arrow-down';
                 $color = 'success';
+                $unitPrice = $trans->costprice ?? 0;
+                $totalPrice = $quantity * $unitPrice;
                 $summary['pembelian'] += $quantity;
             } elseif (strpos($trans->transid, 'I/SL') === 0) {
                 // Penjualan
@@ -455,6 +465,8 @@ Route::get('/api/product-inventory-history', function (Request $request) {
                 $quantity = $trans->invout;
                 $icon = 'fa-arrow-up';
                 $color = 'warning';
+                $unitPrice = $trans->salesprice1 ?? 0;
+                $totalPrice = $quantity * $unitPrice;
                 $summary['penjualan'] += $quantity;
             } elseif (strpos($trans->transid, 'I/SR') === 0) {
                 // Retur Penjualan (barang masuk)
@@ -464,6 +476,8 @@ Route::get('/api/product-inventory-history', function (Request $request) {
                 $quantity = $trans->invin;
                 $icon = 'fa-undo';
                 $color = 'info';
+                $unitPrice = $trans->salesprice1 ?? 0;
+                $totalPrice = $quantity * $unitPrice;
                 $summary['retur_penjualan'] += $quantity;
             } elseif (strpos($trans->transid, 'I/PR') === 0) {
                 // Retur Pembelian (barang keluar)
@@ -473,6 +487,8 @@ Route::get('/api/product-inventory-history', function (Request $request) {
                 $quantity = $trans->invout;
                 $icon = 'fa-share';
                 $color = 'danger';
+                $unitPrice = $trans->costprice ?? 0;
+                $totalPrice = $quantity * $unitPrice;
                 $summary['retur_pembelian'] += $quantity;
             } elseif (strpos($trans->transid, 'I/IM') === 0) {
                 // Adjustment
@@ -490,6 +506,8 @@ Route::get('/api/product-inventory-history', function (Request $request) {
                 }
                 $icon = 'fa-sliders-h';
                 $color = 'secondary';
+                $unitPrice = $trans->costprice ?? 0;
+                $totalPrice = $quantity * $unitPrice;
             }
 
             if ($type) {
@@ -500,6 +518,8 @@ Route::get('/api/product-inventory-history', function (Request $request) {
                     'category' => $category,
                     'direction' => $direction,
                     'quantity' => $quantity,
+                    'unitPrice' => $unitPrice,
+                    'totalPrice' => $totalPrice,
                     'date' => $trans->transdate,
                     'memo' => $trans->memo,
                     'icon' => $icon,
