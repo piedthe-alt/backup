@@ -57,6 +57,12 @@
             }
         }
 
+        function titleCase(text) {
+            return text
+                .toLowerCase()
+                .replace(/\b(\w)/g, char => char.toUpperCase());
+        }
+
         function openCartModal() {
             renderCartItems();
             const cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
@@ -107,10 +113,13 @@
                     `<h6 style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 10px 12px; border-radius: 6px; margin-bottom: 12px; font-weight: 600; margin-top: 0;"><i class="fas fa-folder me-2"></i>Orderan ${group}</h6>`;
 
                 for (let item of groupedItems[group]) {
+                    const displayName = titleCase(item.name);
+                    const unitType = item.type === 'box' ? 'Box' : 'Pcs';
+
                     html += `
                         <div class="cart-item">
                             <div class="cart-item-info">
-                                <div class="cart-item-name">${item.name}</div>
+                                <div class="cart-item-name">${displayName}</div>
                                 <div class="cart-item-code">Kode: ${item.id}</div>
                             </div>
                             <div class="cart-item-meta">
@@ -119,6 +128,7 @@
                                     <input type="number" class="cart-qty-input" value="${item.quantity}" min="1" onchange="setCartQty('${item.cartKey}', this.value)">
                                     <button type="button" class="cart-qty-btn" onclick="changeCartQty('${item.cartKey}', 1)">+</button>
                                 </div>
+                                <div class="cart-item-unit">${item.quantity} ${unitType}</div>
                                 <button type="button" class="cart-item-remove" onclick="removeFromCart('${item.cartKey}')">
                                     <i class="fas fa-times"></i>
                                 </button>
@@ -338,9 +348,9 @@
                 */
 
                 for (let item of groupedItems[group]) {
-
+                    const displayName = titleCase(item.name);
                     const unitType = item.type === 'box' ? 'Box' : 'Pcs';
-                    copyText += `- ${item.name} = ${item.quantity} ${unitType}\n`;
+                    copyText += `- ${item.id} - ${displayName} : ${item.quantity} ${unitType}\n`;
                 }
 
                 /*

@@ -845,6 +845,13 @@
             padding: 6px 8px;
         }
 
+        .cart-item-unit {
+            font-size: 0.9rem;
+            color: #475569;
+            font-weight: 600;
+            text-align: right;
+        }
+
         .cart-qty-btn {
             width: 32px;
             height: 32px;
