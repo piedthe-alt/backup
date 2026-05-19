@@ -9,9 +9,12 @@
                 <div class="product-card-header">
 
                     <div class="product-header-wrapper">
-                        <h5 class="product-name">
-                            {{ Str::limit($product->name, 35) }}
-                        </h5>
+                        <div>
+                            <h5 class="product-name">
+                                {{ Str::limit(Str::title($product->name), 35) }}
+                            </h5>
+                            <div class="product-code">{{ $product->id }}</div>
+                        </div>
                         <button type="button" class="copy-btn"
                             onclick="copyProductName(event, '{{ $product->id }}', '{{ addslashes($product->name) }}')"
                             title="Copy nama produk">

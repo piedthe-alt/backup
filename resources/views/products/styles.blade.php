@@ -132,6 +132,13 @@
             flex: 1;
         }
 
+        .product-code {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 4px;
+            letter-spacing: 0.02em;
+        }
+
         .copy-btn {
             background: rgba(37, 99, 235, 0.1);
             border: 1px solid rgba(37, 99, 235, 0.3);
