@@ -2883,3 +2883,87 @@ Route::get('/api/search-product-by-barcode', function (Request $request) {
         ], 500);
     }
 });
+
+/*
+|--------------------------------------------------------------------------
+| API - GET PRODUCT SALES DATA (dengan date range filter)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/api/products/{productId}/sales', function (Request $request, $productId) {
+
+    $days = $request->query('days', 7); // Default 7 hari
+
+    if (!$productId) {
+        return response()->json(['error' => 'Product ID required'], 400);
+    }
+
+    try {
+        $startDate = now()->subDays($days)->startOfDay();
+        $endDate = now()->endOfDay();
+
+        // Get sales data dari salesdetail
+        $sales = DB::table('salesdetail')
+            ->join('sales', 'salesdetail.salesid', '=', 'sales.salesidref')
+            ->where('salesdetail.productid', $productId)
+            ->whereBetween('salesdetail.updatetimestamp', [$startDate, $endDate])
+            ->select(
+                'salesdetail.salesid',
+                'salesdetail.productid',
+                'salesdetail.salesqty as quantity',
+                'salesdetail.price',
+                'salesdetail.netamount',
+                'salesdetail.cogs',
+                DB::raw('(salesdetail.netamount - salesdetail.cogs) as margin'),
+                'sales.salestime as date',
+                DB::raw('DATE(sales.salestime) as trans_date')
+            )
+            ->orderBy('sales.salestime', 'DESC')
+            ->get();
+
+        // Summary statistics
+        $summary = [
+            'total_quantity' => 0,
+            'total_amount' => 0,
+            'total_margin' => 0,
+            'transaction_count' => 0,
+            'avg_quantity' => 0,
+            'avg_price' => 0
+        ];
+
+        if ($sales->count() > 0) {
+            $summary['total_quantity'] = $sales->sum('quantity');
+            $summary['total_amount'] = $sales->sum('netamount');
+            $summary['total_margin'] = $sales->sum('margin');
+            $summary['transaction_count'] = $sales->count();
+            $summary['avg_quantity'] = round($summary['total_quantity'] / $summary['transaction_count'], 2);
+            $summary['avg_price'] = round($summary['total_amount'] / $summary['transaction_count'], 0);
+        }
+
+        // Daily aggregate
+        $dailyAggregate = $sales->groupBy('trans_date')->map(function ($daySales) {
+            $firstSale = $daySales->first();
+            return [
+                'date' => $firstSale->trans_date,
+                'quantity' => $daySales->sum('quantity'),
+                'amount' => $daySales->sum('netamount'),
+                'margin' => $daySales->sum('margin'),
+                'transactions' => $daySales->count()
+            ];
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $sales,
+            'summary' => $summary,
+            'daily_aggregate' => $dailyAggregate,
+            'period_days' => $days
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});

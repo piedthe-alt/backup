@@ -1649,6 +1649,11 @@
                                     <i class="fas fa-arrow-down me-2"></i>Riwayat Stok Masuk
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="sales-tab-{{ $loop->index }}" data-bs-toggle="tab" href="#sales-content-{{ $loop->index }}" role="tab" data-product-id="{{ $product->id }}">
+                                    <i class="fas fa-chart-line me-2"></i>Penjualan
+                                </a>
+                            </li>
                         </ul>
 
                         <!-- TAB CONTENT -->
@@ -1897,6 +1902,100 @@
                                     <!-- Transactions List -->
                                     <div class="inventory-transactions-in-{{ $loop->index }}">
                                         <p class="text-muted small">Tidak ada data barang masuk</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SALES TAB -->
+                            <div class="tab-pane fade" id="sales-content-{{ $loop->index }}" role="tabpanel">
+                                <!-- Sales Filter -->
+                                <div class="mb-4 p-3 bg-light rounded-3" style="border-left: 4px solid #2563eb;">
+                                    <div class="row g-2 align-items-center">
+                                        <div class="col-md-6">
+                                            <label class="form-label small fw-bold mb-2">Filter Periode (Hari)</label>
+                                            <select class="form-select form-select-sm" id="sales-days-filter-{{ $loop->index }}" onchange="loadSalesData({{ $product->id }}, {{ $loop->index }}, this.value)">
+                                                <option value="7" selected>7 Hari Terakhir</option>
+                                                <option value="14">14 Hari Terakhir</option>
+                                                <option value="30">30 Hari Terakhir</option>
+                                                <option value="60">60 Hari Terakhir</option>
+                                                <option value="90">90 Hari Terakhir</option>
+                                                <option value="365">1 Tahun Terakhir</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Loading State -->
+                                <div id="sales-loading-{{ $loop->index }}" class="text-center py-4">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="text-muted mt-2 small">Memuat data penjualan...</p>
+                                </div>
+
+                                <!-- Sales Content -->
+                                <div id="sales-content-data-{{ $loop->index }}" style="display: none;">
+                                    <!-- Summary Cards -->
+                                    <div class="row mb-4 g-2">
+                                        <div class="col-md-3">
+                                            <div class="p-3 bg-info bg-opacity-10 rounded-3 text-center">
+                                                <small class="text-muted d-block mb-1">Total Qty</small>
+                                                <p class="mb-0 h6 text-info fw-bold" id="sales-total-qty-{{ $loop->index }}">0</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center">
+                                                <small class="text-muted d-block mb-1">Total Penjualan</small>
+                                                <p class="mb-0 h6 text-success fw-bold" id="sales-total-amount-{{ $loop->index }}">Rp 0</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="p-3 bg-warning bg-opacity-10 rounded-3 text-center">
+                                                <small class="text-muted d-block mb-1">Total Margin</small>
+                                                <p class="mb-0 h6 text-warning fw-bold" id="sales-total-margin-{{ $loop->index }}">Rp 0</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="p-3 bg-secondary bg-opacity-10 rounded-3 text-center">
+                                                <small class="text-muted d-block mb-1">Transaksi</small>
+                                                <p class="mb-0 h6 text-secondary fw-bold" id="sales-transaction-count-{{ $loop->index }}">0</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Daily Aggregate Table -->
+                                    <div class="mt-4">
+                                        <h6 class="mb-3" style="font-weight: 700; color: #1e293b;">
+                                            <i class="fas fa-calendar-alt me-2 text-primary"></i>Penjualan Per Hari
+                                        </h6>
+                                        <div style="max-height: 400px; overflow-y: auto;">
+                                            <table class="table table-sm table-hover" style="font-size: 0.9rem; margin-bottom: 0;">
+                                                <thead style="background-color: #f8fafc; position: sticky; top: 0;">
+                                                    <tr>
+                                                        <th style="text-align: left; color: #1e293b; font-weight: 600; width: 30%;">
+                                                            <i class="fas fa-calendar me-1"></i>Tanggal
+                                                        </th>
+                                                        <th style="text-align: center; color: #1e293b; font-weight: 600; width: 15%;">
+                                                            <i class="fas fa-cube me-1"></i>Qty
+                                                        </th>
+                                                        <th style="text-align: right; color: #1e293b; font-weight: 600; width: 25%;">
+                                                            <i class="fas fa-money-bill me-1"></i>Jumlah
+                                                        </th>
+                                                        <th style="text-align: right; color: #1e293b; font-weight: 600; width: 25%;">
+                                                            <i class="fas fa-chart-line me-1"></i>Margin
+                                                        </th>
+                                                        <th style="text-align: center; color: #1e293b; font-weight: 600; width: 10%;">
+                                                            <i class="fas fa-exchange me-1"></i>#
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="sales-daily-table-{{ $loop->index }}">
+                                                    <tr>
+                                                        <td colspan="5" class="text-center text-muted py-3 small">Tidak ada data penjualan</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -3007,6 +3106,11 @@
                                             <i class="fas fa-arrow-down me-2"></i>Riwayat Stok Masuk
                                         </a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="scan-sales-tab" data-bs-toggle="tab" href="#scan-sales-content" role="tab">
+                                            <i class="fas fa-chart-line me-2"></i>Penjualan
+                                        </a>
+                                    </li>
                                 </ul>
 
                                 <!-- TAB CONTENT -->
@@ -3151,6 +3255,100 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- SALES TAB -->
+                                    <div class="tab-pane fade" id="scan-sales-content" role="tabpanel">
+                                        <!-- Sales Filter -->
+                                        <div class="mb-4 p-3 bg-light rounded-3" style="border-left: 4px solid #2563eb;">
+                                            <div class="row g-2 align-items-center">
+                                                <div class="col-md-6">
+                                                    <label class="form-label small fw-bold mb-2">Filter Periode (Hari)</label>
+                                                    <select class="form-select form-select-sm" id="scan-sales-days-filter" onchange="loadScanSalesData(document.querySelector('[data-product-id]').getAttribute('data-product-id'), this.value)">
+                                                        <option value="7" selected>7 Hari Terakhir</option>
+                                                        <option value="14">14 Hari Terakhir</option>
+                                                        <option value="30">30 Hari Terakhir</option>
+                                                        <option value="60">60 Hari Terakhir</option>
+                                                        <option value="90">90 Hari Terakhir</option>
+                                                        <option value="365">1 Tahun Terakhir</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Loading State -->
+                                        <div id="scan-sales-loading" class="text-center py-4">
+                                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="text-muted mt-2 small">Memuat data penjualan...</p>
+                                        </div>
+
+                                        <!-- Sales Content -->
+                                        <div id="scan-sales-content-data" style="display: none;">
+                                            <!-- Summary Cards -->
+                                            <div class="row mb-4 g-2">
+                                                <div class="col-md-3">
+                                                    <div class="p-3 bg-info bg-opacity-10 rounded-3 text-center">
+                                                        <small class="text-muted d-block mb-1">Total Qty</small>
+                                                        <p class="mb-0 h6 text-info fw-bold" id="scan-sales-total-qty">0</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="p-3 bg-success bg-opacity-10 rounded-3 text-center">
+                                                        <small class="text-muted d-block mb-1">Total Penjualan</small>
+                                                        <p class="mb-0 h6 text-success fw-bold" id="scan-sales-total-amount">Rp 0</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="p-3 bg-warning bg-opacity-10 rounded-3 text-center">
+                                                        <small class="text-muted d-block mb-1">Total Margin</small>
+                                                        <p class="mb-0 h6 text-warning fw-bold" id="scan-sales-total-margin">Rp 0</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="p-3 bg-secondary bg-opacity-10 rounded-3 text-center">
+                                                        <small class="text-muted d-block mb-1">Transaksi</small>
+                                                        <p class="mb-0 h6 text-secondary fw-bold" id="scan-sales-transaction-count">0</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Daily Aggregate Table -->
+                                            <div class="mt-4">
+                                                <h6 class="mb-3" style="font-weight: 700; color: #1e293b;">
+                                                    <i class="fas fa-calendar-alt me-2 text-primary"></i>Penjualan Per Hari
+                                                </h6>
+                                                <div style="max-height: 400px; overflow-y: auto;">
+                                                    <table class="table table-sm table-hover" style="font-size: 0.9rem; margin-bottom: 0;">
+                                                        <thead style="background-color: #f8fafc; position: sticky; top: 0;">
+                                                            <tr>
+                                                                <th style="text-align: left; color: #1e293b; font-weight: 600; width: 30%;">
+                                                                    <i class="fas fa-calendar me-1"></i>Tanggal
+                                                                </th>
+                                                                <th style="text-align: center; color: #1e293b; font-weight: 600; width: 15%;">
+                                                                    <i class="fas fa-cube me-1"></i>Qty
+                                                                </th>
+                                                                <th style="text-align: right; color: #1e293b; font-weight: 600; width: 25%;">
+                                                                    <i class="fas fa-money-bill me-1"></i>Jumlah
+                                                                </th>
+                                                                <th style="text-align: right; color: #1e293b; font-weight: 600; width: 25%;">
+                                                                    <i class="fas fa-chart-line me-1"></i>Margin
+                                                                </th>
+                                                                <th style="text-align: center; color: #1e293b; font-weight: 600; width: 10%;">
+                                                                    <i class="fas fa-exchange me-1"></i>#
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="scan-sales-daily-table">
+                                                            <tr>
+                                                                <td colspan="5" class="text-center text-muted py-3 small">Tidak ada data penjualan</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -3170,6 +3368,11 @@
             // Setup tab click handler for history
             document.getElementById('scan-history-in-tab').addEventListener('click', function() {
                 loadScanInventoryHistory(product.id);
+            });
+
+            // Setup tab click handler for sales
+            document.getElementById('scan-sales-tab').addEventListener('click', function() {
+                loadScanSalesData(product.id);
             });
 
             // Show modal
@@ -3347,6 +3550,32 @@
                 const tabIndex = e.target.id.replace('history-in-tab-', '');
                 loadInventoryHistoryTab(productId, tabIndex);
             }
+
+            // Check if it's sales tab
+            if (e.target && e.target.id && e.target.id.startsWith('sales-tab-')) {
+                const productId = e.target.getAttribute('data-product-id');
+                const tabIndex = e.target.id.replace('sales-tab-', '');
+                const daysFilter = document.getElementById(`sales-days-filter-${tabIndex}`);
+                const days = daysFilter ? daysFilter.value : 7;
+                loadSalesData(productId, tabIndex, parseInt(days));
+            }
+
+            // Check if it's scan sales tab
+            if (e.target && e.target.id && e.target.id === 'scan-sales-tab') {
+                // Get product ID from the modal's data attribute or from product variable
+                const modal = document.getElementById('scanResultModal');
+                if (modal && typeof showProductModal !== 'undefined') {
+                    // The product ID should be available in the modal
+                    const daysFilter = document.getElementById('scan-sales-days-filter');
+                    const days = daysFilter ? daysFilter.value : 7;
+                    // We'll use the last scanned product ID from the URL or event
+                    const productIdElements = document.querySelectorAll('[data-product-id]');
+                    if (productIdElements.length > 0) {
+                        const productId = productIdElements[0].getAttribute('data-product-id');
+                        if (productId) loadScanSalesData(productId, parseInt(days));
+                    }
+                }
+            }
         });
 
         // ============ INVENTORY HISTORY ============
@@ -3442,6 +3671,156 @@
                     loadingDiv.style.display = 'none';
                     contentDiv.style.display = 'block';
                     transactionsContainer.innerHTML = `<p class="text-danger small">Gagal memuat data barang masuk</p>`;
+                });
+        }
+
+        // ============ SALES DATA ============
+        function loadSalesData(productId, tabIndex, days = 7) {
+            const loadingId = `sales-loading-${tabIndex}`;
+            const contentId = `sales-content-data-${tabIndex}`;
+            const loadingDiv = document.getElementById(loadingId);
+            const contentDiv = document.getElementById(contentId);
+
+            if (!loadingDiv || !contentDiv) {
+                console.error('Sales elements not found', {loadingId, contentId});
+                return;
+            }
+
+            loadingDiv.style.display = 'block';
+            contentDiv.style.display = 'none';
+
+            fetch(`/api/products/${productId}/sales?days=${days}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to load sales data');
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.error || 'Unknown error');
+
+                    const summary = data.summary;
+                    const dailyData = data.daily_aggregate;
+
+                    // Update summary cards
+                    document.getElementById(`sales-total-qty-${tabIndex}`).textContent = number_format(summary.total_quantity);
+                    document.getElementById(`sales-total-amount-${tabIndex}`).textContent = 'Rp ' + number_format(Math.round(summary.total_amount));
+                    document.getElementById(`sales-total-margin-${tabIndex}`).textContent = 'Rp ' + number_format(Math.round(summary.total_margin));
+                    document.getElementById(`sales-transaction-count-${tabIndex}`).textContent = summary.transaction_count;
+
+                    // Render daily data table
+                    const tableBody = document.getElementById(`sales-daily-table-${tabIndex}`);
+
+                    if (dailyData.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3 small">Tidak ada data penjualan</td></tr>`;
+                        loadingDiv.style.display = 'none';
+                        contentDiv.style.display = 'block';
+                        return;
+                    }
+
+                    let tableHtml = '';
+                    dailyData.forEach(day => {
+                        const dateObj = new Date(day.date + 'T00:00:00');
+                        const formattedDate = dateObj.toLocaleDateString('id-ID', {
+                            weekday: 'short',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+
+                        tableHtml += `
+                            <tr>
+                                <td style="text-align: left; color: #1e293b;">${formattedDate}</td>
+                                <td style="text-align: center; font-weight: 600; color: #2563eb;">${number_format(day.quantity)}</td>
+                                <td style="text-align: right; font-weight: 600; color: #10b981;">Rp ${number_format(Math.round(day.amount))}</td>
+                                <td style="text-align: right; font-weight: 600; color: #f59e0b;">Rp ${number_format(Math.round(day.margin))}</td>
+                                <td style="text-align: center; font-weight: 600; color: #6b7280;">${day.transactions}</td>
+                            </tr>
+                        `;
+                    });
+
+                    tableBody.innerHTML = tableHtml;
+                    loadingDiv.style.display = 'none';
+                    contentDiv.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error loading sales data:', error);
+                    loadingDiv.style.display = 'none';
+                    contentDiv.style.display = 'block';
+                    const tableBody = document.getElementById(`sales-daily-table-${tabIndex}`);
+                    tableBody.innerHTML = `<tr><td colspan="5" class="text-danger small text-center py-3">Gagal memuat data penjualan</td></tr>`;
+                });
+        }
+
+        // ============ SALES DATA FOR SCAN MODAL ============
+        function loadScanSalesData(productId, days = 7) {
+            const loadingDiv = document.getElementById('scan-sales-loading');
+            const contentDiv = document.getElementById('scan-sales-content-data');
+
+            if (!loadingDiv || !contentDiv) {
+                console.error('Scan sales elements not found');
+                return;
+            }
+
+            loadingDiv.style.display = 'block';
+            contentDiv.style.display = 'none';
+
+            fetch(`/api/products/${productId}/sales?days=${days}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to load sales data');
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.error || 'Unknown error');
+
+                    const summary = data.summary;
+                    const dailyData = data.daily_aggregate;
+
+                    // Update summary cards
+                    document.getElementById('scan-sales-total-qty').textContent = number_format(summary.total_quantity);
+                    document.getElementById('scan-sales-total-amount').textContent = 'Rp ' + number_format(Math.round(summary.total_amount));
+                    document.getElementById('scan-sales-total-margin').textContent = 'Rp ' + number_format(Math.round(summary.total_margin));
+                    document.getElementById('scan-sales-transaction-count').textContent = summary.transaction_count;
+
+                    // Render daily data table
+                    const tableBody = document.getElementById('scan-sales-daily-table');
+
+                    if (dailyData.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3 small">Tidak ada data penjualan</td></tr>`;
+                        loadingDiv.style.display = 'none';
+                        contentDiv.style.display = 'block';
+                        return;
+                    }
+
+                    let tableHtml = '';
+                    dailyData.forEach(day => {
+                        const dateObj = new Date(day.date + 'T00:00:00');
+                        const formattedDate = dateObj.toLocaleDateString('id-ID', {
+                            weekday: 'short',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+
+                        tableHtml += `
+                            <tr>
+                                <td style="text-align: left; color: #1e293b;">${formattedDate}</td>
+                                <td style="text-align: center; font-weight: 600; color: #2563eb;">${number_format(day.quantity)}</td>
+                                <td style="text-align: right; font-weight: 600; color: #10b981;">Rp ${number_format(Math.round(day.amount))}</td>
+                                <td style="text-align: right; font-weight: 600; color: #f59e0b;">Rp ${number_format(Math.round(day.margin))}</td>
+                                <td style="text-align: center; font-weight: 600; color: #6b7280;">${day.transactions}</td>
+                            </tr>
+                        `;
+                    });
+
+                    tableBody.innerHTML = tableHtml;
+                    loadingDiv.style.display = 'none';
+                    contentDiv.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error loading sales data:', error);
+                    loadingDiv.style.display = 'none';
+                    contentDiv.style.display = 'block';
+                    const tableBody = document.getElementById('scan-sales-daily-table');
+                    tableBody.innerHTML = `<tr><td colspan="5" class="text-danger small text-center py-3">Gagal memuat data penjualan</td></tr>`;
                 });
         }
 
