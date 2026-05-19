@@ -113,16 +113,16 @@
                                 <div class="cart-item-name">${item.name}</div>
                                 <div class="cart-item-code">Kode: ${item.id}</div>
                             </div>
-                            <div class="cart-item-qty-controls">
-                                <button type="button" class="cart-qty-btn" onclick="changeCartQty('${item.cartKey}', -1)">-</button>
-                                <input type="number" class="cart-qty-input" value="${item.quantity}" min="1" max="${item.stock}" onchange="setCartQty('${item.cartKey}', this.value)">
-                                <button type="button" class="cart-qty-btn" onclick="changeCartQty('${item.cartKey}', 1)">+</button>
+                            <div class="cart-item-meta">
+                                <div class="cart-item-qty-controls">
+                                    <button type="button" class="cart-qty-btn" onclick="changeCartQty('${item.cartKey}', -1)">-</button>
+                                    <input type="number" class="cart-qty-input" value="${item.quantity}" min="1" onchange="setCartQty('${item.cartKey}', this.value)">
+                                    <button type="button" class="cart-qty-btn" onclick="changeCartQty('${item.cartKey}', 1)">+</button>
+                                </div>
+                                <button type="button" class="cart-item-remove" onclick="removeFromCart('${item.cartKey}')">
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
-                            <div class="cart-item-stock text-muted" style="font-size:0.85rem; margin-top:4px;">Stok: ${number_format(item.stock)}</div>
-                            <div class="cart-item-subtotal">Subtotal: Rp ${number_format(item.price * item.quantity)}</div>
-                            <button type="button" class="cart-item-remove" onclick="removeFromCart('${item.cartKey}')">
-                                <i class="fas fa-times"></i>
-                            </button>
                         </div>
                     `;
                 }
@@ -172,8 +172,8 @@
                 qty = cart[cartKey].quantity;
             }
 
-            const maxStock = cart[cartKey].stock || qty;
-            if (qty > maxStock) {
+            const maxStock = cart[cartKey].stock;
+            if (maxStock && qty > maxStock) {
                 alert(`Stock ${cart[cartKey].name} hanya tersedia ${maxStock}`);
                 qty = maxStock;
             }

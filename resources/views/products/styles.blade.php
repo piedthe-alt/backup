@@ -806,30 +806,84 @@
             margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             gap: 12px;
         }
 
         .cart-item-info {
             flex: 1;
+            min-width: 0;
         }
 
         .cart-item-name {
             font-weight: 600;
             color: #1e293b;
             margin-bottom: 6px;
+            word-break: break-word;
         }
 
         .cart-item-code {
             font-size: 0.85rem;
             color: #64748b;
-            margin-bottom: 6px;
         }
 
-        .cart-item-price {
-            font-size: 0.9rem;
-            color: var(--primary-color);
-            font-weight: 600;
+        .cart-item-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            min-width: 150px;
+        }
+
+        .cart-item-qty-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 6px 8px;
+        }
+
+        .cart-qty-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-qty-btn:hover {
+            opacity: 0.9;
+        }
+
+        .cart-qty-input {
+            width: 54px;
+            border: none;
+            text-align: center;
+            font-weight: 700;
+            color: #1f2937;
+            background: transparent;
+        }
+
+        .cart-item-remove {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
         }
 
         .cart-item-qty {
