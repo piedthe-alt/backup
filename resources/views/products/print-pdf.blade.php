@@ -94,7 +94,7 @@
             font-size: 12pt;
             font-weight: 700;
             line-height: 1.2;
-            color: #0f172a;
+            color: #000000;
             text-align: center;
             display: -webkit-box;
             -webkit-line-clamp: 3;
