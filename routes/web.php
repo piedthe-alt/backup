@@ -3008,20 +3008,37 @@ Route::get('/products/print-barcode', function () {
     // Auto-create queue table if not exists in mysql_app
     DB::connection('mysql_app')->statement('CREATE TABLE IF NOT EXISTS barcode_print_queue (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        session_id VARCHAR(255) NULL,
         product_id VARCHAR(50) NOT NULL,
         qty INT NOT NULL DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )');
     
+    // Add session_id column if it doesn't exist
+    $hasSessionId = false;
+    try {
+        $columns = DB::connection('mysql_app')->select("SHOW COLUMNS FROM barcode_print_queue LIKE 'session_id'");
+        $hasSessionId = !empty($columns);
+    } catch (\Exception $e) {}
+
+    if (!$hasSessionId) {
+        try {
+            DB::connection('mysql_app')->statement("ALTER TABLE barcode_print_queue ADD COLUMN session_id VARCHAR(255) NULL AFTER id");
+        } catch (\Exception $e) {}
+    }
+    
     return view('products.print-barcode');
 });
 
 Route::get('/products/print-barcode/pdf', function () {
     $businessName = 'SJ MART';
+    $sessionId = session()->getId();
     
-    // Fetch queue items from mysql_app
-    $queueItems = DB::connection('mysql_app')->table('barcode_print_queue')->get();
+    // Fetch queue items from mysql_app for this session
+    $queueItems = DB::connection('mysql_app')->table('barcode_print_queue')
+        ->where('session_id', $sessionId)
+        ->get();
     $productIds = $queueItems->pluck('product_id')->toArray();
     
     // Fetch products details from mysql (master)
@@ -3077,20 +3094,39 @@ Route::post('/api/barcode-print/save', function (Request $request) {
         // Auto-create queue table if not exists in mysql_app
         DB::connection('mysql_app')->statement('CREATE TABLE IF NOT EXISTS barcode_print_queue (
             id INT AUTO_INCREMENT PRIMARY KEY,
+            session_id VARCHAR(255) NULL,
             product_id VARCHAR(50) NOT NULL,
             qty INT NOT NULL DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )');
 
-        DB::connection('mysql_app')->transaction(function () use ($items) {
-            // Delete all existing items (acts as overwrite) in mysql_app
-            DB::connection('mysql_app')->table('barcode_print_queue')->delete();
+        // Add session_id column if it doesn't exist
+        $hasSessionId = false;
+        try {
+            $columns = DB::connection('mysql_app')->select("SHOW COLUMNS FROM barcode_print_queue LIKE 'session_id'");
+            $hasSessionId = !empty($columns);
+        } catch (\Exception $e) {}
+
+        if (!$hasSessionId) {
+            try {
+                DB::connection('mysql_app')->statement("ALTER TABLE barcode_print_queue ADD COLUMN session_id VARCHAR(255) NULL AFTER id");
+            } catch (\Exception $e) {}
+        }
+
+        $sessionId = session()->getId();
+
+        DB::connection('mysql_app')->transaction(function () use ($items, $sessionId) {
+            // Delete existing items for THIS session only in mysql_app
+            DB::connection('mysql_app')->table('barcode_print_queue')
+                ->where('session_id', $sessionId)
+                ->delete();
             
             // Insert new items
             $insertData = [];
             foreach ($items as $item) {
                 $insertData[] = [
+                    'session_id' => $sessionId,
                     'product_id' => $item['id'],
                     'qty' => $item['qty'] ?? 1,
                     'created_at' => now(),
@@ -3114,14 +3150,32 @@ Route::get('/api/barcode-print/load', function () {
         // Auto-create table if not exists just in case
         DB::connection('mysql_app')->statement('CREATE TABLE IF NOT EXISTS barcode_print_queue (
             id INT AUTO_INCREMENT PRIMARY KEY,
+            session_id VARCHAR(255) NULL,
             product_id VARCHAR(50) NOT NULL,
             qty INT NOT NULL DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )');
 
-        // Fetch queue items from mysql_app
-        $queueItems = DB::connection('mysql_app')->table('barcode_print_queue')->get();
+        // Add session_id column if it doesn't exist
+        $hasSessionId = false;
+        try {
+            $columns = DB::connection('mysql_app')->select("SHOW COLUMNS FROM barcode_print_queue LIKE 'session_id'");
+            $hasSessionId = !empty($columns);
+        } catch (\Exception $e) {}
+
+        if (!$hasSessionId) {
+            try {
+                DB::connection('mysql_app')->statement("ALTER TABLE barcode_print_queue ADD COLUMN session_id VARCHAR(255) NULL AFTER id");
+            } catch (\Exception $e) {}
+        }
+
+        $sessionId = session()->getId();
+
+        // Fetch queue items from mysql_app for this session
+        $queueItems = DB::connection('mysql_app')->table('barcode_print_queue')
+            ->where('session_id', $sessionId)
+            ->get();
         $productIds = $queueItems->pluck('product_id')->toArray();
 
         // Fetch products details from mysql (master)
@@ -3157,5 +3211,17 @@ Route::get('/api/barcode-print/load', function () {
  */
 Route::get('/route', function () {
     return view('routes-sitemap');
+});
+
+Route::get('/clear-all-caches', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        return "✓ All Laravel caches cleared successfully on the remote server!";
+    } catch (\Exception $e) {
+        return "Error clearing cache: " . $e->getMessage();
+    }
 });
 
