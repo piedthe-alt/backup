@@ -20,13 +20,13 @@
 
         /* Page layout */
         .page-container {
-            width: 210mm;
-            height: 297mm;
+            width: 297mm;
+            height: 210mm;
             box-sizing: border-box;
-            padding-top: 7.5mm;
-            padding-bottom: 7.5mm;
-            padding-left: 1.5mm;
-            padding-right: 1.5mm;
+            padding-top: 9.5mm;
+            padding-bottom: 9.5mm;
+            padding-left: 2.5mm;
+            padding-right: 2.5mm;
             background: white;
             margin: 15px auto;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -38,11 +38,12 @@
 
         .label-grid {
             display: grid;
-            grid-template-columns: repeat(7, 42mm);
-            grid-template-rows: repeat(5, 39mm);
-            gap: 0;
-            width: 294mm;
-            height: 195mm;
+            grid-template-columns: repeat(7, 40mm);
+            grid-template-rows: repeat(5, 35mm);
+            column-gap: 2mm;
+            row-gap: 4mm;
+            width: 292mm;
+            height: 191mm;
             box-sizing: border-box;
         }
 
