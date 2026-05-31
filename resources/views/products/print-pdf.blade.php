@@ -51,7 +51,6 @@
         .guide-line-v {
             position: absolute;
             top: 0;
-            bottom: 0;
             width: 0;
             border-left: 0.15mm dotted #7f8c8d;
             pointer-events: none;
@@ -213,6 +212,12 @@
     @endphp
 
     @forelse ($pages as $pageItems)
+        @php
+            $count = count($pageItems);
+            $rowsCount = ceil($count / 5);
+            $colsCount = min($count, 5);
+            $heightVal = 12 + $rowsCount * 39;
+        @endphp
         <div class="page-container">
             <div class="label-grid">
                 @foreach ($pageItems as $item)
@@ -236,18 +241,38 @@
                 
             </div>
 
-            {{-- Assist lines for cutting (spanning the entire page) --}}
-            <div class="guide-line-v" style="left: 42mm;"></div>
-            <div class="guide-line-v" style="left: 84mm;"></div>
-            <div class="guide-line-v" style="left: 126mm;"></div>
-            <div class="guide-line-v" style="left: 168mm;"></div>
+            {{-- Assist lines for cutting (spanning only active rows/columns) --}}
+            @if ($colsCount >= 2)
+                <div class="guide-line-v" style="left: 42mm; height: {{ $heightVal }}mm;"></div>
+            @endif
+            @if ($colsCount >= 3)
+                <div class="guide-line-v" style="left: 84mm; height: {{ $heightVal }}mm;"></div>
+            @endif
+            @if ($colsCount >= 4)
+                <div class="guide-line-v" style="left: 126mm; height: {{ $heightVal }}mm;"></div>
+            @endif
+            @if ($colsCount >= 5)
+                <div class="guide-line-v" style="left: 168mm; height: {{ $heightVal }}mm;"></div>
+            @endif
 
-            <div class="guide-line-h" style="top: 51mm;"></div>
-            <div class="guide-line-h" style="top: 90mm;"></div>
-            <div class="guide-line-h" style="top: 129mm;"></div>
-            <div class="guide-line-h" style="top: 168mm;"></div>
-            <div class="guide-line-h" style="top: 207mm;"></div>
-            <div class="guide-line-h" style="top: 246mm;"></div>
+            @if ($rowsCount >= 1)
+                <div class="guide-line-h" style="top: 51mm;"></div>
+            @endif
+            @if ($rowsCount >= 2)
+                <div class="guide-line-h" style="top: 90mm;"></div>
+            @endif
+            @if ($rowsCount >= 3)
+                <div class="guide-line-h" style="top: 129mm;"></div>
+            @endif
+            @if ($rowsCount >= 4)
+                <div class="guide-line-h" style="top: 168mm;"></div>
+            @endif
+            @if ($rowsCount >= 5)
+                <div class="guide-line-h" style="top: 207mm;"></div>
+            @endif
+            @if ($rowsCount >= 6)
+                <div class="guide-line-h" style="top: 246mm;"></div>
+            @endif
         </div>
     @empty
         <div class="container mt-4 no-print text-center" style="max-width: 297mm;">
