@@ -20,8 +20,8 @@
 
         /* Page layout */
         .page-container {
-            width: 297mm;
-            height: 210mm;
+            width: 210mm;
+            height: 297mm;
             box-sizing: border-box;
             padding-top: 7.5mm;
             padding-bottom: 7.5mm;
@@ -47,8 +47,8 @@
         }
 
         .label-box {
-            width: 42mm;
-            height: 39mm;
+            width: 35mm;
+            height: 40mm;
             border: 0.08mm solid #000000;
             box-sizing: border-box;
             padding-top: 2.2mm;
