@@ -3057,6 +3057,15 @@ Route::post('/api/barcode-print/save', function (Request $request) {
     try {
         $items = $request->input('items', []);
         
+        // Auto-create queue table if not exists in mysql_app
+        DB::connection('mysql_app')->statement('CREATE TABLE IF NOT EXISTS barcode_print_queue (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            product_id VARCHAR(50) NOT NULL,
+            qty INT NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )');
+
         DB::connection('mysql_app')->transaction(function () use ($items) {
             // Delete all existing items (acts as overwrite) in mysql_app
             DB::connection('mysql_app')->table('barcode_print_queue')->delete();
@@ -3066,7 +3075,7 @@ Route::post('/api/barcode-print/save', function (Request $request) {
             foreach ($items as $item) {
                 $insertData[] = [
                     'product_id' => $item['id'],
-                    'qty' => $item['qty'],
+                    'qty' => $item['qty'] ?? 1,
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
