@@ -234,10 +234,6 @@
                     </div>
                 @endforeach
                 
-                {{-- Fill the rest of the grid with empty cutting boxes --}}
-                @for ($i = count($pageItems); $i < 35; $i++)
-                    <div class="label-box empty-box"></div>
-                @endfor
             </div>
 
             {{-- Assist lines for cutting (spanning the entire page) --}}
