@@ -3009,7 +3009,7 @@ Route::get('/products/print-barcode', function () {
 });
 
 Route::get('/products/print-barcode/pdf', function () {
-    $businessName = DB::table('settings')->where('key_name', 'business_name')->value('value') ?? 'SJ MART';
+    $businessName = 'SJ MART';
     return view('products.print-pdf', compact('businessName'));
 });
 
