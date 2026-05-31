@@ -100,7 +100,7 @@
             height: 15mm;
             width: 100%;
             box-sizing: border-box;
-            padding: 2.5mm 1.5mm 2.5mm 1.5mm;
+            padding: 2.5mm 1.5mm 1.5mm 1.5mm;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -151,11 +151,11 @@
         }
 
         .barcode-text {
-            font-size: 5.5pt;
-            font-weight: 600;
+            font-size: 1mm;
+            font-weight: 800;
             margin-top: 0.2mm;
-            letter-spacing: 0.8px;
-            color: #475569;
+            letter-spacing: 0.5px;
+            color: #000000;
             text-transform: uppercase;
             white-space: nowrap;
             overflow: hidden;
