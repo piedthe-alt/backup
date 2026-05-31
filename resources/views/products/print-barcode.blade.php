@@ -300,6 +300,39 @@
                 }
             });
 
+            // Listen to Enter keypress (e.g. from barcode scanner)
+            searchInput.addEventListener('keydown', async function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    
+                    const query = this.value.trim();
+                    if (query.length === 0) return;
+                    
+                    try {
+                        const response = await fetch(`/api/search-products?keyword=${encodeURIComponent(query)}`);
+                        const products = await response.json();
+                        
+                        // Look for an exact match by barcode / product ID
+                        const exactMatch = products.find(p => p.id.toLowerCase() === query.toLowerCase());
+                        
+                        if (exactMatch) {
+                            addProductToPrintList(exactMatch, true);
+                        } else if (products.length === 1) {
+                            addProductToPrintList(products[0], true);
+                        }
+                        
+                        // Clear input, hide suggestions and re-focus search bar
+                        this.value = '';
+                        suggestionsContainer.style.display = 'none';
+                        this.focus();
+                    } catch (error) {
+                        console.error('Error auto-adding product:', error);
+                        this.value = '';
+                        this.focus();
+                    }
+                }
+            });
+
             // Close suggestions on click outside
             document.addEventListener('click', function(e) {
                 if (!searchInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
@@ -308,10 +341,12 @@
             });
         }
 
-        function addProductToPrintList(product) {
+        function addProductToPrintList(product, silentIfExists = false) {
             const exists = printList.some(item => item.id === product.id);
             if (exists) {
-                alert('Produk ini sudah ada di daftar cetak!');
+                if (!silentIfExists) {
+                    alert('Produk ini sudah ada di daftar cetak!');
+                }
                 return;
             }
             printList.push({
