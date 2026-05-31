@@ -81,7 +81,7 @@
             height: 15mm;
             width: 100%;
             box-sizing: border-box;
-            padding: 1.5mm 2.5mm 2.5mm 2.5mm;
+            padding: 1mm 2.5mm 3.5mm 2.5mm;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
