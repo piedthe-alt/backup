@@ -233,20 +233,20 @@
                 @for ($i = count($pageItems); $i < 35; $i++)
                     <div class="label-box empty-box"></div>
                 @endfor
-
-                {{-- Assist lines for cutting --}}
-                <div class="guide-line-v" style="left: 41mm;"></div>
-                <div class="guide-line-v" style="left: 83mm;"></div>
-                <div class="guide-line-v" style="left: 125mm;"></div>
-                <div class="guide-line-v" style="left: 167mm;"></div>
-
-                <div class="guide-line-h" style="top: 37mm;"></div>
-                <div class="guide-line-h" style="top: 76mm;"></div>
-                <div class="guide-line-h" style="top: 115mm;"></div>
-                <div class="guide-line-h" style="top: 154mm;"></div>
-                <div class="guide-line-h" style="top: 193mm;"></div>
-                <div class="guide-line-h" style="top: 232mm;"></div>
             </div>
+
+            {{-- Assist lines for cutting (spanning the entire page) --}}
+            <div class="guide-line-v" style="left: 42mm;"></div>
+            <div class="guide-line-v" style="left: 84mm;"></div>
+            <div class="guide-line-v" style="left: 126mm;"></div>
+            <div class="guide-line-v" style="left: 168mm;"></div>
+
+            <div class="guide-line-h" style="top: 51mm;"></div>
+            <div class="guide-line-h" style="top: 90mm;"></div>
+            <div class="guide-line-h" style="top: 129mm;"></div>
+            <div class="guide-line-h" style="top: 168mm;"></div>
+            <div class="guide-line-h" style="top: 207mm;"></div>
+            <div class="guide-line-h" style="top: 246mm;"></div>
         </div>
     @empty
         <div class="container mt-4 no-print text-center" style="max-width: 297mm;">
