@@ -20,6 +20,20 @@
             padding-bottom: 3rem;
         }
 
+        .text-muted {
+            color: #94a3b8 !important;
+        }
+
+        small.text-muted {
+            color: #cbd5e1 !important;
+            opacity: 0.85;
+        }
+
+        .route-card p.text-muted {
+            color: #94a3b8 !important;
+            opacity: 0.9;
+        }
+
         .code-font {
             font-family: 'Fira Code', monospace;
         }

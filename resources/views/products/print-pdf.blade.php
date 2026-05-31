@@ -141,22 +141,20 @@
     {{-- THE LABELS GRID --}}
     <div class="label-grid" id="label-container">
         @forelse ($items as $item)
-            @for ($i = 0; $i < $item->qty; $i++)
-                @php
-                    // Format code for Code 39: alphanumeric only, wrapped in asterisks
-                    $cleanCode = preg_replace('/[^a-zA-Z0-9]/', '', $item->id);
-                    $barcodeValue = "*{$cleanCode}*";
-                @endphp
-                <div class="label-box">
-                    <div class="store-name">{{ $businessName }}</div>
-                    <div class="product-name">{{ $item->name }}</div>
-                    <div class="product-price">Rp {{ number_format($item->price, 0, ',', '.') }}</div>
-                    <div class="barcode-wrapper">
-                        <div class="barcode-font">{{ $barcodeValue }}</div>
-                        <div class="barcode-text">{{ $item->id }}</div>
-                    </div>
+            @php
+                // Format code for Code 39: alphanumeric only, wrapped in asterisks
+                $cleanCode = preg_replace('/[^a-zA-Z0-9]/', '', $item->id);
+                $barcodeValue = "*{$cleanCode}*";
+            @endphp
+            <div class="label-box">
+                <div class="store-name">{{ $businessName }}</div>
+                <div class="product-name">{{ $item->name }}</div>
+                <div class="product-price">Rp {{ number_format($item->price, 0, ',', '.') }}</div>
+                <div class="barcode-wrapper">
+                    <div class="barcode-font">{{ $barcodeValue }}</div>
+                    <div class="barcode-text">{{ $item->id }}</div>
                 </div>
-            @endfor
+            </div>
         @empty
             <div class="alert alert-warning w-100 mt-4 no-print text-center">
                 <i class="fas fa-exclamation-triangle me-2"></i>Tidak ada data label untuk dicetak. Silakan pilih produk terlebih dahulu.

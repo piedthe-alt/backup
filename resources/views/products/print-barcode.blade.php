@@ -119,10 +119,9 @@
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="table-light">
                                         <tr>
-                                            <th style="width: 20%">Kode Barang</th>
-                                            <th style="width: 40%">Nama Barang</th>
-                                            <th style="width: 15%">Harga Barang</th>
-                                            <th style="width: 15%">Jumlah Label</th>
+                                            <th style="width: 25%">Kode Barang</th>
+                                            <th style="width: 45%">Nama Barang</th>
+                                            <th style="width: 20%">Harga Barang</th>
                                             <th style="width: 10%" class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
@@ -133,7 +132,7 @@
                             </div>
 
                             <div class="d-flex justify-content-end gap-3 flex-wrap">
-                                <button class="btn btn-action btn-danger btn-outline-danger bg-transparent text-danger border-danger px-4" onclick="clearAll()">
+                                <button class="btn btn-action btn-danger px-4" onclick="clearAll()">
                                     <i class="fas fa-trash-alt"></i> Hapus Semua
                                 </button>
                                 <button class="btn btn-action btn-success px-4" onclick="saveToDatabase(true)">
@@ -172,7 +171,7 @@
                         id: item.id,
                         name: item.name,
                         price: item.price,
-                        qty: item.qty
+                        qty: 1
                     }));
                 }
                 updatePrintTable();
@@ -273,17 +272,17 @@
         }
 
         function addProductToPrintList(product) {
-            const existingIndex = printList.findIndex(item => item.id === product.id);
-            if (existingIndex > -1) {
-                printList[existingIndex].qty += 1;
-            } else {
-                printList.push({
-                    id: product.id,
-                    name: product.name,
-                    price: product.salesprice1,
-                    qty: 1
-                });
+            const exists = printList.some(item => item.id === product.id);
+            if (exists) {
+                alert('Produk ini sudah ada di daftar cetak!');
+                return;
             }
+            printList.push({
+                id: product.id,
+                name: product.name,
+                price: product.salesprice1,
+                qty: 1
+            });
             updatePrintTable();
         }
 
@@ -311,13 +310,6 @@
                     <td><strong class="text-primary font-monospace">${item.id}</strong></td>
                     <td class="fw-semibold">${item.name}</td>
                     <td class="text-success fw-bold">Rp ${formatNumber(item.price)}</td>
-                    <td>
-                        <div class="quantity-selector m-0" style="width: 120px;">
-                            <button class="qty-btn" onclick="adjustQty(${index}, -1)">-</button>
-                            <input type="number" class="qty-input w-50 border-0" value="${item.qty}" min="1" onchange="setQty(${index}, this.value)">
-                            <button class="qty-btn" onclick="adjustQty(${index}, 1)">+</button>
-                        </div>
-                    </td>
                     <td class="text-center">
                         <button class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 py-1 px-2 border-0" onclick="removeItem(${index})">
                             <i class="fas fa-trash-alt"></i> Hapus
@@ -328,16 +320,6 @@
             });
             
             localStorage.setItem('barcode_print_list', JSON.stringify(printList));
-        }
-
-        function adjustQty(index, delta) {
-            printList[index].qty = Math.max(1, printList[index].qty + delta);
-            updatePrintTable();
-        }
-
-        function setQty(index, value) {
-            printList[index].qty = Math.max(1, parseInt(value) || 1);
-            updatePrintTable();
         }
 
         function removeItem(index) {
