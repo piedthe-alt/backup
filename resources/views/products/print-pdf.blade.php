@@ -73,18 +73,10 @@
             height: 35mm;
             border: 0.08mm solid #000000;
             box-sizing: border-box;
-            padding-top: 2.2mm;
-            padding-bottom: 2.2mm;
-            padding-left: 1mm;
-            padding-right: 1mm;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            text-align: center;
             overflow: hidden;
             background: white;
-            position: relative;
         }
 
         .empty-box {
@@ -92,42 +84,51 @@
             border: 0.08mm solid #000000;
         }
 
-        .store-name {
-            font-size: 5.5pt;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            border-bottom: 0.15mm solid #e2e8f0;
+        .label-top {
+            height: 20mm;
             width: 100%;
-            padding-bottom: 0.4mm;
-            margin-bottom: 0.5mm;
-            color: #0f172a;
-            white-space: nowrap;
+            box-sizing: border-box;
+            padding: 2.2mm 1.5mm 1mm 1.5mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
-            text-overflow: ellipsis;
+            border-bottom: 0.08mm dashed #e2e8f0;
+        }
+
+        .label-bottom {
+            height: 15mm;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 1mm 1.5mm 1.5mm 1.5mm;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            overflow: hidden;
         }
 
         .product-name {
-            font-size: 7pt;
-            font-weight: 600;
-            line-height: 1.15;
-            margin-bottom: auto;
-            color: #1e293b;
+            font-size: 8.5pt;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #0f172a;
+            text-align: center;
             display: -webkit-box;
-            -webkit-line-clamp: 2;
+            -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            width: 100%;
-            height: 8.2mm;
             text-overflow: ellipsis;
+            width: 100%;
         }
 
         .product-price {
             font-size: 11pt;
             font-weight: 700;
-            margin: 0.2mm 0;
             color: #000000;
             white-space: nowrap;
+            margin: 0;
+            line-height: 1;
         }
 
         .barcode-wrapper {
@@ -140,17 +141,19 @@
 
         .barcode-font {
             font-family: 'Libre Barcode 39', cursive;
-            font-size: 25pt;
-            line-height: 0.75;
+            font-size: 20pt;
+            line-height: 0.7;
             margin: 0;
             padding: 0;
             color: black;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         .barcode-text {
-            font-size: 5.5pt;
+            font-size: 5pt;
             font-weight: 600;
-            margin-top: -0.5mm;
+            margin-top: 0.2mm;
             letter-spacing: 0.8px;
             color: #475569;
             text-transform: uppercase;
@@ -219,12 +222,15 @@
                         $barcodeValue = "*{$cleanCode}*";
                     @endphp
                     <div class="label-box">
-                        <div class="store-name">{{ $businessName }}</div>
-                        <div class="product-name">{{ $item->name }}</div>
-                        <div class="product-price">Rp {{ number_format($item->price, 0, ',', '.') }}</div>
-                        <div class="barcode-wrapper">
-                            <div class="barcode-font">{{ $barcodeValue }}</div>
-                            <div class="barcode-text">{{ $item->id }}</div>
+                        <div class="label-top">
+                            <div class="product-name">{{ $item->name }}</div>
+                        </div>
+                        <div class="label-bottom">
+                            <div class="product-price">Rp {{ number_format($item->price, 0, ',', '.') }}</div>
+                            <div class="barcode-wrapper">
+                                <div class="barcode-font">{{ $barcodeValue }}</div>
+                                <div class="barcode-text">{{ $item->id }}</div>
+                            </div>
                         </div>
                     </div>
                 @endforeach
