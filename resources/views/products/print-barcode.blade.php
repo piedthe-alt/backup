@@ -172,6 +172,11 @@
         async function checkSavedData() {
             try {
                 const response = await fetch('/api/barcode-print/load');
+                if (!response.ok) {
+                    const errData = await response.json();
+                    console.error('Error checking saved data:', errData.error || response.statusText);
+                    return;
+                }
                 const data = await response.json();
                 const btnLoad = document.getElementById('btn-load-db');
                 if (data && Array.isArray(data) && data.length > 0) {
@@ -187,6 +192,11 @@
         async function loadFromDatabase() {
             try {
                 const response = await fetch('/api/barcode-print/load');
+                if (!response.ok) {
+                    const errData = await response.json();
+                    alert('Gagal memuat data dari database: ' + (errData.error || response.statusText));
+                    return;
+                }
                 const data = await response.json();
                 if (data && Array.isArray(data) && data.length > 0) {
                     if (confirm('Apakah Anda yakin ingin memuat data terakhir dari database? Ini akan menimpa daftar saat ini.')) {

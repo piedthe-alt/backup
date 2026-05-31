@@ -3019,13 +3019,30 @@ Route::get('/products/print-barcode', function () {
 
 Route::get('/products/print-barcode/pdf', function () {
     $businessName = 'SJ MART';
-    $masterDb = config('database.connections.mysql.database');
     
-    // Fetch items directly from queue table in mysql_app
-    $items = DB::connection('mysql_app')->table('barcode_print_queue')
-        ->join(DB::raw("{$masterDb}.product as product"), 'barcode_print_queue.product_id', '=', 'product.id')
-        ->select('product.id', 'product.name', 'product.salesprice1 as price', 'barcode_print_queue.qty')
-        ->get();
+    // Fetch queue items from mysql_app
+    $queueItems = DB::connection('mysql_app')->table('barcode_print_queue')->get();
+    $productIds = $queueItems->pluck('product_id')->toArray();
+    
+    // Fetch products details from mysql (master)
+    $products = DB::table('product')
+        ->whereIn('id', $productIds)
+        ->select('id', 'name', 'salesprice1 as price')
+        ->get()
+        ->keyBy('id');
+        
+    $items = [];
+    foreach ($queueItems as $qItem) {
+        if (isset($products[$qItem->product_id])) {
+            $p = $products[$qItem->product_id];
+            $items[] = (object)[
+                'id' => $p->id,
+                'name' => $p->name,
+                'price' => $p->price,
+                'qty' => $qItem->qty
+            ];
+        }
+    }
 
     return view('products.print-pdf', compact('businessName', 'items'));
 });
@@ -3103,12 +3120,29 @@ Route::get('/api/barcode-print/load', function () {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )');
 
-        $masterDb = config('database.connections.mysql.database');
+        // Fetch queue items from mysql_app
+        $queueItems = DB::connection('mysql_app')->table('barcode_print_queue')->get();
+        $productIds = $queueItems->pluck('product_id')->toArray();
 
-        $items = DB::connection('mysql_app')->table('barcode_print_queue')
-            ->join(DB::raw("{$masterDb}.product as product"), 'barcode_print_queue.product_id', '=', 'product.id')
-            ->select('product.id', 'product.name', 'product.salesprice1 as price', 'barcode_print_queue.qty')
-            ->get();
+        // Fetch products details from mysql (master)
+        $products = DB::table('product')
+            ->whereIn('id', $productIds)
+            ->select('id', 'name', 'salesprice1 as price')
+            ->get()
+            ->keyBy('id');
+
+        $items = [];
+        foreach ($queueItems as $qItem) {
+            if (isset($products[$qItem->product_id])) {
+                $p = $products[$qItem->product_id];
+                $items[] = [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'price' => $p->price,
+                    'qty' => $qItem->qty
+                ];
+            }
+        }
             
         return response()->json($items);
     } catch (\Exception $e) {
