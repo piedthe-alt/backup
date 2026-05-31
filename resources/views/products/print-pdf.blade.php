@@ -20,13 +20,13 @@
 
         /* Page layout */
         .page-container {
-            width: 297mm;
-            height: 210mm;
+            width: 210mm;
+            height: 297mm;
             box-sizing: border-box;
-            padding-top: 9.5mm;
-            padding-bottom: 9.5mm;
-            padding-left: 2.5mm;
-            padding-right: 2.5mm;
+            padding-top: 14mm;
+            padding-bottom: 14mm;
+            padding-left: 1mm;
+            padding-right: 1mm;
             background: white;
             margin: 15px auto;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -38,12 +38,12 @@
 
         .label-grid {
             display: grid;
-            grid-template-columns: repeat(7, 40mm);
-            grid-template-rows: repeat(5, 35mm);
+            grid-template-columns: repeat(5, 40mm);
+            grid-template-rows: repeat(7, 35mm);
             column-gap: 2mm;
             row-gap: 4mm;
-            width: 292mm;
-            height: 191mm;
+            width: 208mm;
+            height: 269mm;
             box-sizing: border-box;
         }
 
@@ -142,7 +142,7 @@
         /* Printable area override */
         @media print {
             @page {
-                size: A4 landscape;
+                size: A4 portrait;
                 margin: 0;
             }
 
@@ -168,10 +168,10 @@
 <body>
 
     {{-- PRINT BAR HEADER (VISIBLE ON SCREEN ONLY) --}}
-    <div class="no-print container-fluid mb-4 py-3 bg-white border border-bottom shadow-sm rounded-3 d-flex justify-content-between align-items-center" style="max-width: 297mm; margin-top: 15px;">
+    <div class="no-print container-fluid mb-4 py-3 bg-white border border-bottom shadow-sm rounded-3 d-flex justify-content-between align-items-center" style="max-width: 210mm; margin-top: 15px;">
         <div>
-            <h5 class="fw-bold mb-1"><i class="fas fa-print me-2 text-primary"></i>Pratinjau Cetak Label Harga (A4 Landscape)</h5>
-            <small class="text-muted">Ukuran label: 4.2cm x 3.9cm (Margin: Atas-Bawah 2mm, Kiri-Kanan 1mm). Total 35 label/lembar.</small>
+            <h5 class="fw-bold mb-1"><i class="fas fa-print me-2 text-primary"></i>Pratinjau Cetak Label Harga (A4 Portrait)</h5>
+            <small class="text-muted">Ukuran label: 4.0cm x 3.5cm (Margin: Atas-Bawah 2mm, Kiri-Kanan 1mm). Total 35 label/lembar.</small>
         </div>
         <div class="d-flex gap-2">
             <button class="btn btn-secondary py-2 px-3" onclick="window.close()">
