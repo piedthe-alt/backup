@@ -45,6 +45,27 @@
             width: 208mm;
             height: 269mm;
             box-sizing: border-box;
+            position: relative;
+        }
+
+        .guide-line-v {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 0;
+            border-left: 0.15mm dotted #7f8c8d;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .guide-line-h {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 0;
+            border-top: 0.15mm dotted #7f8c8d;
+            pointer-events: none;
+            z-index: 5;
         }
 
         .label-box {
@@ -212,6 +233,19 @@
                 @for ($i = count($pageItems); $i < 35; $i++)
                     <div class="label-box empty-box"></div>
                 @endfor
+
+                {{-- Assist lines for cutting --}}
+                <div class="guide-line-v" style="left: 41mm;"></div>
+                <div class="guide-line-v" style="left: 83mm;"></div>
+                <div class="guide-line-v" style="left: 125mm;"></div>
+                <div class="guide-line-v" style="left: 167mm;"></div>
+
+                <div class="guide-line-h" style="top: 37mm;"></div>
+                <div class="guide-line-h" style="top: 76mm;"></div>
+                <div class="guide-line-h" style="top: 115mm;"></div>
+                <div class="guide-line-h" style="top: 154mm;"></div>
+                <div class="guide-line-h" style="top: 193mm;"></div>
+                <div class="guide-line-h" style="top: 232mm;"></div>
             </div>
         </div>
     @empty
