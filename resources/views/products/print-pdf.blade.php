@@ -47,8 +47,8 @@
         }
 
         .label-box {
-            width: 35mm;
-            height: 40mm;
+            width: 40mm;
+            height: 35mm;
             border: 0.08mm solid #000000;
             box-sizing: border-box;
             padding-top: 2.2mm;
