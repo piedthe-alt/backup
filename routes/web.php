@@ -2998,3 +2998,41 @@ Route::get('/api/products/{productId}/sales', function (Request $request, $produ
         ], 500);
     }
 });
+
+/**
+ * ============================================================================
+ * PRINT BARCODE LABEL ROUTE
+ * ============================================================================
+ */
+Route::get('/products/print-barcode', function () {
+    return view('products.print-barcode');
+});
+
+Route::get('/products/print-barcode/pdf', function () {
+    $businessName = DB::table('settings')->where('key_name', 'business_name')->value('value') ?? 'SJ MART';
+    return view('products.print-pdf', compact('businessName'));
+});
+
+Route::get('/api/search-products', function (Request $request) {
+    $keyword = $request->query('keyword');
+    if (!$keyword) {
+        return response()->json([]);
+    }
+
+    try {
+        $products = DB::table('product')
+            ->select('id', 'name', 'salesprice1')
+            ->where('isactive', 1)
+            ->where(function ($q) use ($keyword) {
+                $q->where('id', 'like', "%{$keyword}%")
+                  ->orWhere('name', 'like', "%{$keyword}%");
+            })
+            ->limit(20)
+            ->get();
+
+        return response()->json($products);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+

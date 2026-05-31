@@ -37,6 +37,11 @@
                     <i class="fas fa-shopping-bag"></i> Pesanan Shopee
                 </a>
 
+                <!-- TOMBOL CETAK BARCODE -->
+                <a href="/products/print-barcode" class="btn btn-action btn-primary">
+                    <i class="fas fa-barcode"></i> Cetak Barcode
+                </a>
+
                 {{-- <button class="btn btn-action btn-success" onclick="startScanner()">
                     <i class="fas fa-camera"></i> Scan
                 </button> --}}
