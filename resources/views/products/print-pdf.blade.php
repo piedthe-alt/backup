@@ -49,24 +49,6 @@
             margin: 0 auto;
         }
 
-        .guide-line-v {
-            position: absolute;
-            top: 14mm;
-            width: 0;
-            border-left: 0.15mm dotted #7f8c8d;
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        .guide-line-h {
-            position: absolute;
-            left: 1mm;
-            height: 0;
-            border-top: 0.15mm dotted #7f8c8d;
-            pointer-events: none;
-            z-index: 5;
-        }
-
         .label-box {
             width: 40mm;
             height: 35mm;
@@ -243,36 +225,6 @@
                 @endforeach
 
             </div>
-
-            {{-- Assist lines for cutting (spanning only active rows/columns) --}}
-            @if ($colsCount >= 2)
-                <div class="guide-line-v" style="left: 42mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
-            @endif
-            @if ($colsCount >= 3)
-                <div class="guide-line-v" style="left: 84mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
-            @endif
-            @if ($colsCount >= 4)
-                <div class="guide-line-v" style="left: 126mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
-            @endif
-
-            @if ($rowsCount >= 1)
-                <div class="guide-line-h" style="top: 51mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
-            @endif
-            @if ($rowsCount >= 2)
-                <div class="guide-line-h" style="top: 90mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
-            @endif
-            @if ($rowsCount >= 3)
-                <div class="guide-line-h" style="top: 129mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
-            @endif
-            @if ($rowsCount >= 4)
-                <div class="guide-line-h" style="top: 168mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
-            @endif
-            @if ($rowsCount >= 5)
-                <div class="guide-line-h" style="top: 207mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
-            @endif
-            @if ($rowsCount >= 6)
-                <div class="guide-line-h" style="top: 246mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
-            @endif
         </div>
     @empty
         <div class="container mt-4 no-print text-center" style="max-width: 297mm;">
