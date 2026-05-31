@@ -184,7 +184,7 @@
 
     {{-- THE LABELS GRID --}}
     @php
-        $pages = $items->chunk(35);
+        $pages = collect($items)->chunk(35);
     @endphp
 
     @forelse ($pages as $pageItems)
