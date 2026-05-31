@@ -84,7 +84,7 @@
             padding: 2.5mm 2.5mm 1.5mm 2.5mm;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: space-between;
             align-items: center;
             overflow: hidden;
         }
