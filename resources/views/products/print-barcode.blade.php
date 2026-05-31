@@ -136,6 +136,9 @@
                                 <button class="btn btn-action btn-danger btn-outline-danger bg-transparent text-danger border-danger px-4" onclick="clearAll()">
                                     <i class="fas fa-trash-alt"></i> Hapus Semua
                                 </button>
+                                <button class="btn btn-action btn-success px-4" onclick="saveToDatabase(true)">
+                                    <i class="fas fa-save"></i> Simpan Daftar
+                                </button>
                                 <button class="btn btn-action btn-primary px-5 shadow" onclick="printLabels()">
                                     <i class="fas fa-print"></i> Cetak Label (PDF)
                                 </button>
@@ -151,14 +154,63 @@
 
     </div>
 
-    {{-- Script logic for search, local storage list, and print --}}
+    {{-- Script logic for search, database sync, and print --}}
     <script>
-        let printList = JSON.parse(localStorage.getItem('barcode_print_list')) || [];
+        let printList = [];
 
         document.addEventListener('DOMContentLoaded', () => {
-            updatePrintTable();
+            loadFromDatabase();
             setupSearch();
         });
+
+        async function loadFromDatabase() {
+            try {
+                const response = await fetch('/api/barcode-print/load');
+                const data = await response.json();
+                if (data && Array.isArray(data)) {
+                    printList = data.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        qty: item.qty
+                    }));
+                }
+                updatePrintTable();
+            } catch (error) {
+                console.error('Error loading print list from database:', error);
+                // Fallback to local storage if API fails
+                printList = JSON.parse(localStorage.getItem('barcode_print_list')) || [];
+                updatePrintTable();
+            }
+        }
+
+        async function saveToDatabase(showAlert = true) {
+            try {
+                const response = await fetch('/api/barcode-print/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ items: printList })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    if (showAlert) {
+                        alert('✓ Daftar cetak berhasil disimpan ke database!');
+                    }
+                    return true;
+                } else {
+                    console.error('Failed to save:', result.error);
+                    alert('Gagal menyimpan ke database: ' + result.error);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error saving print list:', error);
+                alert('Terjadi kesalahan saat menghubungkan ke database.');
+                return false;
+            }
+        }
 
         function setupSearch() {
             const searchInput = document.getElementById('product-search');
@@ -300,17 +352,18 @@
             }
         }
 
-        function printLabels() {
+        async function printLabels() {
             if (printList.length === 0) {
                 alert('Daftar cetak kosong!');
                 return;
             }
             
-            // Save to localStorage for the print window to consume
-            localStorage.setItem('barcode_print_data', JSON.stringify(printList));
-            
-            // Open print preview in a new window
-            window.open('/products/print-barcode/pdf', '_blank');
+            // Auto-save to database first
+            const saved = await saveToDatabase(false);
+            if (saved) {
+                // Open print preview in a new window
+                window.open('/products/print-barcode/pdf', '_blank');
+            }
         }
 
         function formatNumber(num) {

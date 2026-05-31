@@ -3005,12 +3005,28 @@ Route::get('/api/products/{productId}/sales', function (Request $request, $produ
  * ============================================================================
  */
 Route::get('/products/print-barcode', function () {
+    // Auto-create queue table if not exists
+    DB::statement('CREATE TABLE IF NOT EXISTS barcode_print_queue (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        product_id VARCHAR(50) NOT NULL,
+        qty INT NOT NULL DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )');
+    
     return view('products.print-barcode');
 });
 
 Route::get('/products/print-barcode/pdf', function () {
     $businessName = 'SJ MART';
-    return view('products.print-pdf', compact('businessName'));
+    
+    // Fetch items directly from queue table
+    $items = DB::table('barcode_print_queue')
+        ->join('product', 'barcode_print_queue.product_id', '=', 'product.id')
+        ->select('product.id', 'product.name', 'product.salesprice1 as price', 'barcode_print_queue.qty')
+        ->get();
+
+    return view('products.print-pdf', compact('businessName', 'items'));
 });
 
 Route::get('/api/search-products', function (Request $request) {
@@ -3034,5 +3050,66 @@ Route::get('/api/search-products', function (Request $request) {
     } catch (\Exception $e) {
         return response()->json(['error' => $e->getMessage()], 500);
     }
+});
+
+Route::post('/api/barcode-print/save', function (Request $request) {
+    try {
+        $items = $request->input('items', []);
+        
+        DB::transaction(function () use ($items) {
+            // Delete all existing items (acts as overwrite)
+            DB::table('barcode_print_queue')->delete();
+            
+            // Insert new items
+            $insertData = [];
+            foreach ($items as $item) {
+                $insertData[] = [
+                    'product_id' => $item['id'],
+                    'qty' => $item['qty'],
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            }
+            
+            if (!empty($insertData)) {
+                DB::table('barcode_print_queue')->insert($insertData);
+            }
+        });
+        
+        return response()->json(['success' => true]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});
+
+Route::get('/api/barcode-print/load', function () {
+    try {
+        // Auto-create table if not exists just in case
+        DB::statement('CREATE TABLE IF NOT EXISTS barcode_print_queue (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            product_id VARCHAR(50) NOT NULL,
+            qty INT NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )');
+
+        $items = DB::table('barcode_print_queue')
+            ->join('product', 'barcode_print_queue.product_id', '=', 'product.id')
+            ->select('product.id', 'product.name', 'product.salesprice1 as price', 'barcode_print_queue.qty')
+            ->get();
+            
+        return response()->json($items);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+/**
+ * ============================================================================
+ * PRIVATE DEVELOPER SITEMAP ROUTE
+ * ============================================================================
+ */
+Route::get('/route', function () {
+    return view('routes-sitemap');
 });
 
