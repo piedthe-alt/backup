@@ -68,7 +68,10 @@
                                 Cari produk, kumpulkan daftar cetak, dan hasilkan lembar print label harga dengan barcode.
                             </small>
                         </div>
-                        <div>
+                        <div class="d-flex gap-2 align-items-center">
+                            <button id="btn-load-db" class="btn btn-action btn-info text-white border-0" style="display: none;" onclick="loadFromDatabase()">
+                                <i class="fas fa-download"></i> Muat Data Terakhir
+                            </button>
                             <a href="/" class="btn btn-action btn-secondary bg-white text-dark border-0">
                                 <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
                             </a>
@@ -158,28 +161,50 @@
         let printList = [];
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadFromDatabase();
+            checkSavedData();
             setupSearch();
+            
+            // Load session state from localStorage by default
+            printList = JSON.parse(localStorage.getItem('barcode_print_list')) || [];
+            updatePrintTable();
         });
+
+        async function checkSavedData() {
+            try {
+                const response = await fetch('/api/barcode-print/load');
+                const data = await response.json();
+                const btnLoad = document.getElementById('btn-load-db');
+                if (data && Array.isArray(data) && data.length > 0) {
+                    if (btnLoad) btnLoad.style.display = 'inline-flex';
+                } else {
+                    if (btnLoad) btnLoad.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking saved data:', error);
+            }
+        }
 
         async function loadFromDatabase() {
             try {
                 const response = await fetch('/api/barcode-print/load');
                 const data = await response.json();
-                if (data && Array.isArray(data)) {
-                    printList = data.map(item => ({
-                        id: item.id,
-                        name: item.name,
-                        price: item.price,
-                        qty: 1
-                    }));
+                if (data && Array.isArray(data) && data.length > 0) {
+                    if (confirm('Apakah Anda yakin ingin memuat data terakhir dari database? Ini akan menimpa daftar saat ini.')) {
+                        printList = data.map(item => ({
+                            id: item.id,
+                            name: item.name,
+                            price: item.price,
+                            qty: 1
+                        }));
+                        updatePrintTable();
+                        alert('✓ Berhasil memuat data terakhir dari database!');
+                    }
+                } else {
+                    alert('Tidak ada data tersimpan di database.');
                 }
-                updatePrintTable();
             } catch (error) {
                 console.error('Error loading print list from database:', error);
-                // Fallback to local storage if API fails
-                printList = JSON.parse(localStorage.getItem('barcode_print_list')) || [];
-                updatePrintTable();
+                alert('Gagal memuat data dari database.');
             }
         }
 
@@ -198,6 +223,8 @@
                     if (showAlert) {
                         alert('✓ Daftar cetak berhasil disimpan ke database!');
                     }
+                    // Refresh visibility of load button after saving
+                    checkSavedData();
                     return true;
                 } else {
                     console.error('Failed to save:', result.error);
