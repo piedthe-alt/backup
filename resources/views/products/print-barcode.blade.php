@@ -359,15 +359,43 @@
             localStorage.setItem('barcode_print_list', JSON.stringify(printList));
         }
 
-        function removeItem(index) {
+        async function removeItem(index) {
+            const item = printList[index];
             printList.splice(index, 1);
             updatePrintTable();
+            
+            try {
+                await fetch('/api/barcode-print/delete-item', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ product_id: item.id })
+                });
+                checkSavedData();
+            } catch (error) {
+                console.error('Error deleting item from DB:', error);
+            }
         }
 
-        function clearAll() {
+        async function clearAll() {
             if (confirm('Apakah Anda yakin ingin mengosongkan seluruh daftar cetak?')) {
                 printList = [];
                 updatePrintTable();
+                
+                try {
+                    await fetch('/api/barcode-print/clear-all', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    });
+                    checkSavedData();
+                } catch (error) {
+                    console.error('Error clearing all from DB:', error);
+                }
             }
         }
 
