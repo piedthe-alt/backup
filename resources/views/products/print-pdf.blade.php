@@ -38,14 +38,15 @@
 
         .label-grid {
             display: grid;
-            grid-template-columns: repeat(4, 50mm);
+            grid-template-columns: repeat(4, 40mm);
             grid-template-rows: repeat(7, 35mm);
             column-gap: 2mm;
             row-gap: 4mm;
-            width: 206mm;
+            width: 166mm;
             height: 269mm;
             box-sizing: border-box;
             position: relative;
+            margin: 0 auto;
         }
 
         .guide-line-v {
@@ -245,26 +246,26 @@
 
             {{-- Assist lines for cutting (spanning only active rows/columns) --}}
             @if ($colsCount >= 2)
-                <div class="guide-line-v" style="left: 52mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
+                <div class="guide-line-v" style="left: 42mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
             @endif
             @if ($colsCount >= 3)
-                <div class="guide-line-v" style="left: 104mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
+                <div class="guide-line-v" style="left: 84mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
             @endif
             @if ($colsCount >= 4)
-                <div class="guide-line-v" style="left: 156mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
+                <div class="guide-line-v" style="left: 126mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
             @endif
 
             @if ($rowsCount >= 1)
-                <div class="guide-line-h" style="top: 51mm; width: {{ ($colsCount * 52) - 2 }}mm;"></div>
+                <div class="guide-line-h" style="top: 51mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
             @endif
             @if ($rowsCount >= 2)
-                <div class="guide-line-h" style="top: 90mm; width: {{ ($colsCount * 52) - 2 }}mm;"></div>
+                <div class="guide-line-h" style="top: 90mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
             @endif
             @if ($rowsCount >= 3)
-                <div class="guide-line-h" style="top: 129mm; width: {{ ($colsCount * 52) - 2 }}mm;"></div>
+                <div class="guide-line-h" style="top: 129mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
             @endif
             @if ($rowsCount >= 4)
-                <div class="guide-line-h" style="top: 168mm; width: {{ ($colsCount * 52) - 2 }}mm;"></div>
+                <div class="guide-line-h" style="top: 168mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
             @endif
             @if ($rowsCount >= 5)
                 <div class="guide-line-h" style="top: 207mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
