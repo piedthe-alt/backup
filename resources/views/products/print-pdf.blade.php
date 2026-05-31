@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Cetak Label Barcode Harga</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Libre+Barcode+39&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Libre+Barcode+39&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
@@ -93,14 +93,14 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border-bottom: 0.08mm dashed #e2e8f0;
+            border-bottom: 0.08mm solid #000000;
         }
 
         .label-bottom {
             height: 15mm;
             width: 100%;
             box-sizing: border-box;
-            padding: 1mm 1.5mm 1.5mm 1.5mm;
+            padding: 2.5mm 1.5mm 2.5mm 1.5mm;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -123,8 +123,8 @@
         }
 
         .product-price {
-            font-size: 11pt;
-            font-weight: 700;
+            font-size: 13pt;
+            font-weight: 800;
             color: #000000;
             white-space: nowrap;
             margin: 0;
@@ -151,7 +151,7 @@
         }
 
         .barcode-text {
-            font-size: 5pt;
+            font-size: 5.5pt;
             font-weight: 600;
             margin-top: 0.2mm;
             letter-spacing: 0.8px;
@@ -228,7 +228,6 @@
                         <div class="label-bottom">
                             <div class="product-price">Rp {{ number_format($item->price, 0, ',', '.') }}</div>
                             <div class="barcode-wrapper">
-                                <div class="barcode-font">{{ $barcodeValue }}</div>
                                 <div class="barcode-text">{{ $item->id }}</div>
                             </div>
                         </div>
