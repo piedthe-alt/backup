@@ -50,7 +50,7 @@
 
         .guide-line-v {
             position: absolute;
-            top: 0;
+            top: 14mm;
             width: 0;
             border-left: 0.15mm dotted #7f8c8d;
             pointer-events: none;
@@ -59,8 +59,7 @@
 
         .guide-line-h {
             position: absolute;
-            left: 0;
-            right: 0;
+            left: 1mm;
             height: 0;
             border-top: 0.15mm dotted #7f8c8d;
             pointer-events: none;
@@ -243,35 +242,35 @@
 
             {{-- Assist lines for cutting (spanning only active rows/columns) --}}
             @if ($colsCount >= 2)
-                <div class="guide-line-v" style="left: 42mm; height: {{ $heightVal }}mm;"></div>
+                <div class="guide-line-v" style="left: 42mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
             @endif
             @if ($colsCount >= 3)
-                <div class="guide-line-v" style="left: 84mm; height: {{ $heightVal }}mm;"></div>
+                <div class="guide-line-v" style="left: 84mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
             @endif
             @if ($colsCount >= 4)
-                <div class="guide-line-v" style="left: 126mm; height: {{ $heightVal }}mm;"></div>
+                <div class="guide-line-v" style="left: 126mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
             @endif
             @if ($colsCount >= 5)
-                <div class="guide-line-v" style="left: 168mm; height: {{ $heightVal }}mm;"></div>
+                <div class="guide-line-v" style="left: 168mm; height: {{ ($rowsCount * 39) - 4 }}mm;"></div>
             @endif
 
             @if ($rowsCount >= 1)
-                <div class="guide-line-h" style="top: 51mm;"></div>
+                <div class="guide-line-h" style="top: 51mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
             @endif
             @if ($rowsCount >= 2)
-                <div class="guide-line-h" style="top: 90mm;"></div>
+                <div class="guide-line-h" style="top: 90mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
             @endif
             @if ($rowsCount >= 3)
-                <div class="guide-line-h" style="top: 129mm;"></div>
+                <div class="guide-line-h" style="top: 129mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
             @endif
             @if ($rowsCount >= 4)
-                <div class="guide-line-h" style="top: 168mm;"></div>
+                <div class="guide-line-h" style="top: 168mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
             @endif
             @if ($rowsCount >= 5)
-                <div class="guide-line-h" style="top: 207mm;"></div>
+                <div class="guide-line-h" style="top: 207mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
             @endif
             @if ($rowsCount >= 6)
-                <div class="guide-line-h" style="top: 246mm;"></div>
+                <div class="guide-line-h" style="top: 246mm; width: {{ ($colsCount * 42) - 2 }}mm;"></div>
             @endif
         </div>
     @empty
