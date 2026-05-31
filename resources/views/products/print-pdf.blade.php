@@ -109,7 +109,7 @@
         .product-name {
             font-family: 'Poppins', sans-serif;
             font-size: 12pt;
-            font-weight: 600;
+            font-weight: 700;
             line-height: 1.2;
             color: #0f172a;
             text-align: center;
