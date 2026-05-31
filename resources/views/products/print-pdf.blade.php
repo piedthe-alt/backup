@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Cetak Label Barcode Harga</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Libre+Barcode+39&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Libre+Barcode+39&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
@@ -107,8 +107,9 @@
         }
 
         .product-name {
-            font-size: 8.5pt;
-            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12pt;
+            font-weight: 600;
             line-height: 1.2;
             color: #0f172a;
             text-align: center;
@@ -121,8 +122,9 @@
         }
 
         .product-price {
-            font-size: 13pt;
-            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            font-size: 18pt;
+            font-weight: 700;
             color: #000000;
             white-space: nowrap;
             margin: 0;
@@ -149,8 +151,9 @@
         }
 
         .barcode-text {
-            font-size: 1mm;
-            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            font-size: 5pt;
+            font-weight: 600;
             margin-top: 0.2mm;
             letter-spacing: 0.5px;
             color: #000000;
@@ -237,7 +240,7 @@
                         </div>
                     </div>
                 @endforeach
-                
+
             </div>
 
             {{-- Assist lines for cutting (spanning only active rows/columns) --}}
