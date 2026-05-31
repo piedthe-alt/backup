@@ -3005,8 +3005,8 @@ Route::get('/api/products/{productId}/sales', function (Request $request, $produ
  * ============================================================================
  */
 Route::get('/products/print-barcode', function () {
-    // Auto-create queue table if not exists
-    DB::statement('CREATE TABLE IF NOT EXISTS barcode_print_queue (
+    // Auto-create queue table if not exists in mysql_app
+    DB::connection('mysql_app')->statement('CREATE TABLE IF NOT EXISTS barcode_print_queue (
         id INT AUTO_INCREMENT PRIMARY KEY,
         product_id VARCHAR(50) NOT NULL,
         qty INT NOT NULL DEFAULT 1,
@@ -3019,10 +3019,11 @@ Route::get('/products/print-barcode', function () {
 
 Route::get('/products/print-barcode/pdf', function () {
     $businessName = 'SJ MART';
+    $masterDb = config('database.connections.mysql.database');
     
-    // Fetch items directly from queue table
-    $items = DB::table('barcode_print_queue')
-        ->join('product', 'barcode_print_queue.product_id', '=', 'product.id')
+    // Fetch items directly from queue table in mysql_app
+    $items = DB::connection('mysql_app')->table('barcode_print_queue')
+        ->join(DB::raw("{$masterDb}.product as product"), 'barcode_print_queue.product_id', '=', 'product.id')
         ->select('product.id', 'product.name', 'product.salesprice1 as price', 'barcode_print_queue.qty')
         ->get();
 
@@ -3056,9 +3057,9 @@ Route::post('/api/barcode-print/save', function (Request $request) {
     try {
         $items = $request->input('items', []);
         
-        DB::transaction(function () use ($items) {
-            // Delete all existing items (acts as overwrite)
-            DB::table('barcode_print_queue')->delete();
+        DB::connection('mysql_app')->transaction(function () use ($items) {
+            // Delete all existing items (acts as overwrite) in mysql_app
+            DB::connection('mysql_app')->table('barcode_print_queue')->delete();
             
             // Insert new items
             $insertData = [];
@@ -3072,7 +3073,7 @@ Route::post('/api/barcode-print/save', function (Request $request) {
             }
             
             if (!empty($insertData)) {
-                DB::table('barcode_print_queue')->insert($insertData);
+                DB::connection('mysql_app')->table('barcode_print_queue')->insert($insertData);
             }
         });
         
@@ -3085,7 +3086,7 @@ Route::post('/api/barcode-print/save', function (Request $request) {
 Route::get('/api/barcode-print/load', function () {
     try {
         // Auto-create table if not exists just in case
-        DB::statement('CREATE TABLE IF NOT EXISTS barcode_print_queue (
+        DB::connection('mysql_app')->statement('CREATE TABLE IF NOT EXISTS barcode_print_queue (
             id INT AUTO_INCREMENT PRIMARY KEY,
             product_id VARCHAR(50) NOT NULL,
             qty INT NOT NULL DEFAULT 1,
@@ -3093,8 +3094,10 @@ Route::get('/api/barcode-print/load', function () {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )');
 
-        $items = DB::table('barcode_print_queue')
-            ->join('product', 'barcode_print_queue.product_id', '=', 'product.id')
+        $masterDb = config('database.connections.mysql.database');
+
+        $items = DB::connection('mysql_app')->table('barcode_print_queue')
+            ->join(DB::raw("{$masterDb}.product as product"), 'barcode_print_queue.product_id', '=', 'product.id')
             ->select('product.id', 'product.name', 'product.salesprice1 as price', 'barcode_print_queue.qty')
             ->get();
             
