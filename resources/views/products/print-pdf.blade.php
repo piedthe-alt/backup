@@ -137,7 +137,7 @@
             font-family: 'Poppins', sans-serif;
             font-size: 5pt;
             font-weight: 600;
-            margin-top: 0mm;
+            margin-top: 20mm;
             letter-spacing: 0.5px;
             color: #000000;
             text-transform: uppercase;
