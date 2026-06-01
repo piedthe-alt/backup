@@ -210,10 +210,26 @@
                         // Format code for Code 39: alphanumeric only, wrapped in asterisks
                         $cleanCode = preg_replace('/[^a-zA-Z0-9]/', '', $item->id);
                         $barcodeValue = "*{$cleanCode}*";
+
+                        // Hitung font size berdasarkan panjang nama
+                        $itemNameLength = strlen($item->name);
+                        if ($itemNameLength <= 20) {
+                            $labelFontSize = '12pt';
+                        } elseif ($itemNameLength <= 25) {
+                            $labelFontSize = '11pt';
+                        } elseif ($itemNameLength <= 30) {
+                            $labelFontSize = '10pt';
+                        } elseif ($itemNameLength <= 35) {
+                            $labelFontSize = '9pt';
+                        } elseif ($itemNameLength <= 40) {
+                            $labelFontSize = '8pt';
+                        } else {
+                            $labelFontSize = '7pt';
+                        }
                     @endphp
                     <div class="label-box">
                         <div class="label-top">
-                            <div class="product-name">{{ $item->name }}</div>
+                            <div class="product-name" style="font-size: {{ $labelFontSize }};">{{ $item->name }}</div>
                         </div>
                         <div class="label-bottom">
                             <div class="product-price">Rp {{ number_format($item->price, 0, ',', '.') }}</div>
