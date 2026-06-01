@@ -69,7 +69,7 @@
             height: 20mm;
             width: 100%;
             box-sizing: border-box;
-            padding: 5mm 3.5mm 1mm 3.5mm;
+            padding: 5mm 4.5mm 1mm 4.5mm;
             display: flex;
             align-items: center;
             justify-content: center;
