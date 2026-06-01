@@ -304,6 +304,39 @@
             </div>
         </div>
 
+        {{-- KATEGORI 2B: KEUANGAN & BIAYA --}}
+        <div class="row mb-5">
+            <div class="col-12 mb-3">
+                <h5 class="category-title" style="border-color: #7c3aed;">Keuangan & Biaya Operasional</h5>
+            </div>
+
+            <!-- Pengeluaran Toko -->
+            <div class="col-md-4 mb-4">
+                <div class="route-card p-4 d-flex flex-col justify-content-between" style="border-color: rgba(124, 58, 237, 0.2);">
+                    <div>
+                        <div class="icon-wrapper" style="background: rgba(124,58,237,0.12); color: #a78bfa;">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2">Pengeluaran Toko</h5>
+                        <p class="text-muted small mb-3">
+                            Pencatatan biaya operasional harian per kategori (listrik, internet, makan, dll).
+                            Dilengkapi analisis rata-rata harian, moving average 7 hari, dan proyeksi bulanan.
+                        </p>
+                    </div>
+                    <div>
+                        <div class="route-badge code-font mb-3" style="color: #a78bfa;">
+                            <span>/pengeluaran</span>
+                            <i class="far fa-copy copy-icon" onclick="copyRoute('/pengeluaran')" title="Salin rute"></i>
+                        </div>
+                        <a href="/pengeluaran" class="btn-open" style="background: linear-gradient(135deg, #7c3aed, #4f46e5);">
+                            <i class="fas fa-external-link-alt"></i> Buka Halaman
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
         {{-- KATEGORI 3: ANALIS LAPORAN --}}
         <div class="row mb-5">
             <div class="col-12 mb-3">

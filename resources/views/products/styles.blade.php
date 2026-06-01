@@ -125,12 +125,12 @@
 
         .product-name {
             font-weight: 600;
-            font-size: 0.95rem;
             color: #1e293b;
             margin-bottom: 4px;
             line-height: 1.25;
             flex: 1;
             word-break: break-word;
+            transition: font-size 0.2s ease;
         }
 
         .product-code {

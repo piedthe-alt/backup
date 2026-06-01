@@ -3191,3 +3191,315 @@ Route::get('/clear-all-caches', function () {
     }
 });
 
+/**
+ * ============================================================================
+ * PENGELUARAN TOKO (BIAYA OPERASIONAL)
+ * ============================================================================
+ * Semua data disimpan di koneksi mysql_app
+ * Tabel: expense_categories, expenses
+ *
+ * Routes:
+ * GET  /pengeluaran                     → Halaman utama + analisis
+ * POST /pengeluaran/store               → Simpan pengeluaran baru
+ * POST /pengeluaran/delete/{id}         → Hapus pengeluaran
+ * POST /pengeluaran/kategori/store      → Simpan kategori baru (AJAX)
+ * POST /pengeluaran/kategori/delete/{id}→ Hapus kategori (AJAX)
+ * GET  /api/pengeluaran/stats           → JSON statistik
+ * ============================================================================
+ */
+
+/*
+|--------------------------------------------------------------------------
+| HALAMAN UTAMA PENGELUARAN
+|--------------------------------------------------------------------------
+*/
+Route::get('/pengeluaran', function (Request $request) {
+
+    $db = DB::connection('mysql_app');
+
+    // Ambil semua kategori
+    $categories = $db->table('expense_categories')->orderBy('name')->get();
+
+    // Filter tanggal untuk riwayat
+    $filterStart = $request->start ?? now()->startOfMonth()->format('Y-m-d');
+    $filterEnd   = $request->end   ?? now()->format('Y-m-d');
+
+    // Ambil riwayat pengeluaran
+    $expenses = $db->table('expenses')
+        ->join('expense_categories', 'expenses.category_id', '=', 'expense_categories.id')
+        ->select(
+            'expenses.*',
+            'expense_categories.name as category_name',
+            'expense_categories.icon as category_icon',
+            'expense_categories.color as category_color'
+        )
+        ->whereBetween('expense_date', [$filterStart, $filterEnd])
+        ->orderBy('expense_date', 'DESC')
+        ->orderBy('expenses.id', 'DESC')
+        ->get();
+
+    $totalPeriod = $expenses->sum('amount');
+
+    /*
+    |--------------------------------------------------------------------------
+    | ANALISIS BIAYA
+    |--------------------------------------------------------------------------
+    */
+
+    // Ambil semua data 90 hari terakhir untuk analisis
+    $allExpenses = $db->table('expenses')
+        ->whereBetween('expense_date', [
+            now()->subDays(89)->format('Y-m-d'),
+            now()->format('Y-m-d')
+        ])
+        ->orderBy('expense_date', 'ASC')
+        ->get();
+
+    // Grup per hari
+    $byDay = $allExpenses->groupBy('expense_date');
+    $activeDays = $byDay->count();
+    $totalAll = $allExpenses->sum('amount');
+
+    /*
+    |------------------------------------------------------------------
+    | MODE 1: BULAN INI
+    | Rumus: Total pengeluaran bulan ini ÷ jumlah hari dalam bulan
+    |------------------------------------------------------------------
+    */
+    $spentThisMonth = $db->table('expenses')
+        ->whereYear('expense_date', now()->year)
+        ->whereMonth('expense_date', now()->month)
+        ->sum('amount');
+
+    $daysInMonth    = now()->daysInMonth;
+    $dayOfMonth     = now()->day; // hari ke berapa sekarang
+    $remainingDays  = $daysInMonth - $dayOfMonth;
+
+    // Per hari = total ÷ total hari sebulan (bukan hari yang sudah dilewati)
+    $avgPerDay = $daysInMonth > 0 ? $spentThisMonth / $daysInMonth : 0;
+
+    // Proyeksi akhir bulan berdasarkan rata-rata harian bulan ini
+    $projectedMonth = $spentThisMonth + ($avgPerDay * $remainingDays);
+
+    /*
+    |------------------------------------------------------------------
+    | MODE 2: ROLLING 30 HARI TERAKHIR
+    | Rumus: Total 30 hari ke belakang ÷ 30
+    |------------------------------------------------------------------
+    */
+    $spent30Days = $db->table('expenses')
+        ->where('expense_date', '>=', now()->subDays(29)->format('Y-m-d'))
+        ->where('expense_date', '<=', now()->format('Y-m-d'))
+        ->sum('amount');
+
+    $avgPerDay30      = $spent30Days / 30;
+    $projected30Month = $avgPerDay30 * 30; // biaya operasional per bulan kalau tren ini lanjut
+
+    /*
+    |------------------------------------------------------------------
+    | PERBANDINGAN: bulan lalu
+    |------------------------------------------------------------------
+    */
+    $lastMonthTotal = $db->table('expenses')
+        ->whereYear('expense_date', now()->subMonth()->year)
+        ->whereMonth('expense_date', now()->subMonth()->month)
+        ->sum('amount');
+    $lastMonthDays      = now()->subMonth()->daysInMonth;
+    $lastMonthAvgPerDay = $lastMonthDays > 0 ? $lastMonthTotal / $lastMonthDays : 0;
+
+    // Perubahan % dibanding bulan lalu (mode bulan ini)
+    $changePercent = $lastMonthAvgPerDay > 0
+        ? (($avgPerDay - $lastMonthAvgPerDay) / $lastMonthAvgPerDay) * 100
+        : 0;
+
+    // Perubahan % dibanding bulan lalu (mode rolling 30 hari)
+    $changePercent30 = $lastMonthAvgPerDay > 0
+        ? (($avgPerDay30 - $lastMonthAvgPerDay) / $lastMonthAvgPerDay) * 100
+        : 0;
+
+    // Standar deviasi untuk status (tetap dipakai di tab analisis)
+    $dailyAmounts = $byDay->map(fn($g) => $g->sum('amount'));
+    $mean = $dailyAmounts->avg() ?? 0;
+    $variance = $dailyAmounts->count() > 1
+        ? $dailyAmounts->reduce(fn($carry, $v) => $carry + pow($v - $mean, 2), 0) / $dailyAmounts->count()
+        : 0;
+    $stdDev = sqrt($variance);
+    $cvPercent = $mean > 0 ? ($stdDev / $mean) * 100 : 0;
+
+    $stabilityStatus = $cvPercent < 20 ? 'stabil' : ($cvPercent < 50 ? 'fluktuatif' : 'tidak_menentu');
+
+    // Breakdown per kategori bulan ini
+    $categoryBreakdown = $db->table('expenses')
+        ->join('expense_categories', 'expenses.category_id', '=', 'expense_categories.id')
+        ->select(
+            'expense_categories.name',
+            'expense_categories.icon',
+            'expense_categories.color',
+            DB::raw('SUM(expenses.amount) as total')
+        )
+        ->whereYear('expense_date', now()->year)
+        ->whereMonth('expense_date', now()->month)
+        ->groupBy('expense_categories.id', 'expense_categories.name', 'expense_categories.icon', 'expense_categories.color')
+        ->orderByDesc('total')
+        ->get();
+
+    // Data tren 30 hari (untuk chart)
+    $trendData = [];
+    for ($i = 29; $i >= 0; $i--) {
+        $date = now()->subDays($i)->format('Y-m-d');
+        $dayGroup = $byDay->get($date);
+        $trendData[] = [
+            'date'   => now()->subDays($i)->format('d/m'),
+            'amount' => $dayGroup ? $dayGroup->sum('amount') : 0,
+        ];
+    }
+
+    return view('pengeluaran', compact(
+        'categories',
+        'expenses',
+        'filterStart',
+        'filterEnd',
+        'totalPeriod',
+        // Mode 1: Bulan ini
+        'spentThisMonth',
+        'daysInMonth',
+        'dayOfMonth',
+        'avgPerDay',
+        'projectedMonth',
+        'remainingDays',
+        // Mode 2: Rolling 30 hari
+        'spent30Days',
+        'avgPerDay30',
+        'projected30Month',
+        // Perbandingan
+        'lastMonthTotal',
+        'lastMonthAvgPerDay',
+        'changePercent',
+        'changePercent30',
+        // Analisis
+        'stabilityStatus',
+        'cvPercent',
+        'categoryBreakdown',
+        'totalAll',
+        'activeDays',
+        'trendData'
+    ));
+});
+
+/*
+|--------------------------------------------------------------------------
+| SIMPAN PENGELUARAN BARU
+|--------------------------------------------------------------------------
+*/
+Route::post('/pengeluaran/store', function (Request $request) {
+
+    if (!$request->category_id || !$request->amount || !$request->expense_date) {
+        return back()->with('error', 'Kategori, nominal, dan tanggal wajib diisi.');
+    }
+
+    DB::connection('mysql_app')->table('expenses')->insert([
+        'category_id'  => $request->category_id,
+        'amount'       => str_replace(['.', ','], ['', '.'], $request->amount),
+        'description'  => $request->description,
+        'expense_date' => $request->expense_date,
+        'created_at'   => now(),
+        'updated_at'   => now(),
+    ]);
+
+    return back()->with('success', 'Pengeluaran berhasil dicatat!');
+});
+
+/*
+|--------------------------------------------------------------------------
+| HAPUS PENGELUARAN
+|--------------------------------------------------------------------------
+*/
+Route::post('/pengeluaran/delete/{id}', function ($id) {
+
+    DB::connection('mysql_app')->table('expenses')->where('id', $id)->delete();
+
+    return back()->with('success', 'Data pengeluaran dihapus.');
+});
+
+/*
+|--------------------------------------------------------------------------
+| SIMPAN KATEGORI BARU (AJAX)
+|--------------------------------------------------------------------------
+*/
+Route::post('/pengeluaran/kategori/store', function (Request $request) {
+
+    if (!$request->name) {
+        return response()->json(['success' => false, 'message' => 'Nama kategori wajib diisi.']);
+    }
+
+    $exists = DB::connection('mysql_app')
+        ->table('expense_categories')
+        ->whereRaw('LOWER(name) = ?', [strtolower(trim($request->name))])
+        ->exists();
+
+    if ($exists) {
+        return response()->json(['success' => false, 'message' => 'Kategori sudah ada.']);
+    }
+
+    $id = DB::connection('mysql_app')->table('expense_categories')->insertGetId([
+        'name'       => trim($request->name),
+        'icon'       => $request->icon ?? 'tag',
+        'color'      => $request->color ?? '#6366f1',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $cat = DB::connection('mysql_app')->table('expense_categories')->find($id);
+
+    return response()->json(['success' => true, 'category' => $cat]);
+});
+
+/*
+|--------------------------------------------------------------------------
+| HAPUS KATEGORI (AJAX)
+|--------------------------------------------------------------------------
+*/
+Route::post('/pengeluaran/kategori/delete/{id}', function ($id) {
+
+    $hasExpenses = DB::connection('mysql_app')
+        ->table('expenses')
+        ->where('category_id', $id)
+        ->exists();
+
+    if ($hasExpenses) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Kategori tidak bisa dihapus karena masih memiliki data pengeluaran.'
+        ]);
+    }
+
+    DB::connection('mysql_app')->table('expense_categories')->where('id', $id)->delete();
+
+    return response()->json(['success' => true]);
+});
+
+/*
+|--------------------------------------------------------------------------
+| API STATISTIK (JSON)
+|--------------------------------------------------------------------------
+*/
+Route::get('/api/pengeluaran/stats', function (Request $request) {
+
+    $days = $request->days ?? 30;
+
+    $data = DB::connection('mysql_app')
+        ->table('expenses')
+        ->join('expense_categories', 'expenses.category_id', '=', 'expense_categories.id')
+        ->select(
+            'expense_date',
+            DB::raw('SUM(expenses.amount) as total'),
+            DB::raw('COUNT(*) as count')
+        )
+        ->where('expense_date', '>=', now()->subDays($days - 1)->format('Y-m-d'))
+        ->groupBy('expense_date')
+        ->orderBy('expense_date')
+        ->get();
+
+    return response()->json($data);
+});
+
