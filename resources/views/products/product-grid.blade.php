@@ -10,7 +10,10 @@
 
                     <div class="product-header-wrapper">
                         <div>
-                            <h5 class="product-name">
+                            @php
+                                $productNameLength = strlen($product->name);
+                            @endphp
+                            <h5 class="product-name" data-name-length="{{ $productNameLength }}">
                                 {{ Str::limit(Str::title($product->name), 35) }}
                             </h5>
                             <div class="product-code">{{ $product->id }}</div>
