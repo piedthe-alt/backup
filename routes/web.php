@@ -3267,8 +3267,9 @@ Route::get('/pengeluaran', function (Request $request) {
     $last7Days = collect();
     for ($i = 0; $i < 7; $i++) {
         $date = now()->subDays($i)->format('Y-m-d');
-        if (isset($byDay[$date])) {
-            $last7Days->push($byDay[$date]->sum('amount'));
+        $dayGroup = $byDay->get($date);
+        if ($dayGroup) {
+            $last7Days->push($dayGroup->sum('amount'));
         }
     }
     $movingAvg7 = $last7Days->count() > 0 ? $last7Days->avg() : $avgSimple;
@@ -3316,9 +3317,10 @@ Route::get('/pengeluaran', function (Request $request) {
     $trendData = [];
     for ($i = 29; $i >= 0; $i--) {
         $date = now()->subDays($i)->format('Y-m-d');
+        $dayGroup = $byDay->get($date);
         $trendData[] = [
             'date'   => now()->subDays($i)->format('d/m'),
-            'amount' => $byDay[$date]?->sum('amount') ?? 0,
+            'amount' => $dayGroup ? $dayGroup->sum('amount') : 0,
         ];
     }
 
