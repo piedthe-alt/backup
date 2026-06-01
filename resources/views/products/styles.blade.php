@@ -125,60 +125,12 @@
 
         .product-name {
             font-weight: 600;
-            font-size: 0.95rem;
             color: #1e293b;
             margin-bottom: 4px;
             line-height: 1.25;
             flex: 1;
             word-break: break-word;
             transition: font-size 0.2s ease;
-        }
-
-        /* Responsive font size based on name length */
-        .product-name[data-name-length="30"],
-        .product-name[data-name-length="31"],
-        .product-name[data-name-length="32"],
-        .product-name[data-name-length="33"],
-        .product-name[data-name-length="34"],
-        .product-name[data-name-length="35"] {
-            font-size: 0.90rem;
-        }
-
-        .product-name[data-name-length="36"],
-        .product-name[data-name-length="37"],
-        .product-name[data-name-length="38"],
-        .product-name[data-name-length="39"],
-        .product-name[data-name-length="40"] {
-            font-size: 0.85rem;
-        }
-
-        .product-name[data-name-length="41"],
-        .product-name[data-name-length="42"],
-        .product-name[data-name-length="43"],
-        .product-name[data-name-length="44"],
-        .product-name[data-name-length="45"] {
-            font-size: 0.80rem;
-        }
-
-        .product-name[data-name-length="46"],
-        .product-name[data-name-length="47"],
-        .product-name[data-name-length="48"],
-        .product-name[data-name-length="49"],
-        .product-name[data-name-length="50"] {
-            font-size: 0.75rem;
-        }
-
-        .product-name[data-name-length="51"],
-        .product-name[data-name-length="52"],
-        .product-name[data-name-length="53"],
-        .product-name[data-name-length="54"],
-        .product-name[data-name-length="55"] {
-            font-size: 0.70rem;
-        }
-
-        .product-name[data-name-length="56"],
-        .product-name[data-name-length^="56"] {
-            font-size: 0.65rem;
         }
 
         .product-code {

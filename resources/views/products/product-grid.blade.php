@@ -12,8 +12,24 @@
                         <div>
                             @php
                                 $productNameLength = strlen($product->name);
+                                // Hitung font size berdasarkan panjang nama
+                                if ($productNameLength <= 25) {
+                                    $fontSize = '0.95rem';
+                                } elseif ($productNameLength <= 30) {
+                                    $fontSize = '0.90rem';
+                                } elseif ($productNameLength <= 35) {
+                                    $fontSize = '0.85rem';
+                                } elseif ($productNameLength <= 40) {
+                                    $fontSize = '0.80rem';
+                                } elseif ($productNameLength <= 45) {
+                                    $fontSize = '0.75rem';
+                                } elseif ($productNameLength <= 50) {
+                                    $fontSize = '0.70rem';
+                                } else {
+                                    $fontSize = '0.65rem';
+                                }
                             @endphp
-                            <h5 class="product-name" data-name-length="{{ $productNameLength }}">
+                            <h5 class="product-name" style="font-size: {{ $fontSize }};">
                                 {{ Str::limit(Str::title($product->name), 35) }}
                             </h5>
                             <div class="product-code">{{ $product->id }}</div>
