@@ -246,6 +246,48 @@
         }
 
         .btn-back-white:hover { background: rgba(255,255,255,0.25); color: white; }
+
+        /* ── MODE TOGGLE ── */
+        .mode-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-weight: 700;
+            font-size: 14px;
+            color: #64748b;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(124,58,237,0.3);
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .mode-badge {
+            background: rgba(255,255,255,0.2);
+            border-radius: 99px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .mode-btn:not(.active) .mode-badge {
+            background: #e2e8f0;
+            color: #475569;
+        }
     </style>
 </head>
 
@@ -362,42 +404,138 @@
             @endif
         </div>
 
-        {{-- QUICK SUMMARY --}}
+        {{-- ===== TOGGLE MODE PERHITUNGAN ===== --}}
         @if($categories->isNotEmpty())
-        <div class="row g-3">
-            <div class="col-6 col-md-3">
-                <div class="stat-card position-relative">
-                    <i class="fas fa-calendar-day stat-icon"></i>
-                    <div class="stat-label">Estimasi / Hari</div>
-                    <div class="stat-value">Rp {{ number_format($bestEstimate, 0, ',', '.') }}</div>
-                    <small class="text-muted" style="font-size:11px">Weighted avg (7 hari)</small>
+
+        {{-- TOGGLE BUTTON --}}
+        <div style="background:white; border-radius:16px; padding:6px; display:flex; gap:4px; margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+            <button class="mode-btn active" id="btn-mode-bulan" onclick="switchMode('bulan')">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Bulan Ini
+                <span class="mode-badge" id="badge-bulan">{{ now()->format('M Y') }}</span>
+            </button>
+            <button class="mode-btn" id="btn-mode-rolling" onclick="switchMode('rolling')">
+                <i class="fas fa-rotate me-2"></i>
+                30 Hari Terakhir
+                <span class="mode-badge" id="badge-rolling">Rolling</span>
+            </button>
+        </div>
+
+        {{-- ============ MODE 1: BULAN INI ============ --}}
+        <div id="stats-bulan" class="mode-panel">
+            {{-- Banner angka utama --}}
+            <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5); border-radius:18px; padding:20px 24px; color:white; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <div style="font-size:12px; opacity:.75; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px">
+                        <i class="fas fa-calculator me-1"></i>Operasional / Hari — {{ now()->format('F Y') }}
+                    </div>
+                    <div style="font-size:36px; font-weight:900; line-height:1">
+                        Rp {{ number_format($avgPerDay, 0, ',', '.') }}
+                    </div>
+                    <div style="font-size:13px; opacity:.8; margin-top:4px">
+                        Rp {{ number_format($spentThisMonth, 0, ',', '.') }} ÷ {{ $daysInMonth }} hari dalam bulan ini
+                    </div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:11px; opacity:.7; margin-bottom:2px">vs bulan lalu</div>
+                    @if($changePercent > 0)
+                        <div style="font-size:20px; font-weight:800; color:#fca5a5">▲ {{ number_format(abs($changePercent), 1) }}%</div>
+                        <div style="font-size:11px; opacity:.7">lebih tinggi</div>
+                    @elseif($changePercent < 0)
+                        <div style="font-size:20px; font-weight:800; color:#6ee7b7">▼ {{ number_format(abs($changePercent), 1) }}%</div>
+                        <div style="font-size:11px; opacity:.7">lebih hemat</div>
+                    @else
+                        <div style="font-size:14px; opacity:.7">Data bulan lalu kosong</div>
+                    @endif
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-card position-relative" style="border-color:#f59e0b">
-                    <i class="fas fa-calendar-alt stat-icon" style="color:#f59e0b"></i>
-                    <div class="stat-label">Bulan Ini</div>
-                    <div class="stat-value" style="color:#d97706">Rp {{ number_format($spentThisMonth, 0, ',', '.') }}</div>
-                    <small class="text-muted" style="font-size:11px">Sudah dicatat</small>
+            {{-- 3 kartu pendukung --}}
+            <div class="row g-3">
+                <div class="col-4">
+                    <div class="stat-card position-relative" style="border-color:#f59e0b">
+                        <i class="fas fa-wallet stat-icon" style="color:#f59e0b"></i>
+                        <div class="stat-label">Total Bulan Ini</div>
+                        <div class="stat-value" style="color:#d97706">Rp {{ number_format($spentThisMonth, 0, ',', '.') }}</div>
+                        <small class="text-muted" style="font-size:11px">{{ $dayOfMonth }} hari berjalan</small>
+                    </div>
                 </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-card position-relative" style="border-color:#10b981">
-                    <i class="fas fa-chart-bar stat-icon" style="color:#10b981"></i>
-                    <div class="stat-label">Proyeksi Bulan Ini</div>
-                    <div class="stat-value" style="color:#059669">Rp {{ number_format($projectedMonth, 0, ',', '.') }}</div>
-                    <small class="text-muted" style="font-size:11px">Estimasi total</small>
+                <div class="col-4">
+                    <div class="stat-card position-relative" style="border-color:#10b981">
+                        <i class="fas fa-chart-line stat-icon" style="color:#10b981"></i>
+                        <div class="stat-label">Proyeksi Akhir Bulan</div>
+                        <div class="stat-value" style="color:#059669">Rp {{ number_format($projectedMonth, 0, ',', '.') }}</div>
+                        <small class="text-muted" style="font-size:11px">+{{ $remainingDays }} hari lagi</small>
+                    </div>
                 </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-card position-relative" style="border-color:#e11d48">
-                    <i class="fas fa-history stat-icon" style="color:#e11d48"></i>
-                    <div class="stat-label">Total (90 hari)</div>
-                    <div class="stat-value" style="color:#be123c">Rp {{ number_format($totalAll, 0, ',', '.') }}</div>
-                    <small class="text-muted" style="font-size:11px">{{ $activeDays }} hari aktif</small>
+                <div class="col-4">
+                    <div class="stat-card position-relative" style="border-color:#e11d48">
+                        <i class="fas fa-history stat-icon" style="color:#e11d48"></i>
+                        <div class="stat-label">Bulan Lalu / Hari</div>
+                        <div class="stat-value" style="color:#be123c">Rp {{ number_format($lastMonthAvgPerDay, 0, ',', '.') }}</div>
+                        <small class="text-muted" style="font-size:11px">{{ now()->subMonth()->format('F Y') }}</small>
+                    </div>
                 </div>
             </div>
         </div>
+
+        {{-- ============ MODE 2: ROLLING 30 HARI ============ --}}
+        <div id="stats-rolling" class="mode-panel" style="display:none">
+            {{-- Banner angka utama --}}
+            <div style="background:linear-gradient(135deg,#0f766e,#0891b2); border-radius:18px; padding:20px 24px; color:white; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <div style="font-size:12px; opacity:.75; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px">
+                        <i class="fas fa-rotate me-1"></i>Operasional / Hari — 30 Hari Terakhir
+                    </div>
+                    <div style="font-size:36px; font-weight:900; line-height:1">
+                        Rp {{ number_format($avgPerDay30, 0, ',', '.') }}
+                    </div>
+                    <div style="font-size:13px; opacity:.8; margin-top:4px">
+                        Rp {{ number_format($spent30Days, 0, ',', '.') }} ÷ 30 hari
+                        ({{ now()->subDays(29)->format('d M') }} – {{ now()->format('d M Y') }})
+                    </div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:11px; opacity:.7; margin-bottom:2px">vs bulan lalu</div>
+                    @if($changePercent30 > 0)
+                        <div style="font-size:20px; font-weight:800; color:#fca5a5">▲ {{ number_format(abs($changePercent30), 1) }}%</div>
+                        <div style="font-size:11px; opacity:.7">lebih tinggi</div>
+                    @elseif($changePercent30 < 0)
+                        <div style="font-size:20px; font-weight:800; color:#6ee7b7">▼ {{ number_format(abs($changePercent30), 1) }}%</div>
+                        <div style="font-size:11px; opacity:.7">lebih hemat</div>
+                    @else
+                        <div style="font-size:14px; opacity:.7">Data bulan lalu kosong</div>
+                    @endif
+                </div>
+            </div>
+            {{-- 3 kartu pendukung --}}
+            <div class="row g-3">
+                <div class="col-4">
+                    <div class="stat-card position-relative" style="border-color:#0891b2">
+                        <i class="fas fa-wallet stat-icon" style="color:#0891b2"></i>
+                        <div class="stat-label">Total 30 Hari</div>
+                        <div class="stat-value" style="color:#0e7490">Rp {{ number_format($spent30Days, 0, ',', '.') }}</div>
+                        <small class="text-muted" style="font-size:11px">{{ now()->subDays(29)->format('d M') }} – {{ now()->format('d M') }}</small>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="stat-card position-relative" style="border-color:#10b981">
+                        <i class="fas fa-chart-line stat-icon" style="color:#10b981"></i>
+                        <div class="stat-label">Estimasi / Bulan</div>
+                        <div class="stat-value" style="color:#059669">Rp {{ number_format($projected30Month, 0, ',', '.') }}</div>
+                        <small class="text-muted" style="font-size:11px">avg/hari × 30</small>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="stat-card position-relative" style="border-color:#e11d48">
+                        <i class="fas fa-history stat-icon" style="color:#e11d48"></i>
+                        <div class="stat-label">Bulan Lalu / Hari</div>
+                        <div class="stat-value" style="color:#be123c">Rp {{ number_format($lastMonthAvgPerDay, 0, ',', '.') }}</div>
+                        <small class="text-muted" style="font-size:11px">{{ now()->subMonth()->format('F Y') }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         @endif
     </div>
 
@@ -536,36 +674,51 @@
             </div>
 
             <div class="row g-3 mb-4">
-                <div class="col-6 col-md-3">
-                    <div class="stat-card position-relative">
-                        <i class="fas fa-chart-line stat-icon"></i>
-                        <div class="stat-label">Avg Sederhana / Hari</div>
-                        <div class="stat-value">Rp {{ number_format($avgSimple, 0, ',', '.') }}</div>
-                        <small class="text-muted" style="font-size:11px">90 hari ÷ {{ $activeDays }} hari aktif</small>
+                {{-- CARD UTAMA: OPERASIONAL PER HARI --}}
+                <div class="col-12">
+                    <div style="background: linear-gradient(135deg, #7c3aed, #4f46e5); border-radius:16px; padding:24px; color:white; text-align:center">
+                        <div style="font-size:13px; opacity:.8; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px">
+                            <i class="fas fa-calculator me-2"></i>Rata-rata Biaya Operasional per Hari
+                        </div>
+                        <div style="font-size:42px; font-weight:900; margin-bottom:4px">
+                            Rp {{ number_format($avgPerDay, 0, ',', '.') }}
+                        </div>
+                        <div style="opacity:.8; font-size:14px">
+                            Rp {{ number_format($spentThisMonth, 0, ',', '.') }} ÷ {{ $daysInMonth }} hari ({{ now()->format('F Y') }})
+                        </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card position-relative" style="border-color:#8b5cf6">
-                        <i class="fas fa-wave-square stat-icon" style="color:#8b5cf6"></i>
-                        <div class="stat-label">Moving Avg 7 Hari</div>
-                        <div class="stat-value" style="color:#7c3aed">Rp {{ number_format($movingAvg7, 0, ',', '.') }}</div>
-                        <small class="text-muted" style="font-size:11px">Tren terkini</small>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
+                {{-- 3 CARD PENDUKUNG --}}
+                <div class="col-6 col-md-4">
                     <div class="stat-card position-relative" style="border-color:#f59e0b">
-                        <i class="fas fa-bullseye stat-icon" style="color:#f59e0b"></i>
-                        <div class="stat-label">Estimasi Terbaik / Hari</div>
-                        <div class="stat-value" style="color:#d97706">Rp {{ number_format($bestEstimate, 0, ',', '.') }}</div>
-                        <small class="text-muted" style="font-size:11px">60% MA7 + 40% avg</small>
+                        <i class="fas fa-calendar-alt stat-icon" style="color:#f59e0b"></i>
+                        <div class="stat-label">Total Bulan Ini</div>
+                        <div class="stat-value" style="color:#d97706">Rp {{ number_format($spentThisMonth, 0, ',', '.') }}</div>
+                        <small class="text-muted" style="font-size:11px">{{ now()->format('F Y') }}</small>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4">
                     <div class="stat-card position-relative" style="border-color:#10b981">
-                        <i class="fas fa-calendar-check stat-icon" style="color:#10b981"></i>
-                        <div class="stat-label">Proyeksi Bulan Ini</div>
+                        <i class="fas fa-chart-bar stat-icon" style="color:#10b981"></i>
+                        <div class="stat-label">Proyeksi Akhir Bulan</div>
                         <div class="stat-value" style="color:#059669">Rp {{ number_format($projectedMonth, 0, ',', '.') }}</div>
-                        <small class="text-muted" style="font-size:11px">Sudah: Rp {{ number_format($spentThisMonth, 0, ',', '.') }}</small>
+                        <small class="text-muted" style="font-size:11px">+{{ $remainingDays }} hari tersisa</small>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="stat-card position-relative" style="border-color:#e11d48">
+                        <i class="fas fa-history stat-icon" style="color:#e11d48"></i>
+                        <div class="stat-label">Bulan Lalu / Hari</div>
+                        <div class="stat-value" style="color:#be123c">Rp {{ number_format($lastMonthAvgPerDay, 0, ',', '.') }}</div>
+                        <small style="font-size:11px">
+                            @if($changePercent > 0)
+                                <span style="color:#dc2626">▲ {{ number_format(abs($changePercent), 1) }}% naik</span>
+                            @elseif($changePercent < 0)
+                                <span style="color:#16a34a">▼ {{ number_format(abs($changePercent), 1) }}% turun</span>
+                            @else
+                                <span class="text-muted">Tidak ada data bulan lalu</span>
+                            @endif
+                        </small>
                     </div>
                 </div>
             </div>
@@ -573,15 +726,15 @@
             {{-- PENJELASAN RUMUS --}}
             <div style="background:#f8f4ff; border-radius:14px; padding:16px; border-left:4px solid var(--primary)">
                 <div class="fw-bold mb-2" style="color:var(--primary); font-size:13px">
-                    <i class="fas fa-info-circle me-1"></i>Cara Kerja Estimasi
+                    <i class="fas fa-info-circle me-1"></i>Cara Penghitungan
                 </div>
                 <div style="font-size:13px; color:#475569; line-height:1.8">
-                    <strong>Estimasi Terbaik/Hari</strong> = (60% × Moving Avg 7 Hari) + (40% × Avg Sederhana 90 Hari)<br>
-                    Rumus ini memprioritaskan tren terkini tetapi tetap mempertimbangkan pola jangka panjang.<br>
+                    <strong>Biaya Operasional/Hari</strong> = Total pengeluaran {{ now()->format('F Y') }} ÷ {{ $daysInMonth }} hari<br>
+                    <strong>Proyeksi Akhir Bulan</strong> = Total sekarang + (Biaya/hari × {{ $remainingDays }} hari tersisa)<br>
                     <strong>Koefisien Variasi {{ number_format($cvPercent, 1) }}%</strong> →
-                    @if($stabilityStatus === 'stabil') pengeluaran Anda sangat konsisten. ✅
-                    @elseif($stabilityStatus === 'fluktuatif') ada variasi moderat, wajar untuk toko. ⚠️
-                    @else pengeluaran sangat tidak menentu, pertimbangkan anggaran tetap. ❗
+                    @if($stabilityStatus === 'stabil') pengeluaran Anda sangat konsisten ✅
+                    @elseif($stabilityStatus === 'fluktuatif') ada variasi moderat ⚠️
+                    @else pengeluaran tidak menentu ❗
                     @endif
                 </div>
             </div>
@@ -590,12 +743,12 @@
         {{-- BREAKDOWN KATEGORI --}}
         @if($categoryBreakdown->isNotEmpty())
         <div class="card-modern">
-            <h5><i class="fas fa-tags me-2" style="color:var(--primary)"></i>Breakdown per Kategori (90 Hari)</h5>
+            <h5><i class="fas fa-tags me-2" style="color:var(--primary)"></i>Breakdown per Kategori Bulan Ini</h5>
             @php $maxCat = $categoryBreakdown->max('total'); @endphp
             @foreach($categoryBreakdown as $cat)
                 @php
                     $pct = $maxCat > 0 ? ($cat->total / $maxCat) * 100 : 0;
-                    $pctTotal = $totalAll > 0 ? ($cat->total / $totalAll) * 100 : 0;
+                    $pctTotal = $spentThisMonth > 0 ? ($cat->total / $spentThisMonth) * 100 : 0;
                 @endphp
                 <div class="cat-bar-wrap">
                     <div class="cat-bar-label">
@@ -725,6 +878,24 @@
         document.getElementById('tab-' + name).classList.add('active');
         btn.classList.add('active');
     }
+
+    // ── MODE TOGGLE (Bulan Ini vs Rolling 30 Hari) ──
+    function switchMode(mode) {
+        // Toggle panels
+        document.getElementById('stats-bulan').style.display   = mode === 'bulan'   ? 'block' : 'none';
+        document.getElementById('stats-rolling').style.display = mode === 'rolling' ? 'block' : 'none';
+
+        // Toggle buttons
+        document.getElementById('btn-mode-bulan').classList.toggle('active',   mode === 'bulan');
+        document.getElementById('btn-mode-rolling').classList.toggle('active', mode === 'rolling');
+
+        // Simpan preferensi ke localStorage
+        localStorage.setItem('pengeluaran_mode', mode);
+    }
+
+    // Restore mode dari localStorage
+    const savedMode = localStorage.getItem('pengeluaran_mode');
+    if (savedMode === 'rolling') switchMode('rolling');
 
     // ── AUTO SWITCH TAB dari URL param ──
     const urlTab = new URLSearchParams(window.location.search).get('tab');

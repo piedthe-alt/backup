@@ -3260,32 +3260,64 @@ Route::get('/pengeluaran', function (Request $request) {
     $activeDays = $byDay->count();
     $totalAll = $allExpenses->sum('amount');
 
-    // Rata-rata sederhana
-    $avgSimple = $activeDays > 0 ? $totalAll / $activeDays : 0;
-
-    // Moving Average 7 hari terakhir (pakai hari yang ada transaksi)
-    $last7Days = collect();
-    for ($i = 0; $i < 7; $i++) {
-        $date = now()->subDays($i)->format('Y-m-d');
-        $dayGroup = $byDay->get($date);
-        if ($dayGroup) {
-            $last7Days->push($dayGroup->sum('amount'));
-        }
-    }
-    $movingAvg7 = $last7Days->count() > 0 ? $last7Days->avg() : $avgSimple;
-
-    // Estimasi terbaik (weighted)
-    $bestEstimate = ($movingAvg7 * 0.6) + ($avgSimple * 0.4);
-
-    // Proyeksi bulan ini
-    $remainingDays = now()->daysInMonth - now()->day + 1;
+    /*
+    |------------------------------------------------------------------
+    | MODE 1: BULAN INI
+    | Rumus: Total pengeluaran bulan ini ÷ jumlah hari dalam bulan
+    |------------------------------------------------------------------
+    */
     $spentThisMonth = $db->table('expenses')
         ->whereYear('expense_date', now()->year)
         ->whereMonth('expense_date', now()->month)
         ->sum('amount');
-    $projectedMonth = $spentThisMonth + ($bestEstimate * ($remainingDays - 1));
 
-    // Standar deviasi untuk status
+    $daysInMonth    = now()->daysInMonth;
+    $dayOfMonth     = now()->day; // hari ke berapa sekarang
+    $remainingDays  = $daysInMonth - $dayOfMonth;
+
+    // Per hari = total ÷ total hari sebulan (bukan hari yang sudah dilewati)
+    $avgPerDay = $daysInMonth > 0 ? $spentThisMonth / $daysInMonth : 0;
+
+    // Proyeksi akhir bulan berdasarkan rata-rata harian bulan ini
+    $projectedMonth = $spentThisMonth + ($avgPerDay * $remainingDays);
+
+    /*
+    |------------------------------------------------------------------
+    | MODE 2: ROLLING 30 HARI TERAKHIR
+    | Rumus: Total 30 hari ke belakang ÷ 30
+    |------------------------------------------------------------------
+    */
+    $spent30Days = $db->table('expenses')
+        ->where('expense_date', '>=', now()->subDays(29)->format('Y-m-d'))
+        ->where('expense_date', '<=', now()->format('Y-m-d'))
+        ->sum('amount');
+
+    $avgPerDay30      = $spent30Days / 30;
+    $projected30Month = $avgPerDay30 * 30; // biaya operasional per bulan kalau tren ini lanjut
+
+    /*
+    |------------------------------------------------------------------
+    | PERBANDINGAN: bulan lalu
+    |------------------------------------------------------------------
+    */
+    $lastMonthTotal = $db->table('expenses')
+        ->whereYear('expense_date', now()->subMonth()->year)
+        ->whereMonth('expense_date', now()->subMonth()->month)
+        ->sum('amount');
+    $lastMonthDays      = now()->subMonth()->daysInMonth;
+    $lastMonthAvgPerDay = $lastMonthDays > 0 ? $lastMonthTotal / $lastMonthDays : 0;
+
+    // Perubahan % dibanding bulan lalu (mode bulan ini)
+    $changePercent = $lastMonthAvgPerDay > 0
+        ? (($avgPerDay - $lastMonthAvgPerDay) / $lastMonthAvgPerDay) * 100
+        : 0;
+
+    // Perubahan % dibanding bulan lalu (mode rolling 30 hari)
+    $changePercent30 = $lastMonthAvgPerDay > 0
+        ? (($avgPerDay30 - $lastMonthAvgPerDay) / $lastMonthAvgPerDay) * 100
+        : 0;
+
+    // Standar deviasi untuk status (tetap dipakai di tab analisis)
     $dailyAmounts = $byDay->map(fn($g) => $g->sum('amount'));
     $mean = $dailyAmounts->avg() ?? 0;
     $variance = $dailyAmounts->count() > 1
@@ -3296,7 +3328,7 @@ Route::get('/pengeluaran', function (Request $request) {
 
     $stabilityStatus = $cvPercent < 20 ? 'stabil' : ($cvPercent < 50 ? 'fluktuatif' : 'tidak_menentu');
 
-    // Breakdown per kategori (90 hari)
+    // Breakdown per kategori bulan ini
     $categoryBreakdown = $db->table('expenses')
         ->join('expense_categories', 'expenses.category_id', '=', 'expense_categories.id')
         ->select(
@@ -3305,10 +3337,8 @@ Route::get('/pengeluaran', function (Request $request) {
             'expense_categories.color',
             DB::raw('SUM(expenses.amount) as total')
         )
-        ->whereBetween('expense_date', [
-            now()->subDays(89)->format('Y-m-d'),
-            now()->format('Y-m-d')
-        ])
+        ->whereYear('expense_date', now()->year)
+        ->whereMonth('expense_date', now()->month)
         ->groupBy('expense_categories.id', 'expense_categories.name', 'expense_categories.icon', 'expense_categories.color')
         ->orderByDesc('total')
         ->get();
@@ -3330,11 +3360,23 @@ Route::get('/pengeluaran', function (Request $request) {
         'filterStart',
         'filterEnd',
         'totalPeriod',
-        'avgSimple',
-        'movingAvg7',
-        'bestEstimate',
-        'projectedMonth',
+        // Mode 1: Bulan ini
         'spentThisMonth',
+        'daysInMonth',
+        'dayOfMonth',
+        'avgPerDay',
+        'projectedMonth',
+        'remainingDays',
+        // Mode 2: Rolling 30 hari
+        'spent30Days',
+        'avgPerDay30',
+        'projected30Month',
+        // Perbandingan
+        'lastMonthTotal',
+        'lastMonthAvgPerDay',
+        'changePercent',
+        'changePercent30',
+        // Analisis
         'stabilityStatus',
         'cvPercent',
         'categoryBreakdown',
